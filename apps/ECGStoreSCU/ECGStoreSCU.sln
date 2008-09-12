@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGStoreSCU", "ECGStoreSCU.csproj", "{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion", "..\..\libs\ECGConversion\ECGConversion\ECGConversion.csproj", "{663357A3-FC3A-4E55-8CEB-711D81CF88DB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Debug.ActiveCfg = Debug|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Debug.Build.0 = Debug|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Release.ActiveCfg = Release|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Release.Build.0 = Release|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug.ActiveCfg = Debug|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug.Build.0 = Debug|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Release.ActiveCfg = Release|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

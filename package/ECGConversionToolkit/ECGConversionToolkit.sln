@@ -1,0 +1,87 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ECGConversionToolkit", "ECGConversionToolkit.vdproj", "{8FE9B8F1-F63E-4615-8B3E-3A081B948373}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGViewer", "..\..\apps\ECGViewer\ECGViewer.csproj", "{D8D759ED-6BAC-46DF-A6D2-ADEB59049451}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDF", "..\..\libs\ECGConversion\PDF\PDF.csproj", "{1E460D78-82AC-4C77-BBA6-823E52264573}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGTool", "..\..\apps\ECGTool\ECGTool.csproj", "{E2D25A92-0F1D-4FB3-88DA-B5B5B1378D7E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOM", "..\..\libs\ECGConversion\DICOM\DICOM.csproj", "{535ADCA1-478E-419E-84FF-0E338FC13974}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aECG", "..\..\libs\ECGConversion\aECG\aECG.csproj", "{0CC06503-0F64-4202-9EAA-2C01C9B6CF1D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGStoreSCU", "..\..\apps\ECGStoreSCU\ECGStoreSCU.csproj", "{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion", "..\..\libs\ECGConversion\ECGConversion\ECGConversion.csproj", "{663357A3-FC3A-4E55-8CEB-711D81CF88DB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGPrint", "..\..\apps\ECGPrint\ECGPrint.csproj", "{E012D54E-F361-49D3-91FE-848EBCD063AB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{8FE9B8F1-F63E-4615-8B3E-3A081B948373}.Debug.ActiveCfg = Debug
+		{8FE9B8F1-F63E-4615-8B3E-3A081B948373}.Debug.Build.0 = Debug
+		{8FE9B8F1-F63E-4615-8B3E-3A081B948373}.Release.ActiveCfg = Release
+		{8FE9B8F1-F63E-4615-8B3E-3A081B948373}.Release.Build.0 = Release
+		{D8D759ED-6BAC-46DF-A6D2-ADEB59049451}.Debug.ActiveCfg = Debug|.NET
+		{D8D759ED-6BAC-46DF-A6D2-ADEB59049451}.Debug.Build.0 = Debug|.NET
+		{D8D759ED-6BAC-46DF-A6D2-ADEB59049451}.Release.ActiveCfg = Release|.NET
+		{D8D759ED-6BAC-46DF-A6D2-ADEB59049451}.Release.Build.0 = Release|.NET
+		{1E460D78-82AC-4C77-BBA6-823E52264573}.Debug.ActiveCfg = Debug|.NET
+		{1E460D78-82AC-4C77-BBA6-823E52264573}.Debug.Build.0 = Debug|.NET
+		{1E460D78-82AC-4C77-BBA6-823E52264573}.Release.ActiveCfg = Release|.NET
+		{1E460D78-82AC-4C77-BBA6-823E52264573}.Release.Build.0 = Release|.NET
+		{E2D25A92-0F1D-4FB3-88DA-B5B5B1378D7E}.Debug.ActiveCfg = Debug|.NET
+		{E2D25A92-0F1D-4FB3-88DA-B5B5B1378D7E}.Debug.Build.0 = Debug|.NET
+		{E2D25A92-0F1D-4FB3-88DA-B5B5B1378D7E}.Release.ActiveCfg = Release|.NET
+		{E2D25A92-0F1D-4FB3-88DA-B5B5B1378D7E}.Release.Build.0 = Release|.NET
+		{535ADCA1-478E-419E-84FF-0E338FC13974}.Debug.ActiveCfg = Debug|.NET
+		{535ADCA1-478E-419E-84FF-0E338FC13974}.Debug.Build.0 = Debug|.NET
+		{535ADCA1-478E-419E-84FF-0E338FC13974}.Release.ActiveCfg = Release|.NET
+		{535ADCA1-478E-419E-84FF-0E338FC13974}.Release.Build.0 = Release|.NET
+		{0CC06503-0F64-4202-9EAA-2C01C9B6CF1D}.Debug.ActiveCfg = Debug|.NET
+		{0CC06503-0F64-4202-9EAA-2C01C9B6CF1D}.Debug.Build.0 = Debug|.NET
+		{0CC06503-0F64-4202-9EAA-2C01C9B6CF1D}.Release.ActiveCfg = Release|.NET
+		{0CC06503-0F64-4202-9EAA-2C01C9B6CF1D}.Release.Build.0 = Release|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Debug.ActiveCfg = Debug|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Debug.Build.0 = Debug|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Release.ActiveCfg = Release|.NET
+		{DE888DE6-5171-4341-B8A3-719A6F6DBEAF}.Release.Build.0 = Release|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug.ActiveCfg = Debug|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug.Build.0 = Debug|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Release.ActiveCfg = Release|.NET
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Release.Build.0 = Release|.NET
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Debug.ActiveCfg = Debug|.NET
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Debug.Build.0 = Debug|.NET
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Release.ActiveCfg = Release|.NET
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
