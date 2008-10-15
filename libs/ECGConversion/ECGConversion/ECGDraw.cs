@@ -85,7 +85,7 @@ namespace ECGConversion
 
 			ECGSignals.Signals signals;
 			if ((src.Signals == null)
-				||  (src.Signals.getSignals(out signals) != 0))
+			||  (src.Signals.getSignals(out signals) != 0))
 			{
 				return 1;
 			}
@@ -106,7 +106,8 @@ namespace ECGConversion
 			}
 			// end: find start and end.
 
-			float	fPixel_Per_s = mm_Per_s * DpiX * Inch_Per_mm,
+			float
+				fPixel_Per_s = mm_Per_s * DpiX * Inch_Per_mm,
 				fPixel_Per_uV = mm_Per_mV * DpiY * Inch_Per_mm * 0.001f,
 				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV;
 
@@ -162,7 +163,8 @@ namespace ECGConversion
 		public static int DrawECG(Graphics myGraphics, ECGSignals.Signals signals, DateTime dtRecordTime, int nTime, float fmm_Per_s, float fmm_Per_mV, bool bAllowResample)
 		{
 			// begin: drawing of ECG.
-			float	fPixel_Per_ms = fmm_Per_s * DpiX * Inch_Per_mm * 0.001f,
+			float
+				fPixel_Per_ms = fmm_Per_s * DpiX * Inch_Per_mm * 0.001f,
 				fPixel_Per_uV = fmm_Per_mV * DpiY * Inch_Per_mm * 0.001f,
 				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV,
 				fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
@@ -173,7 +175,7 @@ namespace ECGConversion
 				nMaxY;
 
 			if ((myGraphics == null)
-				||	(signals == null))
+			||	(signals == null))
 				return 0;
 
 			if (Math.Ceiling((fLeadYSpace * signals.NrLeads) + fGridY) >= (myGraphics.VisibleClipBounds.Height - nMinY))
@@ -410,9 +412,9 @@ namespace ECGConversion
 
 			// begin: resample signals to fit. (using a dirty solution)
 			if (((dt != ECGDrawType.Median)
-				&&	 (signals.RhythmSamplesPerSecond != (int) fPixel_Per_s))
-				||	((dt == ECGDrawType.Median)
-				&&	 (signals.MedianSamplesPerSecond != (int) fPixel_Per_s)))
+			&&	 (signals.RhythmSamplesPerSecond != (int) fPixel_Per_s))
+			||	((dt == ECGDrawType.Median)
+			&&	 (signals.MedianSamplesPerSecond != (int) fPixel_Per_s)))
 			{
 				if (!bAllowResample)
 				{
@@ -450,7 +452,7 @@ namespace ECGConversion
 			{
 				case ECGDrawType.Regular:
 				{
-					nMinY = (int) (_TextSize * myGraphics.DpiY * Inch_Per_mm * .4f);
+					nMinY = (int) (_TextSize * DpiY * Inch_Per_mm * .4f);
 
 					// begin: drawing of ECG.
 					if (Math.Ceiling(fLeadYSpace * signals.NrLeads) >= (myGraphics.VisibleClipBounds.Height - nMinY))
@@ -634,8 +636,8 @@ namespace ECGConversion
 				Font fontText = new Font("Verdana", _TextSize);
 				SolidBrush solidBrush = new SolidBrush(TextColor);
 
-				if ((((nMaxY * fGridY) + (_TextSize * myGraphics.DpiY * Inch_Per_mm * .4f)) > myGraphics.VisibleClipBounds.Height)
-					||	!DrawGrid(myGraphics, nMinX, nMinY, nMaxX, nMaxY))
+				if ((((nMaxY * fGridY) + (_TextSize * DpiY * Inch_Per_mm * .4f)) > myGraphics.VisibleClipBounds.Height)
+				||	!DrawGrid(myGraphics, nMinX, nMinY, nMaxX, nMaxY))
 					return -5;
 
 				foreach (ECGDrawSection ds in drawSections)
@@ -654,7 +656,7 @@ namespace ECGConversion
 			}
 
 			if (!bAllowResample
-				&&  (nOldSamplesPerSecond != 0))
+			&&  (nOldSamplesPerSecond != 0))
 			{
 				ret = (int) (((long) ret * nOldSamplesPerSecond) / signals.RhythmSamplesPerSecond);
 			}
@@ -681,11 +683,12 @@ namespace ECGConversion
 				fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
 
 			int nExtraSpace = nMinY;
+
 			nMaxX = (int) (Math.Floor((myGraphics.VisibleClipBounds.Width - nMinX - 1) / fGridX) * fGridX) + nMinX;
 			nMaxY = nMinY;
 
 			float
-				fTempY = (float) Math.Floor((fLeadYSpace * nNrLeads) / fGridY) * fGridY + fGridY,
+				fTempY = (float) Math.Round((fLeadYSpace * nNrLeads) / fGridY) * fGridY + fGridY,
 				fMaxY = fTempY + nMinY,
 				fPenWidth = DpiX * 0.015625f;
 
@@ -710,7 +713,7 @@ namespace ECGConversion
 				}
 
 				nMinY = (int) (fMaxY + nExtraSpace);
-				fMaxY += fTempY + nExtraSpace;
+				fMaxY += (fTempY + nExtraSpace);
 			}
 
 			gridPen.Dispose();
@@ -740,7 +743,7 @@ namespace ECGConversion
 				nMaxY = nMinY + (int) Math.Round(fGridY * nBlocksY);
 
 			if ((nMaxX > myGraphics.VisibleClipBounds.Width)
-				||	(nMaxY > myGraphics.VisibleClipBounds.Height))
+			||	(nMaxY > myGraphics.VisibleClipBounds.Height))
 				return false;
 
 			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
@@ -805,7 +808,7 @@ namespace ECGConversion
 					ECGTool.ResampleLead(signals[i].Rhythm, (int) signals.RhythmSamplesPerSecond * DirtSolutionFactor, (int) (fPixel_Per_s * DirtSolutionFactor), out signals[i].Rhythm);
 
 					if ((signals.MedianSamplesPerSecond != 0)
-						&&	(signals[i].Median != null))
+					&&	(signals[i].Median != null))
 						ECGTool.ResampleLead(signals[i].Median, (int) signals.MedianSamplesPerSecond * DirtSolutionFactor, (int) (fPixel_Per_s * DirtSolutionFactor), out signals[i].Median);
 
 					signals[i].RhythmStart = (signals[i].RhythmStart * (int) (fPixel_Per_s * DirtSolutionFactor)) / (int) (signals.RhythmSamplesPerSecond * DirtSolutionFactor);
@@ -854,7 +857,8 @@ namespace ECGConversion
 				{
 					int	x1 = n - nStart - 1 + nPulseSpace + nXOffset,
 						x2 = n - nStart + nPulseSpace + nXOffset;
-					short	y1 = short.MinValue,
+					short
+						y1 = short.MinValue,
 						y2 = short.MinValue;
 
 					if (x2 > nMaxX)
@@ -879,14 +883,14 @@ namespace ECGConversion
 					}
 
 					if ((n > signals[i].RhythmStart)
-						&&	(n <= signals[i].RhythmEnd))
+					&&	(n <= signals[i].RhythmEnd))
 					{
 						y1 = signals[i].Rhythm[n-1-signals[i].RhythmStart];
 						y2 = signals[i].Rhythm[n-signals[i].RhythmStart];
 					}
 
 					if ((y1 != short.MinValue)
-						&&	(y2 != short.MinValue))
+					&&	(y2 != short.MinValue))
 						myGraphics.DrawLine(
 							myPen,
 							x1,
