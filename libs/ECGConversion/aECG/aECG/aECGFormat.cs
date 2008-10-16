@@ -506,7 +506,8 @@ namespace ECGConversion.aECG
 						series.SequenceSet[1 + i].Code.Code,
 						true);
 
-					if (series.SequenceSet[1 + i].Code.Code != series.DerivedSet[0].SequenceSet[1 + i].Code.Code)
+					if ((signals.MedianSamplesPerSecond != 0)
+					&&	(series.SequenceSet[1 + i].Code.Code != series.DerivedSet[0].SequenceSet[1 + i].Code.Code))
 						return 3;
 
 					signals[i].Type = (LeadType) lt;

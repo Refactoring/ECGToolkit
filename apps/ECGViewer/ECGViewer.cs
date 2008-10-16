@@ -723,7 +723,7 @@ namespace ECGViewer
 				DialogResult dr = this.openECGFileDialog.ShowDialog(this);
 
 				if ((dr == DialogResult.OK)
-					&&	File.Exists(this.openECGFileDialog.FileName))
+				&&	File.Exists(this.openECGFileDialog.FileName))
 				{
 					IECGFormat format = _ECGReader.Read(this.openECGFileDialog.FileName);
 
@@ -818,7 +818,7 @@ namespace ECGViewer
 							if (CurrentECG.GetType() != ECGConverter.Instance.getType(index))
 							{
 								if ((ECGConverter.Instance.Convert(CurrentECG, index, cfg, out writeFile) != 0)
-									||	!writeFile.Works())
+								||	!writeFile.Works())
 									writeFile = null;
 							}
 						}

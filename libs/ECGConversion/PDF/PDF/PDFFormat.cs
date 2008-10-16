@@ -493,14 +493,14 @@ namespace ECGConversion.PDF
 						}
 						else
 						{
-							int start, end;
+							int start, end, prev = -1;
 							bool bFirst = true;
 
 							sigs.CalculateStartAndEnd(out start, out end);
 
 							if (start > 0)
 								end -= start;
-							start = 0;
+							start = 0; end--;
 
 							RectangleF gridRect = new RectangleF(0, 0, width, height);
 
@@ -519,7 +519,8 @@ namespace ECGConversion.PDF
 								fIncrement = (fMaxHeight / (sigs.NrLeads-1));
 							}
 
-							while (start < end)
+							while ((start < end)
+								&& (start != prev))
 							{
 								if (gridRect.Bottom > (height - 5.0f))
 								{
@@ -570,6 +571,7 @@ namespace ECGConversion.PDF
 									point.Y += fIncrement;
 								}
 
+								prev = start;
 								start = temp;
 								gridRect.Y += gridRect.Height + 5.0f;
 							}
