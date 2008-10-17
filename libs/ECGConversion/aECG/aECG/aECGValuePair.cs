@@ -119,7 +119,7 @@ namespace ECGConversion.aECG
 				{
 					try
 					{
-						_Value = double.Parse(val, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+						_Value = (val.Length == 0) ? 0.0 : double.Parse(val, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
 					}
 					catch
 					{

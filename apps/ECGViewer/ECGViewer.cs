@@ -1048,7 +1048,7 @@ namespace ECGViewer
 			menuView.Enabled = format != null;
 
 			if ((format == null)
-				||	(format.Demographics == null))
+			||	(format.Demographics == null))
 			{
 				this.labelPatient.Text = "";
 				this.labelPatientSecond.Text = "";
@@ -1062,7 +1062,7 @@ namespace ECGViewer
 				sb.Append("Name:       ");
 
 				if ((format.Demographics.FirstName != null)
-					&&	(format.Demographics.FirstName.Length != 0))
+				&&	(format.Demographics.FirstName.Length != 0))
 				{
 					sb.Append(format.Demographics.FirstName);
 					sb.Append(" ");
@@ -1071,7 +1071,7 @@ namespace ECGViewer
 				sb.Append(format.Demographics.LastName);
 
 				if ((format.Demographics.SecondLastName != null)
-					&&	(format.Demographics.SecondLastName.Length != 0))
+				&&	(format.Demographics.SecondLastName.Length != 0))
 				{
 					sb.Append('-');
 					sb.Append(format.Demographics.SecondLastName);
@@ -1084,10 +1084,10 @@ namespace ECGViewer
 				GlobalMeasurements gms;
 
 				if ((format.GlobalMeasurements != null)
-					&&	(format.GlobalMeasurements.getGlobalMeasurements(out gms) == 0)
-					&&	(gms.measurment != null)
-					&&	(gms.measurment.Length > 0)
-					&&	(gms.measurment[0] != null))
+				&&	(format.GlobalMeasurements.getGlobalMeasurements(out gms) == 0)
+				&&	(gms.measurment != null)
+				&&	(gms.measurment.Length > 0)
+				&&	(gms.measurment[0] != null))
 				{
 					int ventRate = (gms.VentRate == GlobalMeasurement.NoValue) ? 0 : (int) gms.VentRate,
 						PRint = (gms.PRint == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].PRint,
@@ -1168,7 +1168,7 @@ namespace ECGViewer
 				Statements stat;
 
 				if ((format.Diagnostics != null)
-					&&	(format.Diagnostics.getDiagnosticStatements(out stat) == 0))
+				&&	(format.Diagnostics.getDiagnosticStatements(out stat) == 0))
 				{
 					if (stat.statement != null)
 					{
@@ -1183,11 +1183,11 @@ namespace ECGViewer
 						string temp2 = stat.statement[stat.statement.Length-1];
 
 						if (!temp2.StartsWith("Confirmed by")
-							&&	!temp2.StartsWith("Interpreted by")
-							&&	!temp2.StartsWith("Reviewed by"))
+						&&	!temp2.StartsWith("Interpreted by")
+						&&	!temp2.StartsWith("Reviewed by"))
 						{
 							if ((format.Demographics.OverreadingPhysician != null)
-								&&	(format.Demographics.OverreadingPhysician.Length != 0))
+							&&	(format.Demographics.OverreadingPhysician.Length != 0))
 							{
 								if (stat.confirmed)
 									sb.Append("Confirmed by ");

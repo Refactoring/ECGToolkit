@@ -1392,7 +1392,8 @@ namespace ECGConversion.aECG
 				anns = series.getAnnotationSet(releventCodes);
 				annsMedian = (seriesMedian != null ? seriesMedian.getAnnotationSet(releventCodes) : null);
 
-				if (anns != null)
+				if ((anns != null)
+				||  (annsMedian != null))
 				{
 					ArrayList
 						alAnnotations = new ArrayList(),
@@ -1400,7 +1401,9 @@ namespace ECGConversion.aECG
 
 					if (annsMedian != null)
 						alAnnotations.AddRange(annsMedian.Annotation);
-					alAnnotations.AddRange(anns.Annotation);
+
+					if (anns != null)
+						alAnnotations.AddRange(anns.Annotation);
 
 					GlobalMeasurement gm = null;
 
