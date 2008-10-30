@@ -724,9 +724,11 @@ namespace ECGConversion
 			&&	(src_offset >= 0)
 			&&	(dst_offset >= 0)
 			&&	(len > 0)
-			&&	((src_offset + len) <= src.Length)
 			&&	((dst_offset + len) <= dst.Length))
 			{
+				if ((src_offset + len) > src.Length)
+					len = src.Length - src_offset;
+
 				for (int i=0;i < len;i++)
 					dst[dst_offset + i] = src[src_offset + i];
 
