@@ -756,7 +756,8 @@ namespace ECGConversion.PDF
 
 				string temp2 = _Diagnostic.statement[_Diagnostic.statement.Length-1];
 
-				if (!temp2.StartsWith("Confirmed by")
+				if ((temp2 != null)
+				&&	!temp2.StartsWith("Confirmed by")
 				&&	!temp2.StartsWith("Interpreted by")
 				&&	!temp2.StartsWith("Reviewed by"))
 				{

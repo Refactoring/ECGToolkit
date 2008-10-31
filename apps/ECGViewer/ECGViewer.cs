@@ -91,7 +91,7 @@ namespace ECGViewer
 				lock (this)
 				{
 					if ((_CurrentECG != null)
-						&&	(_CurrentECG != value))
+					&&	(_CurrentECG != value))
 						_CurrentECG.Dispose();
 
 					if (value == null)
@@ -143,10 +143,10 @@ namespace ECGViewer
 						menuLeadFormatMedian.Enabled = (dt & ECGDraw.ECGDrawType.Median) != 0;
 
 						if ((menuLeadFormatThreeXFour.Checked && !menuLeadFormatThreeXFour.Enabled)
-							||	(menuLeadFormatThreeXFourPlusOne.Checked && !menuLeadFormatThreeXFourPlusOne.Enabled)
-							||	(menuLeadFormatThreeXFourPlusThree.Checked && !menuLeadFormatThreeXFourPlusThree.Enabled)
-							||	(menuLeadFormatSixXTwo.Checked && !menuLeadFormatSixXTwo.Enabled)
-							||	(menuLeadFormatMedian.Checked && !menuLeadFormatMedian.Enabled))
+						||	(menuLeadFormatThreeXFourPlusOne.Checked && !menuLeadFormatThreeXFourPlusOne.Enabled)
+						||	(menuLeadFormatThreeXFourPlusThree.Checked && !menuLeadFormatThreeXFourPlusThree.Enabled)
+						||	(menuLeadFormatSixXTwo.Checked && !menuLeadFormatSixXTwo.Enabled)
+						||	(menuLeadFormatMedian.Checked && !menuLeadFormatMedian.Enabled))
 						{
 							CheckLeadFormat(ECGDraw.ECGDrawType.Regular, false);
 						}
@@ -1182,7 +1182,8 @@ namespace ECGViewer
 
 						string temp2 = stat.statement[stat.statement.Length-1];
 
-						if (!temp2.StartsWith("Confirmed by")
+						if ((temp2 != null)
+						&&	!temp2.StartsWith("Confirmed by")
 						&&	!temp2.StartsWith("Interpreted by")
 						&&	!temp2.StartsWith("Reviewed by"))
 						{
