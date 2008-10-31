@@ -448,7 +448,7 @@ namespace ECGConversion.aECG
 		public int getSignals(out Signals signals)
 		{
 			signals = new Signals();
-			int err = getSignals(signals);
+			int err = getSignalsToObj(signals);
 			if (err != 0)
 			{
 				signals = null;
@@ -456,7 +456,7 @@ namespace ECGConversion.aECG
 			return err;
 		}
 
-		public int getSignals(Signals signals)
+		public int getSignalsToObj(Signals signals)
 		{
 			if (!Works())
 				return 1;

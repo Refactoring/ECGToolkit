@@ -928,7 +928,7 @@ namespace ECGConversion.PDF
 
 		#region ISignal Members
 
-		public int getSignals(Signals signals)
+		public int getSignalsToObj(Signals signals)
 		{
 			return 1;
 		}

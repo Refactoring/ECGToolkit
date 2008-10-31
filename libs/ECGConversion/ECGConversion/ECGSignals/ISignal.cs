@@ -32,11 +32,11 @@ namespace ECGConversion.ECGSignals
 		/// <returns>0 on succes</returns>
 		int getSignals(out Signals signals);
 		/// <summary>
-		/// Function to get the signals of an ECG.
+		/// Function to get the signals of an ECG and set a given Signals object.
 		/// </summary>
 		/// <param name="signals">signals</param>
 		/// <returns>0 on success</returns>
-		int getSignals(Signals signals);
+		int getSignalsToObj(Signals signals);
 		/// <summary>
 		/// Function to set the signals of an ECG.
 		/// </summary>

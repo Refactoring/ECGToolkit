@@ -55,6 +55,9 @@ namespace ECGConversion
 		public static Brush BackColor = Brushes.Transparent;
 		public static Color GraphColor = Color.FromArgb(255, 187, 187);
 
+		// Configuration of the displayed info.
+		public static bool DisplayInfo = true;
+
 		/// <summary>
 		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
 		/// </summary>   
@@ -233,8 +236,8 @@ namespace ECGConversion
 					}
 
 					if ((signals.MedianAVM != 0)
-						&&	(signals.MedianSamplesPerSecond != 0)
-						&&	(signals.MedianLength != 0))
+					&&	(signals.MedianSamplesPerSecond != 0)
+					&&	(signals.MedianLength != 0))
 						ret |= ECGDrawType.Median;
 				}
 			}
@@ -339,16 +342,16 @@ namespace ECGConversion
 							y2 = short.MinValue;
 
 						if ((t1 >= 0)
-							&&	(t2 <= (_End - _Start))
-							&&	((t1 + _Start) >= 0)
-							&&	((t2 + _Start) < _Data.Length))
+						&&	(t2 <= (_End - _Start))
+						&&	((t1 + _Start) >= 0)
+						&&	((t2 + _Start) < _Data.Length))
 						{
 							y1 = _Data[t1 + _Start];
 							y2 = _Data[t2 + _Start];
 						}
 
 						if ((y1 != short.MinValue)
-							&&	(y2 != short.MinValue))
+						&&	(y2 != short.MinValue))
 						{
 							g.DrawLine(
 								myPen,
@@ -432,7 +435,7 @@ namespace ECGConversion
 					ECGTool.ResampleLead(signals[i].Rhythm, (int) signals.RhythmSamplesPerSecond * DirtSolutionFactor, (int) (fPixel_Per_s * DirtSolutionFactor), out signals[i].Rhythm);
 
 					if ((signals.MedianSamplesPerSecond != 0)
-						&&	(signals[i].Median != null))
+					&&	(signals[i].Median != null))
 						ECGTool.ResampleLead(signals[i].Median, (int) signals.MedianSamplesPerSecond * DirtSolutionFactor, (int) (fPixel_Per_s * DirtSolutionFactor), out signals[i].Median);
 
 					signals[i].RhythmStart = (signals[i].RhythmStart * (int) (fPixel_Per_s * DirtSolutionFactor)) / (int) (signals.RhythmSamplesPerSecond * DirtSolutionFactor);
@@ -643,13 +646,16 @@ namespace ECGConversion
 				foreach (ECGDrawSection ds in drawSections)
 					ret = Math.Max(ret, ds.DrawSignal(myGraphics));
 
-				myGraphics.DrawString(
-					fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV",
-					fontText,
-					solidBrush,
-					(nMaxX * fGridX),
-					(nMaxY * fGridY),
-					new StringFormat(StringFormatFlags.DirectionRightToLeft));
+				if (DisplayInfo)
+				{
+					myGraphics.DrawString(
+						fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV",
+						fontText,
+						solidBrush,
+						(nMaxX * fGridX),
+						(nMaxY * fGridY),
+						new StringFormat(StringFormatFlags.DirectionRightToLeft));
+				}
 
 				fontText.Dispose();
 				solidBrush.Dispose();
@@ -955,13 +961,16 @@ namespace ECGConversion
 					nY - nExtraSpace);
 			}
 
-			myGraphics.DrawString(
-				fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV",
-				fontText,
-				solidBrush,
-				nMaxX,
-				nY - nExtraSpace,
-				new StringFormat(StringFormatFlags.DirectionRightToLeft));
+			if (DisplayInfo)
+			{
+				myGraphics.DrawString(
+					fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV",
+					fontText,
+					solidBrush,
+					nMaxX,
+					nY - nExtraSpace,
+					new StringFormat(StringFormatFlags.DirectionRightToLeft));
+			}
 
 			nY = (int) Math.Round(fY + (DpiY * Inch_Per_mm * _mm_Per_GridLine));
 

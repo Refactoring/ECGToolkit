@@ -548,24 +548,24 @@ namespace ECGConversion.SCP
 		public int getSignals(out Signals signals)
 		{
 			signals = new Signals();
-			int err = getSignals(signals);
+			int err = getSignalsToObj(signals);
 			if (err != 0)
 			{
 				signals = null;
 			}
 			return err;
 		}
-		public int getSignals(Signals signals)
+		public int getSignalsToObj(Signals signals)
 		{
 			if (signals != null)
 			{
-				if (((ISignal)_Default[3]).getSignals(signals) != 0)
+				if (((ISignal)_Default[3]).getSignalsToObj(signals) != 0)
 				{
 					return 2;
 				}
 
 				short[][] medianData = null;
-				if (((ISignal)_Default[4]).getSignals(signals) == 0)
+				if (((ISignal)_Default[4]).getSignalsToObj(signals) == 0)
 				{
 					SCPSection5 median = (SCPSection5) _Default[5];
 					

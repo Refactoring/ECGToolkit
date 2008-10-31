@@ -195,7 +195,7 @@ namespace ECGConversion.CSV
 			return 1;
 		}
 
-		public int getSignals(Signals signals)
+		public int getSignalsToObj(Signals signals)
 		{
 			return 1;
 		}

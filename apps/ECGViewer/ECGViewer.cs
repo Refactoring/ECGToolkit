@@ -178,6 +178,7 @@ namespace ECGViewer
 		private ECGDraw.ECGDrawType _DrawType = ECGDraw.ECGDrawType.Regular;
 		private System.Windows.Forms.HScrollBar ECGTimeScrollbar;
 		private System.Windows.Forms.MenuItem menuAnnonymize;
+		private System.Windows.Forms.MenuItem menuDisplayInfo;
 	
 		private float Gain
 		{
@@ -235,11 +236,11 @@ namespace ECGViewer
 
 		public ECGViewer()
 		{
-			/*			// Might be intressting to add different colors.
-						ECGConverter.BackColor = Brushes.Transparent;
-						ECGConverter.GraphColor = Color.Gray;
-						ECGConverter.SignalColor = Color.Lime;
-						ECGConverter.TextColor = Color.Lime;*/
+/*			// Might be intressting to add different colors.
+			ECGDraw.BackColor = Brushes.Black;
+			ECGDraw.GraphColor = Color.Gray;
+			ECGDraw.SignalColor = Color.Lime;
+			ECGDraw.TextColor = Color.Lime;*/
 
 			//
 			// Required for Windows Form Designer support
@@ -315,6 +316,7 @@ namespace ECGViewer
 			this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
+			this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
 			this.ECGPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -354,6 +356,7 @@ namespace ECGViewer
 			this.menuView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
 																					 this.menuLeadFormat,
 																					 this.menuGain,
+																					 this.menuDisplayInfo,
 																					 this.menuAnnonymize});
 			this.menuView.Text = "View";
 			// 
@@ -452,7 +455,7 @@ namespace ECGViewer
 			// 
 			// menuAnnonymize
 			// 
-			this.menuAnnonymize.Index = 2;
+			this.menuAnnonymize.Index = 3;
 			this.menuAnnonymize.Text = "Annonymize";
 			this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
 			// 
@@ -568,7 +571,7 @@ namespace ECGViewer
 			// 
 			// statusBar
 			// 
-			this.statusBar.Location = new System.Drawing.Point(0, 472);
+			this.statusBar.Location = new System.Drawing.Point(0, 485);
 			this.statusBar.Name = "statusBar";
 			this.statusBar.Size = new System.Drawing.Size(686, 22);
 			this.statusBar.TabIndex = 1;
@@ -582,10 +585,17 @@ namespace ECGViewer
 			this.ECGTimeScrollbar.TabIndex = 5;
 			this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
 			// 
+			// menuDisplayInfo
+			// 
+			menuDisplayInfo.Checked = ECGDraw.DisplayInfo;
+			this.menuDisplayInfo.Index = 2;
+			this.menuDisplayInfo.Text = "Display Info";
+			this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
+			// 
 			// ECGViewer
 			// 
 			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-			this.ClientSize = new System.Drawing.Size(686, 494);
+			this.ClientSize = new System.Drawing.Size(686, 507);
 			this.Controls.Add(this.statusBar);
 			this.Controls.Add(this.ECGPanel);
 			this.Controls.Add(this.ECGTimeScrollbar);
@@ -1364,6 +1374,18 @@ namespace ECGViewer
 			lock(this)
 			{
 				_CurrentECG.Anonymous();
+				_DrawBuffer = null;
+			}
+
+			Refresh();
+		}
+
+		private void menuDisplayInfo_Click(object sender, System.EventArgs e)
+		{
+			ECGDraw.DisplayInfo = menuDisplayInfo.Checked = !menuDisplayInfo.Checked;
+
+			lock(this)
+			{
 				_DrawBuffer = null;
 			}
 

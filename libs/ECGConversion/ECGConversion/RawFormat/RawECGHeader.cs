@@ -1136,14 +1136,14 @@ namespace ECGConversion.RawFormat
         public int getSignals(out Signals signals)
         {
             signals = new Signals();
-            int err = getSignals(signals);
+            int err = getSignalsToObj(signals);
             if (err != 0)
             {
                 signals = null;
             }
             return 0;
         }
-        public int getSignals(Signals signals)
+        public int getSignalsToObj(Signals signals)
         {
             if ((Works())
 			&&	(signals != null))

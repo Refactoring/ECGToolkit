@@ -407,7 +407,7 @@ namespace ECGConversion.DICOM
 		public int getSignals(out Signals signals)
 		{
 			signals = new Signals();
-			int err = getSignals(signals);
+			int err = getSignalsToObj(signals);
 			if (err != 0)
 			{
 				signals = null;
@@ -415,7 +415,7 @@ namespace ECGConversion.DICOM
 			return err;
 		}
 
-		public int getSignals(Signals signals)
+		public int getSignalsToObj(Signals signals)
 		{
 			DcmElement waveformElement = _DICOMData.Get(Tags.WaveformSeq);
 
