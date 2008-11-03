@@ -59,8 +59,9 @@ namespace ECGConversion
 
 		public enum GridType
 		{
-			FiveMillimeters = 0,
-			OneMillimeters = 1
+			None = 0,
+			OneMillimeters = 1,
+			FiveMillimeters = 2
 		}
 
 		// Configuration of the displayed info.
@@ -657,13 +658,14 @@ namespace ECGConversion
 
 				if (DisplayInfo)
 				{
+					string tempInfo = fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV";
+
 					myGraphics.DrawString(
-						fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV",
+						tempInfo,
 						fontText,
 						solidBrush,
-						(nMaxX * fGridX),
-						(nMaxY * fGridY),
-						new StringFormat(StringFormatFlags.DirectionRightToLeft));
+						(nMaxX * fGridX) - myGraphics.MeasureString(tempInfo, fontText).Width,
+						(nMaxY * fGridY));
 				}
 
 				fontText.Dispose();
@@ -742,7 +744,11 @@ namespace ECGConversion
 				for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX,j++)
 				{
 					int nTempX = (int) Math.Round(i);
-					myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
+
+					if (DisplayGrid != GridType.None)
+					{
+						myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
+					}
 				}
 
 				j=0;
@@ -751,7 +757,11 @@ namespace ECGConversion
 				for (float i=nMinY;i <= (fMaxY + fPenWidth);i+=fGridY,j++)
 				{
 					int nTempY = (int) Math.Round(i);
-					myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
+
+					if (DisplayGrid != GridType.None)
+					{
+						myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
+					}
 				}
 
 				nMinY = (int) (fMaxY + nExtraSpace);
@@ -794,6 +804,9 @@ namespace ECGConversion
 			if ((nMaxX > myGraphics.VisibleClipBounds.Width)
 			||	(nMaxY > myGraphics.VisibleClipBounds.Height))
 				return false;
+
+			if (DisplayGrid == GridType.None)
+				return true;
 
 			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
 				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
@@ -1036,13 +1049,14 @@ namespace ECGConversion
 
 			if (DisplayInfo)
 			{
+				string tempInfo = fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV";
+
 				myGraphics.DrawString(
-					fmm_Per_s + "mm/s, " + fmm_Per_mV + "mm/mV",
+					tempInfo,
 					fontText,
 					solidBrush,
-					nMaxX,
-					nY - nExtraSpace,
-					new StringFormat(StringFormatFlags.DirectionRightToLeft));
+					nMaxX - myGraphics.MeasureString(tempInfo, fontText).Width,
+					nY - nExtraSpace);
 			}
 
 			nY = (int) Math.Round(fY + (DpiY * Inch_Per_mm * _mm_Per_GridLine));
