@@ -18,6 +18,7 @@ Written by Maarten JB van Ettinger.
 ****************************************************************************/
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace ECGConversion
 {
@@ -52,11 +53,19 @@ namespace ECGConversion
 		// Colors for drawing.
 		public static Color SignalColor = Color.Black;
 		public static Color TextColor = Color.Black;
-		public static Brush BackColor = Brushes.Transparent;
+		public static Color BackColor = Color.Transparent;
 		public static Color GraphColor = Color.FromArgb(255, 187, 187);
+		public static Color GraphSecondColor = Color.FromArgb(255, 229, 229);
+
+		public enum GridType
+		{
+			FiveMillimeters = 0,
+			OneMillimeters = 1
+		}
 
 		// Configuration of the displayed info.
 		public static bool DisplayInfo = true;
+		public static GridType DisplayGrid = GridType.OneMillimeters;
 
 		/// <summary>
 		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
@@ -682,13 +691,16 @@ namespace ECGConversion
 		private static void DrawGrid(Graphics myGraphics, float fLeadYSpace, int nNrLeads, int nMinX, int nMinY, out int nMaxX, out int nMaxY)
 		{
 			// begin: draw grid.
-			myGraphics.FillRectangle(BackColor, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
+			Brush backBrush = new SolidBrush(BackColor);
+			myGraphics.FillRectangle(backBrush, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
+			backBrush.Dispose();
 
 			float
 				fGridX = (DpiX * Inch_Per_mm) * _mm_Per_GridLine,
 				fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
 
-			int nExtraSpace = nMinY;
+			int nExtraSpace = nMinY,
+				nAlternate = 1;
 
 			nMaxX = (int) (Math.Floor((myGraphics.VisibleClipBounds.Width - nMinX - 1) / fGridX) * fGridX) + nMinX;
 			nMaxY = nMinY;
@@ -698,31 +710,59 @@ namespace ECGConversion
 				fMaxY = fTempY + nMinY,
 				fPenWidth = DpiX * 0.015625f;
 
-			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
+			Pen	gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
+				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);			
+
+			Brush gridBrush = null;
+
+			if ((DisplayGrid == GridType.OneMillimeters)
+			&&	(fGridX >= 10f)
+			&&	(fGridY >= 10f))
+			{
+				fGridX /= 5;
+				fGridY /= 5;
+				
+				nAlternate = 5;
+			}
+			else if (DisplayGrid == GridType.OneMillimeters)
+			{
+				gridBrush = new HatchBrush(HatchStyle.Percent30, GraphSecondColor, BackColor);
+			}
 
 			while (fMaxY < myGraphics.VisibleClipBounds.Height)
 			{
 				nMaxY = (int) fMaxY;
 
+				int j=0;
+
+				if (gridBrush != null)
+					myGraphics.FillRectangle(gridBrush, nMinX, nMinY, nMaxX, nMaxY);
+
 				// draw vertical lines.
-				for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX)
+				for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX,j++)
 				{
 					int nTempX = (int) Math.Round(i);
-					myGraphics.DrawLine(gridPen, nTempX, nMinY, nTempX, nMaxY);
+					myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
 				}
 
+				j=0;
+
 				// draw horizontal lines.
-				for (float i=nMinY;i <= (fMaxY + fPenWidth);i+=fGridY)
+				for (float i=nMinY;i <= (fMaxY + fPenWidth);i+=fGridY,j++)
 				{
 					int nTempY = (int) Math.Round(i);
-					myGraphics.DrawLine(gridPen, nMinX, nTempY, nMaxX, nTempY);
+					myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
 				}
 
 				nMinY = (int) (fMaxY + nExtraSpace);
 				fMaxY += (fTempY + nExtraSpace);
 			}
 
+			if (gridBrush != null)
+				gridBrush.Dispose();
+
 			gridPen.Dispose();
+			gridSecondPen.Dispose();
 			// end: draw grid.
 		}
 		/// <summary>
@@ -738,7 +778,9 @@ namespace ECGConversion
 		/// <returns>true if successfull</returns>
 		private static bool DrawGrid(Graphics myGraphics, int nMinX, int nMinY, int nBlocksX, int nBlocksY)
 		{
-			myGraphics.FillRectangle(BackColor, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
+			Brush backBrush = new SolidBrush(BackColor);
+			myGraphics.FillRectangle(backBrush, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
+			backBrush.Dispose();
 
 			float
 				fGridX = (DpiX * Inch_Per_mm) * _mm_Per_GridLine,
@@ -746,27 +788,58 @@ namespace ECGConversion
 				fPenWidth = DpiX * 0.015625f;
 
 			int nMaxX = nMinX + (int) Math.Round(fGridX * nBlocksX),
-				nMaxY = nMinY + (int) Math.Round(fGridY * nBlocksY);
+				nMaxY = nMinY + (int) Math.Round(fGridY * nBlocksY),
+				nAlternate = 1;
 
 			if ((nMaxX > myGraphics.VisibleClipBounds.Width)
 			||	(nMaxY > myGraphics.VisibleClipBounds.Height))
 				return false;
 
-			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
+			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
+				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
+
+			Brush gridBrush = null;
+
+			if ((DisplayGrid == GridType.OneMillimeters)
+			&&	(fGridX >= 10f)
+			&&	(fGridY >= 10f))
+			{
+				fGridX /= 5;
+				fGridY /= 5;
+				
+				nAlternate = 5;
+			}
+			else if (DisplayGrid == GridType.OneMillimeters)
+			{
+				gridBrush = new HatchBrush(HatchStyle.Percent30, GraphSecondColor, BackColor);
+			}
+			
+			if (gridBrush != null)
+				myGraphics.FillRectangle(gridBrush, nMinX, nMinY, nMaxX, nMaxY);
+
+			int j = 0;
 			
 			// draw vertical lines.
-			for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX)
+			for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX,j++)
 			{
 				int nTempX = (int) Math.Round(i);
-				myGraphics.DrawLine(gridPen, nTempX, nMinY, nTempX, nMaxY);
+				myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
 			}
 
+			j = 0;
+
 			// draw horizontal lines.
-			for (float i=nMinY;i <= (nMaxY + fPenWidth);i+=fGridY)
+			for (float i=nMinY;i <= (nMaxY + fPenWidth);i+=fGridY,j++)
 			{
 				int nTempY = (int) Math.Round(i);
-				myGraphics.DrawLine(gridPen, nMinX, nTempY, nMaxX, nTempY);
+				myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
 			}
+
+			if (gridBrush != null)
+				gridBrush.Dispose();
+
+			gridPen.Dispose();
+			gridSecondPen.Dispose();
 
 			return true;
 		}

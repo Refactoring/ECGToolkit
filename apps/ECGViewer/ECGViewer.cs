@@ -179,6 +179,9 @@ namespace ECGViewer
 		private System.Windows.Forms.HScrollBar ECGTimeScrollbar;
 		private System.Windows.Forms.MenuItem menuAnnonymize;
 		private System.Windows.Forms.MenuItem menuDisplayInfo;
+		private System.Windows.Forms.MenuItem menuGridType;
+		private System.Windows.Forms.MenuItem menuGridFive;
+		private System.Windows.Forms.MenuItem menuGridOne;
 	
 		private float Gain
 		{
@@ -237,8 +240,9 @@ namespace ECGViewer
 		public ECGViewer()
 		{
 /*			// Might be intressting to add different colors.
-			ECGDraw.BackColor = Brushes.Black;
+			ECGDraw.BackColor = Color.Black;
 			ECGDraw.GraphColor = Color.Gray;
+			ECGDraw.GraphSecondColor = Color.FromArgb(96, 96, 96);
 			ECGDraw.SignalColor = Color.Lime;
 			ECGDraw.TextColor = Color.Lime;*/
 
@@ -297,6 +301,7 @@ namespace ECGViewer
 			this.menuGain3 = new System.Windows.Forms.MenuItem();
 			this.menuGain2 = new System.Windows.Forms.MenuItem();
 			this.menuGain1 = new System.Windows.Forms.MenuItem();
+			this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
 			this.menuAnnonymize = new System.Windows.Forms.MenuItem();
 			this.menuSave = new System.Windows.Forms.MenuItem();
 			this.menuSaveFile = new System.Windows.Forms.MenuItem();
@@ -316,7 +321,9 @@ namespace ECGViewer
 			this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
-			this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
+			this.menuGridType = new System.Windows.Forms.MenuItem();
+			this.menuGridFive = new System.Windows.Forms.MenuItem();
+			this.menuGridOne = new System.Windows.Forms.MenuItem();
 			this.ECGPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -356,6 +363,7 @@ namespace ECGViewer
 			this.menuView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
 																					 this.menuLeadFormat,
 																					 this.menuGain,
+																					 this.menuGridType,
 																					 this.menuDisplayInfo,
 																					 this.menuAnnonymize});
 			this.menuView.Text = "View";
@@ -453,9 +461,16 @@ namespace ECGViewer
 			this.menuGain1.Text = "5   mm/mV";
 			this.menuGain1.Click += new System.EventHandler(this.menuGain1_Click);
 			// 
+			// menuDisplayInfo
+			// 
+			this.menuDisplayInfo.Checked = true;
+			this.menuDisplayInfo.Index = 3;
+			this.menuDisplayInfo.Text = "Display Info";
+			this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
+			// 
 			// menuAnnonymize
 			// 
-			this.menuAnnonymize.Index = 3;
+			this.menuAnnonymize.Index = 4;
 			this.menuAnnonymize.Text = "Annonymize";
 			this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
 			// 
@@ -585,12 +600,29 @@ namespace ECGViewer
 			this.ECGTimeScrollbar.TabIndex = 5;
 			this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
 			// 
-			// menuDisplayInfo
+			// menuGridType
 			// 
-			menuDisplayInfo.Checked = ECGDraw.DisplayInfo;
-			this.menuDisplayInfo.Index = 2;
-			this.menuDisplayInfo.Text = "Display Info";
-			this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
+			this.menuGridType.Index = 2;
+			this.menuGridType.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+																						 this.menuGridOne,
+																						 this.menuGridFive});
+			this.menuGridType.Text = "Grid Type";
+			// 
+			// menuGridFive
+			// 
+			this.menuGridFive.Index = 1;
+			this.menuGridFive.RadioCheck = true;
+			this.menuGridFive.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.FiveMillimeters;
+			this.menuGridFive.Text = "5 mm";
+			this.menuGridFive.Click += new System.EventHandler(this.menuGridFive_Click);
+			// 
+			// menuGridOne
+			// 
+			this.menuGridOne.Index = 0;
+			this.menuGridOne.RadioCheck = true;
+			this.menuGridOne.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.OneMillimeters;
+			this.menuGridOne.Text = "1 mm";
+			this.menuGridOne.Click += new System.EventHandler(this.menuGridOne_Click);
 			// 
 			// ECGViewer
 			// 
@@ -1383,6 +1415,36 @@ namespace ECGViewer
 		private void menuDisplayInfo_Click(object sender, System.EventArgs e)
 		{
 			ECGDraw.DisplayInfo = menuDisplayInfo.Checked = !menuDisplayInfo.Checked;
+
+			lock(this)
+			{
+				_DrawBuffer = null;
+			}
+
+			Refresh();
+		}
+
+		private void menuGridOne_Click(object sender, System.EventArgs e)
+		{
+			menuGridFive.Checked = false;
+			menuGridOne.Checked = true;
+		
+			ECGDraw.DisplayGrid = ECGDraw.GridType.OneMillimeters;
+
+			lock(this)
+			{
+				_DrawBuffer = null;
+			}
+
+			Refresh();
+		}
+
+		private void menuGridFive_Click(object sender, System.EventArgs e)
+		{
+			menuGridFive.Checked = true;
+			menuGridOne.Checked = false;
+
+			ECGDraw.DisplayGrid = ECGDraw.GridType.FiveMillimeters;
 
 			lock(this)
 			{
