@@ -770,6 +770,9 @@ namespace ECGConversion
 		/// <returns>Sample number to start next draw ECG on.</returns>
 		public static int DrawECG(Graphics myGraphics, ECGDrawSection[] drawSections, int nMinX, int nMinY, int nBoxesX, int nBoxesY)
 		{
+			if (drawSections == null)
+				return -4;
+
 			float fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
 			int ret = int.MinValue;
 
@@ -778,7 +781,8 @@ namespace ECGConversion
 				return -5;
 
 			foreach (ECGDrawSection ds in drawSections)
-				ret = Math.Max(ret, ds.DrawSignal(myGraphics));
+				if (ds != null)
+					ret = Math.Max(ret, ds.DrawSignal(myGraphics));
 
 			return ret;
 		}
