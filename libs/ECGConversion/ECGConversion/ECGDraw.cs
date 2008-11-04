@@ -254,12 +254,58 @@ namespace ECGConversion
 
 			return ret;
 		}
-		class ECGDrawSection
+		/// <summary>
+		/// An ECGDrawSection object will describe a bit of signal on the image.
+		/// </summary>
+		public class ECGDrawSection
 		{
+			/// <summary>
+			/// Constructor to draw an Calibration pulse.
+			/// </summary>
+			/// <param name="fmm_Per_mV">millimeters per milliVolt</param>
+			/// <param name="x">position X on image in millimeters</param>
+			/// <param name="y">position Y on image in millimeters</param>
+			/// <param name="sps">samples per second</param>
+			/// <param name="length">length in nr of 5 mm blocks</param>
 			public ECGDrawSection(float fmm_Per_mV, float x, float y, int sps, int length)
+			: this(false, fmm_Per_mV, x, y, sps, length) {}
+			/// <summary>
+			/// Constructor to draw provided sample data.
+			/// (one sample is one pixel on the X-axis)
+			/// </summary>
+			/// <param name="fmm_Per_mV">millimeters per milliVolt</param>
+			/// <param name="x">position X on image in millimeters</param>
+			/// <param name="y">position Y on image in millimeters</param>
+			/// <param name="leadType">type of the lead</param>
+			/// <param name="avm">AVM of signal data</param>
+			/// <param name="sps">samples per seconds of signal data</param>
+			/// <param name="start">start point in signal data</param>
+			/// <param name="end">end point in signal data</param>
+			/// <param name="data">signal data</param>
+			public ECGDrawSection(float fmm_Per_mV, float x, float y, LeadType leadType, double avm, int sps, int start, int end, short[] data)
+			: this(false, fmm_Per_mV, x, y, leadType, avm, sps, start, end, data) {}
+			/// <summary>
+			/// Constructor to draw an Calibration pulse.
+			/// </summary>
+			/// <param name="bInPixels">x and y are in pixels if this value is true</param>
+			/// <param name="fmm_Per_mV">millimeters per milliVolt</param>
+			/// <param name="x">position X in pixels or millimeters</param>
+			/// <param name="y">position Y in pixels or millimeters</param>
+			/// <param name="sps">samples per second</param>
+			/// <param name="length">length in nr of 5 mm blocks</param>
+			public ECGDrawSection(bool bInPixels, float fmm_Per_mV, float x, float y, int sps, int length)
 			{
-				_X = x;
-				_Y = y;
+				if (bInPixels)
+				{
+					_X = x;
+					_Y = y;
+				}
+				else
+				{
+					_X = x * (DpiX * Inch_Per_mm) * _mm_Per_GridLine;
+					_Y = y * (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
+				}
+
 				_LeadType = LeadType.Unknown;
 				_AVM = 1000.0f;
 				_SamplesPerSecond = sps;
@@ -268,11 +314,33 @@ namespace ECGConversion
 				_Data = null;
 				_fmm_Per_mV = fmm_Per_mV;
 			}
-
-			public ECGDrawSection(float fmm_Per_mV, float x, float y, LeadType lt, double avm, int sps, int start, int end, short[] data)
+			/// <summary>
+			/// Constructor to draw provided sample data.
+			/// (one sample is one pixel on the X-axis)
+			/// </summary>
+			/// <param name="bInPixels">x and y are in pixels if this value is true</param>
+			/// <param name="fmm_Per_mV">millimeters per milliVolt</param>
+			/// <param name="x">position X in pixels or millimeters</param>
+			/// <param name="y">position Y in pixels or millimeters</param>
+			/// <param name="leadType">type of the lead</param>
+			/// <param name="avm">AVM of signal data</param>
+			/// <param name="sps">samples per seconds of signal data</param>
+			/// <param name="start">start point in signal data</param>
+			/// <param name="end">end point in signal data</param>
+			/// <param name="data">signal data</param>
+			public ECGDrawSection(bool bInPixels, float fmm_Per_mV, float x, float y, LeadType lt, double avm, int sps, int start, int end, short[] data)
 			{
-				_X = x;
-				_Y = y;
+				if (bInPixels)
+				{
+					_X = x;
+					_Y = y;
+				}
+				else
+				{
+					_X = x * (DpiX * Inch_Per_mm) * _mm_Per_GridLine;
+					_Y = y * (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
+				}
+
 				_LeadType = lt;
 				_AVM = avm;
 				_SamplesPerSecond = sps;
@@ -291,12 +359,24 @@ namespace ECGConversion
 			private int _End;
 			private short[] _Data;
 			private float _fmm_Per_mV;
+			private Color _SignalColor = ECGDraw.SignalColor;
+
+			/// <summary>
+			/// set color that will be used to draw signal.
+			/// </summary>
+			public Color SignalColor
+			{
+				set
+				{
+					_SignalColor = value;
+				}
+			}
 
 			public int DrawSignal(Graphics g)
 			{
 				float fPixel_Per_uV = _fmm_Per_mV * DpiY * Inch_Per_mm * 0.001f;
 
-				Pen myPen = new Pen(SignalColor);
+				Pen myPen = new Pen(_SignalColor);
 
 				int length = _End - _Start + 1;
 
@@ -486,26 +566,26 @@ namespace ECGConversion
 						b = (5 * signals.RhythmSamplesPerSecond) + nTime,
 						c = (10 * signals.RhythmSamplesPerSecond) + nTime;
 
-					drawSections[ 0] = new ECGDrawSection(fmm_Per_mV, 0.0f,  2.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 1] = new ECGDrawSection(fmm_Per_mV, 0.0f,  8.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 2] = new ECGDrawSection(fmm_Per_mV, 0.0f, 13.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 3] = new ECGDrawSection(fmm_Per_mV, 0.0f, 19.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 4] = new ECGDrawSection(fmm_Per_mV, 0.0f, 24.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 5] = new ECGDrawSection(fmm_Per_mV, 0.0f, 30.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 0] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  2.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 1] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  8.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 2] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 13.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 3] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 19.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 4] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 24.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 5] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 30.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
 
-					drawSections[ 6] = new ECGDrawSection(fmm_Per_mV,  2 * fGridX,  2.5f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
-					drawSections[ 7] = new ECGDrawSection(fmm_Per_mV,  2 * fGridX,  8.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
-					drawSections[ 8] = new ECGDrawSection(fmm_Per_mV,  2 * fGridX, 13.5f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
-					drawSections[ 9] = new ECGDrawSection(fmm_Per_mV,  2 * fGridX, 19.0f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 3].Rhythm);
-					drawSections[10] = new ECGDrawSection(fmm_Per_mV,  2 * fGridX, 24.5f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 4].Rhythm);
-					drawSections[11] = new ECGDrawSection(fmm_Per_mV,  2 * fGridX, 30.0f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 5].Rhythm);
+					drawSections[ 6] = new ECGDrawSection(true, fmm_Per_mV,  2 * fGridX,  2.5f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
+					drawSections[ 7] = new ECGDrawSection(true, fmm_Per_mV,  2 * fGridX,  8.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
+					drawSections[ 8] = new ECGDrawSection(true, fmm_Per_mV,  2 * fGridX, 13.5f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
+					drawSections[ 9] = new ECGDrawSection(true, fmm_Per_mV,  2 * fGridX, 19.0f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 3].Rhythm);
+					drawSections[10] = new ECGDrawSection(true, fmm_Per_mV,  2 * fGridX, 24.5f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 4].Rhythm);
+					drawSections[11] = new ECGDrawSection(true, fmm_Per_mV,  2 * fGridX, 30.0f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 5].Rhythm);
 
-					drawSections[12] = new ECGDrawSection(fmm_Per_mV, 27 * fGridX,  2.5f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 6].Rhythm);
-					drawSections[13] = new ECGDrawSection(fmm_Per_mV, 27 * fGridX,  8.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 7].Rhythm);
-					drawSections[14] = new ECGDrawSection(fmm_Per_mV, 27 * fGridX, 13.5f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 8].Rhythm);
-					drawSections[15] = new ECGDrawSection(fmm_Per_mV, 27 * fGridX, 19.0f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 9].Rhythm);
-					drawSections[16] = new ECGDrawSection(fmm_Per_mV, 27 * fGridX, 24.5f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[10].Rhythm);
-					drawSections[17] = new ECGDrawSection(fmm_Per_mV, 27 * fGridX, 30.0f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[11].Rhythm);
+					drawSections[12] = new ECGDrawSection(true, fmm_Per_mV, 27 * fGridX,  2.5f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 6].Rhythm);
+					drawSections[13] = new ECGDrawSection(true, fmm_Per_mV, 27 * fGridX,  8.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 7].Rhythm);
+					drawSections[14] = new ECGDrawSection(true, fmm_Per_mV, 27 * fGridX, 13.5f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 8].Rhythm);
+					drawSections[15] = new ECGDrawSection(true, fmm_Per_mV, 27 * fGridX, 19.0f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 9].Rhythm);
+					drawSections[16] = new ECGDrawSection(true, fmm_Per_mV, 27 * fGridX, 24.5f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[10].Rhythm);
+					drawSections[17] = new ECGDrawSection(true, fmm_Per_mV, 27 * fGridX, 30.0f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[11].Rhythm);
 				}
 					break;
 				case ECGDrawType.ThreeXFour:
@@ -518,25 +598,25 @@ namespace ECGConversion
 						d = (int) (7.5f * signals.RhythmSamplesPerSecond) + nTime,
 						e = (10 * signals.RhythmSamplesPerSecond) + nTime;
 
-					drawSections[ 0] = new ECGDrawSection(fmm_Per_mV, 0.0f,  5.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 1] = new ECGDrawSection(fmm_Per_mV, 0.0f, 16.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 2] = new ECGDrawSection(fmm_Per_mV, 0.0f, 27.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 0] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  5.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 1] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 16.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 2] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 27.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
 
-					drawSections[ 3] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX,  5.0f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
-					drawSections[ 4] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX, 16.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
-					drawSections[ 5] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX, 27.0f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
+					drawSections[ 3] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX,  5.0f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
+					drawSections[ 4] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX, 16.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
+					drawSections[ 5] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX, 27.0f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
 
-					drawSections[ 6] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX,  5.0f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 3].Rhythm);
-					drawSections[ 7] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX, 16.0f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 4].Rhythm);
-					drawSections[ 8] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX, 27.0f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 5].Rhythm);
+					drawSections[ 6] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX,  5.0f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 3].Rhythm);
+					drawSections[ 7] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX, 16.0f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 4].Rhythm);
+					drawSections[ 8] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX, 27.0f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 5].Rhythm);
 
-					drawSections[ 9] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX,  5.0f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 6].Rhythm);
-					drawSections[10] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX, 16.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 7].Rhythm);
-					drawSections[11] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX, 27.0f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 8].Rhythm);
+					drawSections[ 9] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX,  5.0f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 6].Rhythm);
+					drawSections[10] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX, 16.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 7].Rhythm);
+					drawSections[11] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX, 27.0f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 8].Rhythm);
 
-					drawSections[12] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX,  5.0f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[ 9].Rhythm);
-					drawSections[13] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX, 16.0f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[10].Rhythm);
-					drawSections[14] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX, 27.0f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[11].Rhythm);
+					drawSections[12] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX,  5.0f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[ 9].Rhythm);
+					drawSections[13] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX, 16.0f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[10].Rhythm);
+					drawSections[14] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX, 27.0f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[11].Rhythm);
 				}
 					break;
 				case ECGDrawType.ThreeXFourPlusOne:
@@ -549,28 +629,28 @@ namespace ECGConversion
 						d = (int) (7.5f * signals.RhythmSamplesPerSecond) + nTime,
 						e = (10 * signals.RhythmSamplesPerSecond) + nTime;
 
-					drawSections[ 0] = new ECGDrawSection(fmm_Per_mV, 0.0f,  4.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 1] = new ECGDrawSection(fmm_Per_mV, 0.0f, 12.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 2] = new ECGDrawSection(fmm_Per_mV, 0.0f, 20.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 3] = new ECGDrawSection(fmm_Per_mV, 0.0f, 28.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 0] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  4.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 1] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 12.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 2] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 20.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 3] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 28.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
 
-					drawSections[ 4] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX,  4.0f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
-					drawSections[ 5] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX, 12.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
-					drawSections[ 6] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX, 20.0f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
+					drawSections[ 4] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX,  4.0f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
+					drawSections[ 5] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX, 12.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
+					drawSections[ 6] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX, 20.0f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
 
-					drawSections[ 7] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX,  4.0f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 3].Rhythm);
-					drawSections[ 8] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX, 12.0f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 4].Rhythm);
-					drawSections[ 9] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX, 20.0f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 5].Rhythm);
+					drawSections[ 7] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX,  4.0f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 3].Rhythm);
+					drawSections[ 8] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX, 12.0f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 4].Rhythm);
+					drawSections[ 9] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX, 20.0f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 5].Rhythm);
 
-					drawSections[10] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX,  4.0f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 6].Rhythm);
-					drawSections[11] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX, 12.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 7].Rhythm);
-					drawSections[12] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX, 20.0f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 8].Rhythm);
+					drawSections[10] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX,  4.0f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 6].Rhythm);
+					drawSections[11] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX, 12.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 7].Rhythm);
+					drawSections[12] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX, 20.0f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 8].Rhythm);
 
-					drawSections[13] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX,  4.0f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[ 9].Rhythm);
-					drawSections[14] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX, 12.0f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[10].Rhythm);
-					drawSections[15] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX, 20.0f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[11].Rhythm);
+					drawSections[13] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX,  4.0f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[ 9].Rhythm);
+					drawSections[14] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX, 12.0f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[10].Rhythm);
+					drawSections[15] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX, 20.0f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[11].Rhythm);
 
-					drawSections[16] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX, 28.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[ 1].Rhythm);
+					drawSections[16] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX, 28.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[ 1].Rhythm);
 				}
 					break;
 				case ECGDrawType.ThreeXFourPlusThree:
@@ -583,32 +663,32 @@ namespace ECGConversion
 						d = (int) (7.5f * signals.RhythmSamplesPerSecond) + nTime,
 						e = (10 * signals.RhythmSamplesPerSecond) + nTime;
 
-					drawSections[ 0] = new ECGDrawSection(fmm_Per_mV, 0.0f,  2.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 1] = new ECGDrawSection(fmm_Per_mV, 0.0f,  8.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 2] = new ECGDrawSection(fmm_Per_mV, 0.0f, 13.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 3] = new ECGDrawSection(fmm_Per_mV, 0.0f, 19.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 4] = new ECGDrawSection(fmm_Per_mV, 0.0f, 24.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
-					drawSections[ 5] = new ECGDrawSection(fmm_Per_mV, 0.0f, 29.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 0] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  2.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 1] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  8.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 2] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 13.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 3] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 19.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 4] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 24.0f * fGridY, signals.RhythmSamplesPerSecond, 2);
+					drawSections[ 5] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 29.5f * fGridY, signals.RhythmSamplesPerSecond, 2);
 
-					drawSections[ 6] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX,  2.5f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
-					drawSections[ 7] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX,  8.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
-					drawSections[ 8] = new ECGDrawSection(fmm_Per_mV,  2.0f * fGridX, 13.5f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
+					drawSections[ 6] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX,  2.5f * fGridY, signals[ 0].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 0].Rhythm);
+					drawSections[ 7] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX,  8.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 1].Rhythm);
+					drawSections[ 8] = new ECGDrawSection(true, fmm_Per_mV,  2.0f * fGridX, 13.5f * fGridY, signals[ 2].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, b, signals[ 2].Rhythm);
 
-					drawSections[ 9] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX,  2.5f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 3].Rhythm);
-					drawSections[10] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX,  8.0f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 4].Rhythm);
-					drawSections[11] = new ECGDrawSection(fmm_Per_mV, 14.5f * fGridX, 13.5f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 5].Rhythm);
+					drawSections[ 9] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX,  2.5f * fGridY, signals[ 3].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 3].Rhythm);
+					drawSections[10] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX,  8.0f * fGridY, signals[ 4].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 4].Rhythm);
+					drawSections[11] = new ECGDrawSection(true, fmm_Per_mV, 14.5f * fGridX, 13.5f * fGridY, signals[ 5].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, b, c, signals[ 5].Rhythm);
 
-					drawSections[12] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX,  2.5f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 6].Rhythm);
-					drawSections[13] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX,  8.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 7].Rhythm);
-					drawSections[14] = new ECGDrawSection(fmm_Per_mV, 27.0f * fGridX, 13.5f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 8].Rhythm);
+					drawSections[12] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX,  2.5f * fGridY, signals[ 6].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 6].Rhythm);
+					drawSections[13] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX,  8.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 7].Rhythm);
+					drawSections[14] = new ECGDrawSection(true, fmm_Per_mV, 27.0f * fGridX, 13.5f * fGridY, signals[ 8].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, c, d, signals[ 8].Rhythm);
 
-					drawSections[15] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX,  2.5f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[ 9].Rhythm);
-					drawSections[16] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX,  8.0f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[10].Rhythm);
-					drawSections[17] = new ECGDrawSection(fmm_Per_mV, 39.5f * fGridX, 13.5f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[11].Rhythm);
+					drawSections[15] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX,  2.5f * fGridY, signals[ 9].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[ 9].Rhythm);
+					drawSections[16] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX,  8.0f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[10].Rhythm);
+					drawSections[17] = new ECGDrawSection(true, fmm_Per_mV, 39.5f * fGridX, 13.5f * fGridY, signals[11].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, d, e, signals[11].Rhythm);
 
-					drawSections[18] = new ECGDrawSection(fmm_Per_mV, 2.0f * fGridX, 19.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[ 1].Rhythm);
-					drawSections[19] = new ECGDrawSection(fmm_Per_mV, 2.0f * fGridX, 24.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[ 7].Rhythm);
-					drawSections[20] = new ECGDrawSection(fmm_Per_mV, 2.0f * fGridX, 29.5f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[10].Rhythm);
+					drawSections[18] = new ECGDrawSection(true, fmm_Per_mV, 2.0f * fGridX, 19.0f * fGridY, signals[ 1].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[ 1].Rhythm);
+					drawSections[19] = new ECGDrawSection(true, fmm_Per_mV, 2.0f * fGridX, 24.0f * fGridY, signals[ 7].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[ 7].Rhythm);
+					drawSections[20] = new ECGDrawSection(true, fmm_Per_mV, 2.0f * fGridX, 29.5f * fGridY, signals[10].Type, signals.RhythmAVM, signals.RhythmSamplesPerSecond, a, e, signals[10].Rhythm);
 				}
 					break;
 				case ECGDrawType.Median:
@@ -618,25 +698,25 @@ namespace ECGConversion
 					int	a = nTime,
 						b = ((signals.MedianLength * signals.MedianSamplesPerSecond) / 1000) + nTime + 1;
 
-					drawSections[ 0] = new ECGDrawSection(fmm_Per_mV, 0.0f,  5.0f * fGridY, signals.MedianSamplesPerSecond, 2);
-					drawSections[ 1] = new ECGDrawSection(fmm_Per_mV, 0.0f, 16.0f * fGridY, signals.MedianSamplesPerSecond, 2);
-					drawSections[ 2] = new ECGDrawSection(fmm_Per_mV, 0.0f, 27.0f * fGridY, signals.MedianSamplesPerSecond, 2);
+					drawSections[ 0] = new ECGDrawSection(true, fmm_Per_mV, 0.0f,  5.0f * fGridY, signals.MedianSamplesPerSecond, 2);
+					drawSections[ 1] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 16.0f * fGridY, signals.MedianSamplesPerSecond, 2);
+					drawSections[ 2] = new ECGDrawSection(true, fmm_Per_mV, 0.0f, 27.0f * fGridY, signals.MedianSamplesPerSecond, 2);
 
-					drawSections[ 3] = new ECGDrawSection(fmm_Per_mV,  4.0f * fGridX,  5.0f * fGridY, signals[ 0].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 0].Median);
-					drawSections[ 4] = new ECGDrawSection(fmm_Per_mV,  4.0f * fGridX, 16.0f * fGridY, signals[ 1].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 1].Median);
-					drawSections[ 5] = new ECGDrawSection(fmm_Per_mV,  4.0f * fGridX, 27.0f * fGridY, signals[ 2].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 2].Median);
+					drawSections[ 3] = new ECGDrawSection(true, fmm_Per_mV,  4.0f * fGridX,  5.0f * fGridY, signals[ 0].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 0].Median);
+					drawSections[ 4] = new ECGDrawSection(true, fmm_Per_mV,  4.0f * fGridX, 16.0f * fGridY, signals[ 1].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 1].Median);
+					drawSections[ 5] = new ECGDrawSection(true, fmm_Per_mV,  4.0f * fGridX, 27.0f * fGridY, signals[ 2].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 2].Median);
 
-					drawSections[ 6] = new ECGDrawSection(fmm_Per_mV, 17.0f * fGridX,  5.0f * fGridY, signals[ 3].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 3].Median);
-					drawSections[ 7] = new ECGDrawSection(fmm_Per_mV, 17.0f * fGridX, 16.0f * fGridY, signals[ 4].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 4].Median);
-					drawSections[ 8] = new ECGDrawSection(fmm_Per_mV, 17.0f * fGridX, 27.0f * fGridY, signals[ 5].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 5].Median);
+					drawSections[ 6] = new ECGDrawSection(true, fmm_Per_mV, 17.0f * fGridX,  5.0f * fGridY, signals[ 3].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 3].Median);
+					drawSections[ 7] = new ECGDrawSection(true, fmm_Per_mV, 17.0f * fGridX, 16.0f * fGridY, signals[ 4].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 4].Median);
+					drawSections[ 8] = new ECGDrawSection(true, fmm_Per_mV, 17.0f * fGridX, 27.0f * fGridY, signals[ 5].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 5].Median);
 
-					drawSections[ 9] = new ECGDrawSection(fmm_Per_mV, 30.0f * fGridX,  5.0f * fGridY, signals[ 6].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 6].Median);
-					drawSections[10] = new ECGDrawSection(fmm_Per_mV, 30.0f * fGridX, 16.0f * fGridY, signals[ 7].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 7].Median);
-					drawSections[11] = new ECGDrawSection(fmm_Per_mV, 30.0f * fGridX, 27.0f * fGridY, signals[ 8].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 8].Median);
+					drawSections[ 9] = new ECGDrawSection(true, fmm_Per_mV, 30.0f * fGridX,  5.0f * fGridY, signals[ 6].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 6].Median);
+					drawSections[10] = new ECGDrawSection(true, fmm_Per_mV, 30.0f * fGridX, 16.0f * fGridY, signals[ 7].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 7].Median);
+					drawSections[11] = new ECGDrawSection(true, fmm_Per_mV, 30.0f * fGridX, 27.0f * fGridY, signals[ 8].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 8].Median);
 
-					drawSections[12] = new ECGDrawSection(fmm_Per_mV, 43.0f * fGridX,  5.0f * fGridY, signals[ 9].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 9].Median);
-					drawSections[13] = new ECGDrawSection(fmm_Per_mV, 43.0f * fGridX, 16.0f * fGridY, signals[10].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[10].Median);
-					drawSections[14] = new ECGDrawSection(fmm_Per_mV, 43.0f * fGridX, 27.0f * fGridY, signals[11].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[11].Median);
+					drawSections[12] = new ECGDrawSection(true, fmm_Per_mV, 43.0f * fGridX,  5.0f * fGridY, signals[ 9].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[ 9].Median);
+					drawSections[13] = new ECGDrawSection(true, fmm_Per_mV, 43.0f * fGridX, 16.0f * fGridY, signals[10].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[10].Median);
+					drawSections[14] = new ECGDrawSection(true, fmm_Per_mV, 43.0f * fGridX, 27.0f * fGridY, signals[11].Type, signals.MedianAVM, signals.MedianSamplesPerSecond, a, b, signals[11].Median);
 				}
 					break;
 				default:
@@ -649,12 +729,10 @@ namespace ECGConversion
 				Font fontText = new Font("Verdana", _TextSize);
 				SolidBrush solidBrush = new SolidBrush(TextColor);
 
-				if ((((nMaxY * fGridY) + (_TextSize * DpiY * Inch_Per_mm * .4f)) > myGraphics.VisibleClipBounds.Height)
-				||	!DrawGrid(myGraphics, nMinX, nMinY, nMaxX, nMaxY))
-					return -5;
+				ret = DrawECG(myGraphics, drawSections, nMinX, nMinY, nMaxX, nMaxY);
 
-				foreach (ECGDrawSection ds in drawSections)
-					ret = Math.Max(ret, ds.DrawSignal(myGraphics));
+				if (ret < 0)
+					return ret;
 
 				if (DisplayInfo)
 				{
@@ -677,6 +755,30 @@ namespace ECGConversion
 			{
 				ret = (int) (((long) ret * nOldSamplesPerSecond) / signals.RhythmSamplesPerSecond);
 			}
+
+			return ret;
+		}
+		/// <summary>
+		/// Function to draw an ECG using a ECG draw section array.
+		/// </summary>
+		/// <param name="myGraphics">graphics object to draw with.</param>
+		/// <param name="drawSections"></param>
+		/// <param name="nMinX">Minimal X value for grid.</param>
+		/// <param name="nMinY">Minimal Y value for grid.</param>
+		/// <param name="nBoxesX">Nr of boxes allong the X-axis.</param>
+		/// <param name="nBoxesY">Nr of boxes allong the Y-axis.</param>
+		/// <returns>Sample number to start next draw ECG on.</returns>
+		public static int DrawECG(Graphics myGraphics, ECGDrawSection[] drawSections, int nMinX, int nMinY, int nBoxesX, int nBoxesY)
+		{
+			float fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
+			int ret = int.MinValue;
+
+			if ((((nBoxesY * fGridY) + (_TextSize * DpiY * Inch_Per_mm * .4f)) > myGraphics.VisibleClipBounds.Height)
+			||	!DrawGrid(myGraphics, nMinX, nMinY, nBoxesX, nBoxesY))
+				return -5;
+
+			foreach (ECGDrawSection ds in drawSections)
+				ret = Math.Max(ret, ds.DrawSignal(myGraphics));
 
 			return ret;
 		}
@@ -783,10 +885,10 @@ namespace ECGConversion
 		/// <param name="nNrLeads">Number of leads in signal.</param>
 		/// <param name="nMinX">Minimal X for drawing.</param>
 		/// <param name="nMinY">Minimal Y for drawing.</param>
-		/// <param name="nBlocksX">returns the maximum X for drawing signal</param>
-		/// <param name="nBlocksY">returns the maximum Y for drawing signal</param>
+		/// <param name="nBoxesX">Nr of boxes allong the X-axis.</param>
+		/// <param name="nBoxesY">Nr of boxes allong the Y-axis.</param>
 		/// <returns>true if successfull</returns>
-		private static bool DrawGrid(Graphics myGraphics, int nMinX, int nMinY, int nBlocksX, int nBlocksY)
+		private static bool DrawGrid(Graphics myGraphics, int nMinX, int nMinY, int nBoxesX, int nBoxesY)
 		{
 			Brush backBrush = new SolidBrush(BackColor);
 			myGraphics.FillRectangle(backBrush, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
@@ -797,8 +899,8 @@ namespace ECGConversion
 				fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine,
 				fPenWidth = DpiX * 0.015625f;
 
-			int nMaxX = nMinX + (int) Math.Round(fGridX * nBlocksX),
-				nMaxY = nMinY + (int) Math.Round(fGridY * nBlocksY),
+			int nMaxX = nMinX + (int) Math.Round(fGridX * nBoxesX),
+				nMaxY = nMinY + (int) Math.Round(fGridY * nBoxesY),
 				nAlternate = 1;
 
 			if ((nMaxX > myGraphics.VisibleClipBounds.Width)
