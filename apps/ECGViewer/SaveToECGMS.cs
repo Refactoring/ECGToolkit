@@ -210,6 +210,9 @@ namespace ECGViewer
 						case -1:
 							text = "Sending of ECG is not supported!";
 							break;
+						default:
+							text = "Sending of ECG failed for unknown reason!";
+							break;
 					}
 
 					MessageBox.Show(this, text, "Sending ECG failed", MessageBoxButtons.OK, MessageBoxIcon.Error);

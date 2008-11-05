@@ -224,7 +224,8 @@ namespace ECGConversion
 
 						BasicSCU scu = new BasicSCU(_Config["AESCU"], _Config["AESCP"], _Config["Server"], int.Parse(_Config["Port"]), 5000);
 
-						scu.CStore(dcm.DICOMData);
+						if (!scu.CStore(dcm.DICOMData))
+							return 4;
 
 						return 0;
 					}
