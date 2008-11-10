@@ -1,0 +1,9 @@
+\libs\ClosedFormats\
+\bin\
+\obj\
+exclude.txt
+release.bat
+.csproj.user
+.csproj.vspscc
+.scc
+.cvsignore
