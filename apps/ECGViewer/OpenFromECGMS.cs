@@ -237,6 +237,9 @@ namespace ECGViewer
 
 				_ECGList = _ManSys.getECGList(textPatientID.Text);
 
+				if (_ECGList == null)
+					return;
+
 				foreach (ECGInfo info in _ECGList)
 				{
 					StringBuilder sb = new StringBuilder();
