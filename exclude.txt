@@ -1,6 +1,8 @@
 \libs\ClosedFormats\
 \bin\
 \obj\
+\Release\
+\Debug\
 exclude.txt
 release.bat
 .csproj.user
