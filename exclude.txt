@@ -7,3 +7,4 @@ release.bat
 .csproj.vspscc
 .scc
 .cvsignore
+.bak
