@@ -22,7 +22,7 @@ using System.Xml;
 
 namespace ECGConversion.aECG
 {
-	public sealed class aECGAnnotation : aECGElement
+	public sealed class aECGAnnotation : aECGElement, IaECGAnnotationHolder
 	{
 		private string _InnerName = null;
 

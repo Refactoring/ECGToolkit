@@ -84,9 +84,7 @@ namespace ECGConversion.aECG
 
 				if (String.Compare(reader.Name, "center") == 0)
 				{
-					if ((reader.NodeType != XmlNodeType.Element)
-					||  !reader.IsEmptyElement
-					||	(Type == TimeType.LowHigh))
+					if (Type == TimeType.LowHigh)
 						return 3;
 
 					Type = TimeType.Center;
@@ -97,13 +95,25 @@ namespace ECGConversion.aECG
                     }
                     catch
                     {
+						return 3;
                     }
+
+					if (!reader.IsEmptyElement)
+					{
+						int depth = reader.Depth;
+
+						while (reader.Read())
+						{
+							if ((depth == reader.Depth)
+							&&	(string.Compare(reader.Name, "center") == 0)
+							&&	(reader.NodeType == XmlNodeType.EndElement))
+								break;
+						}
+					}
 				}
 				else if (String.Compare(reader.Name, "low") == 0)
 				{
-					if ((reader.NodeType != XmlNodeType.Element)
-                    ||  !reader.IsEmptyElement
-					||	(Type == TimeType.Center))
+					if (Type == TimeType.Center)
 						return 3;
 
 					Type = TimeType.LowHigh;
@@ -114,13 +124,25 @@ namespace ECGConversion.aECG
                     }
                     catch
                     {
+						return 3;
                     }
+
+					if (!reader.IsEmptyElement)
+					{
+						int depth = reader.Depth;
+
+						while (reader.Read())
+						{
+							if ((depth == reader.Depth)
+							&&	(string.Compare(reader.Name, "low") == 0)
+							&&	(reader.NodeType == XmlNodeType.EndElement))
+								break;
+						}
+					}
 				}
 				else if (String.Compare(reader.Name, "high") == 0)
 				{
-					if ((reader.NodeType != XmlNodeType.Element)
-					||  !reader.IsEmptyElement
-					||	(Type == TimeType.Center))
+					if (Type == TimeType.Center)
 						return 3;
 
 					Type = TimeType.LowHigh;
@@ -131,7 +153,21 @@ namespace ECGConversion.aECG
                     }
                     catch
                     {
+						return 3;
                     }
+
+					if (!reader.IsEmptyElement)
+					{
+						int depth = reader.Depth;
+
+						while (reader.Read())
+						{
+							if ((depth == reader.Depth)
+							&&	(string.Compare(reader.Name, "high") == 0)
+							&&	(reader.NodeType == XmlNodeType.EndElement))
+								break;
+						}
+					}
 				}
 			}
 

@@ -105,6 +105,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "MegaCare.xslt"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "aECG\aECGAddress.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

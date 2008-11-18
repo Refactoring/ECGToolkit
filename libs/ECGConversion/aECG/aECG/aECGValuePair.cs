@@ -119,7 +119,7 @@ namespace ECGConversion.aECG
 				{
 					try
 					{
-						_Value = (val.Length == 0) ? 0.0 : double.Parse(val, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+						_Value = (val.Length == 0) ? 29999 : double.Parse(val, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
 					}
 					catch
 					{
@@ -148,9 +148,10 @@ namespace ECGConversion.aECG
 
 			if (!reader.IsEmptyElement)
 			{
-				reader.Read();
+				while (reader.Read()
+					&& (reader.NodeType == XmlNodeType.Whitespace));
 
-				if ((reader.Name == Name)
+				if ((string.Compare(reader.Name, Name) == 0)
 				&&  (reader.NodeType == XmlNodeType.EndElement))
 					return 0;
 				else if (reader.NodeType != XmlNodeType.Element)

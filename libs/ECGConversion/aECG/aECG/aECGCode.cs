@@ -48,13 +48,23 @@ namespace ECGConversion.aECG
 
 		public override int Read(XmlReader reader)
 		{
-			if (!reader.IsEmptyElement)
-				return 1;
-
 			Code = reader.GetAttribute("code");
 			CodeSystem = reader.GetAttribute("codeSystem");
 			CodeSystemName = reader.GetAttribute("codeSystemName");
 			DisplayName = reader.GetAttribute("displayName");
+
+			if (!reader.IsEmptyElement)
+			{
+				int depth = reader.Depth;
+
+				while (reader.Read())
+				{
+					if ((depth == reader.Depth)
+					&&	(string.Compare(reader.Name, Name) == 0)
+					&&	(reader.NodeType == XmlNodeType.EndElement))
+						break;
+				}
+			}
 
 			return 0;
 		}

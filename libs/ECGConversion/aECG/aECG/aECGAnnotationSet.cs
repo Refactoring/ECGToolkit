@@ -22,7 +22,14 @@ using System.Xml;
 
 namespace ECGConversion.aECG
 {
-	public sealed class aECGAnnotationSet : aECGElement
+	interface IaECGAnnotationHolder
+	{
+		aECGAnnotation[] getAnnotations(string code);
+		bool Add(aECGAnnotation ann);
+		aECGAnnotation this[string code] {get;}
+	}
+
+	public sealed class aECGAnnotationSet : aECGElement, IaECGAnnotationHolder
 	{
 		private string _InnerName = null;
 
@@ -102,7 +109,9 @@ namespace ECGConversion.aECG
 		{
 			return Code.Works()
 				|| ActivityTime.Works()
-				|| MethodCode.Works();
+				|| MethodCode.Works()
+				|| ((Annotation[0] != null)
+				&&	(Annotation[0].Works()));
 		}
 
 		public aECGAnnotation[] getAnnotations(string code)

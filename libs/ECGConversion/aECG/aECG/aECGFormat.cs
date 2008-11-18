@@ -23,7 +23,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Schema;
+using System.Xml.XPath;
+using System.Xml.Xsl;
+
 using Communication.IO.Tools;
 
 using ECGConversion;
@@ -56,7 +58,7 @@ namespace ECGConversion.aECG
 				_Config["Encoding"] = value.BodyName;
 			}
 		}
-        public const string Name = "AnnotatedECG";
+		public const string Name = "AnnotatedECG";
 
 		public aECGId Id = new aECGId();
 		public aECGCode Code = new aECGCode();
@@ -68,7 +70,7 @@ namespace ECGConversion.aECG
 		public aECGSite TestingSite = new aECGSite("testingSite");
 		public aECGControlVariableHolder[] ControlVariables = new aECGControlVariableHolder[128];
 		public aECGSubjectFindingComment SubjectFindingComment = new aECGSubjectFindingComment();
-        public aECGComponent Component = new aECGComponent();
+		public aECGComponent Component = new aECGComponent();
 		public ArrayList UnknownElements = new ArrayList();
 
 		private string _OverreadingPhysician = null;
@@ -101,12 +103,50 @@ namespace ECGConversion.aECG
 
 			Encoding = reader.Encoding;
 
+			switch (GetFileName(reader.GetAttribute("xsi:schemaLocation")))
+			{
+				case "PORI_MT020001.xsd":
+					try
+					{
+						XmlUrlResolver resolver = new XmlUrlResolver();
+						resolver.Credentials = System.Net.CredentialCache.DefaultCredentials; 
+
+						MemoryStream ms = new MemoryStream(5 * 1024 * 1024);
+					
+						XslTransform xslTrans = new XslTransform();
+
+						XPathDocument xslt = new XPathDocument(Assembly.GetExecutingAssembly().GetManifestResourceStream("ECGConversion.MegaCare.xslt"));
+						xslTrans.Load(xslt, resolver, this.GetType().Assembly.Evidence); 
+
+						xslTrans.Transform(new System.Xml.XPath.XPathDocument(reader), null, ms, resolver);
+
+						ms.Seek(0, SeekOrigin.Begin);
+
+						XmlTextReader temp = new XmlTextReader(ms);
+
+						if (!CheckFormat(temp))
+							return 2;
+
+						reader = temp;
+					}
+					catch (Exception ex)
+					{
+						int i=0;
+						i++;
+					}
+
+
+					break;
+				default:
+					break;
+			}
+
 			int ret = 0;
 
 			while (reader.Read())
 			{
 				if ((reader.NodeType == XmlNodeType.Comment)
-                ||  (reader.NodeType == XmlNodeType.Whitespace))
+				||  (reader.NodeType == XmlNodeType.Whitespace))
 					continue;
 
 				if (String.Compare(reader.Name, Name) == 0)
@@ -117,14 +157,14 @@ namespace ECGConversion.aECG
 						return 3;
 				}
 
-                ret = aECGElement.ReadOne(this, reader);
+				ret = aECGElement.ReadOne(this, reader);
 
 				if (ret != 0)
 					break;
 			}
 
 			return (ret > 0) ? 3 + ret : ret;
-        }
+		}
 
 		public override int Read(Stream input, int offset)
 		{
@@ -279,7 +319,18 @@ namespace ECGConversion.aECG
 					if ((String.Compare(reader.Name, "AnnotatedECG") == 0)
 					&&  (reader.NodeType == XmlNodeType.Element)
 					&&	(string.Compare(reader.GetAttribute("type"), "Observation", true) == 0))
-						return true;
+					{
+						switch (GetFileName(reader.GetAttribute("xsi:schemaLocation")))
+						{
+							case "PORT_MT020001.xsd":
+							case "PORI_MT020001.xsd":
+								return true;
+							default:
+								break;
+						}
+
+						break;
+					}
 			}
 			catch
 			{
@@ -389,9 +440,9 @@ namespace ECGConversion.aECG
 		public override bool Works()
 		{
 			return Id.Works()
-                && Code.Works()
-                && EffectiveTime.Works()
-                && Component.Works();
+				&& Code.Works()
+				&& EffectiveTime.Works()
+				&& Component.Works();
 		}
 		public override void Empty()
 		{
@@ -631,7 +682,7 @@ namespace ECGConversion.aECG
 
 				short[] tempArray = new short[end - start];
 
-                ECGTool.CopySignal(signals[i].Rhythm, 0, tempArray, signals[i].RhythmStart - start, (signals[i].RhythmEnd - signals[i].RhythmStart));
+				ECGTool.CopySignal(signals[i].Rhythm, 0, tempArray, signals[i].RhythmStart - start, (signals[i].RhythmEnd - signals[i].RhythmStart));
 				series.SequenceSet[j].Value.Digits = tempArray;
 
 				if (derivedSeries != null)
@@ -755,7 +806,7 @@ namespace ECGConversion.aECG
 			set
 			{
 				if ((value != null)
-				&&	value.isExistingDate())
+					&&	value.isExistingDate())
 				{
 					TimepointEvent.SubjectAssignment.Subject.Demographic.BirthTime.Value = new DateTime(value.Year, value.Month, value.Day, 0, 0, 0, 0);
 				}
@@ -1019,7 +1070,7 @@ namespace ECGConversion.aECG
 					aECGControlVariableHolder var0 = Component[0].getControlVariable("MDC_ECG_CTL_VBL_ATTR_FILTER_NOTCH");
 
 					if ((var0 != null)
-					&&  (var0.ControlVariable != null))
+						&&  (var0.ControlVariable != null))
 					{
 						aECGControlVariable var1 = var0.ControlVariable;
 
@@ -1062,7 +1113,7 @@ namespace ECGConversion.aECG
 			set
 			{
 				if (((value & 0x1) == 0x1)
-				||	((value & 0x2) == 0x2))
+					||	((value & 0x2) == 0x2))
 				{
 					aECGControlVariable var1 = new aECGControlVariable();
 
@@ -1150,7 +1201,7 @@ namespace ECGConversion.aECG
 			get
 			{
 				if ((_OverreadingPhysician == null)
-				&&	(Component.Count > 0))
+					&&	(Component.Count > 0))
 				{
 					
 					aECGSeries series = Component[0];
@@ -1158,7 +1209,7 @@ namespace ECGConversion.aECG
 					aECGAnnotationSet aset = series.getAnnotationSet("MDC_ECG_INTERPRETATION");
 
 					if ((aset != null)
-					&&	(aset.Author.AssignedAuthorType.AssignedPerson != null))
+						&&	(aset.Author.AssignedAuthorType.AssignedPerson != null))
 					{
 						_OverreadingPhysician = aset.Author.AssignedAuthorType.AssignedPerson.PersonName.family;
 					}
@@ -1275,10 +1326,10 @@ namespace ECGConversion.aECG
 		public int setDiagnosticStatements(Statements stat)
 		{
 			if ((stat != null)
-			&&  (stat.time.Year > 1000)
-			&&  (stat.statement != null)
-			&&  (stat.statement.Length > 0)
-			&&	(Component.Count > 0))
+				&&  (stat.time.Year > 1000)
+				&&  (stat.statement != null)
+				&&  (stat.statement.Length > 0)
+				&&	(Component.Count > 0))
 			{
 				aECGSeries series = Component[0];
 
@@ -1286,8 +1337,8 @@ namespace ECGConversion.aECG
 
 				aECGAnnotationSet aset = series.Annotation[0];
 				if (stat.confirmed
-				||	(tempOver != null)
-				||	(aset == null))
+					||	(tempOver != null)
+					||	(aset == null))
 				{
 					aset = null;
 
@@ -1297,7 +1348,7 @@ namespace ECGConversion.aECG
 							break;
 
 						if ((series.Annotation[j].Author.AssignedAuthorType.AssignedPerson != null)
-						&&	(series.Annotation[j].Author.AssignedAuthorType.AssignedPerson.PersonName.family == tempOver))
+							&&	(series.Annotation[j].Author.AssignedAuthorType.AssignedPerson.PersonName.family == tempOver))
 							aset = series.Annotation[j];
 					}
 
@@ -1357,7 +1408,7 @@ namespace ECGConversion.aECG
 					top.Annotation[i] = temp;
 				}
 
-                aset.Add(top);
+				aset.Add(top);
 
 				series.Add(aset);
 
@@ -1407,10 +1458,15 @@ namespace ECGConversion.aECG
 
 					GlobalMeasurement gm = null;
 
-					foreach (aECGAnnotation ann in alAnnotations)
+					for (int i=0;i < alAnnotations.Count;i++)
 					{
+						aECGAnnotation ann = (aECGAnnotation) alAnnotations[i];
+
 						if (ann == null)
 							continue;
+
+						if (string.Compare(ann.Code.Code, "MDC_ECG_BEAT") == 0)
+							alAnnotations.AddRange(ann.Annotation);
 
 						int index = IndexOf(releventCodes, ann.Code.Code);
 
@@ -1440,85 +1496,91 @@ namespace ECGConversion.aECG
 
 							if (val is string
 							&&	(ann.SupportingROI.Boundary[0] != null)
-							&&	(ann.SupportingROI.Boundary[1] == null)
-							&&	(string.Compare(ann.SupportingROI.Boundary[0].Code.Code, "TIME_RELATIVE") == 0))
+							&&	(ann.SupportingROI.Boundary[1] == null))
 							{
 								aECGValuePair vp1 = null, vp2 = null;
 
-								switch (IndexOf(releventValues, (string)val))
+								if (string.Compare(ann.SupportingROI.Boundary[0].Code.Code, "TIME_RELATIVE") == 0)
 								{
-									case 0:
-										vp1 = ann.SupportingROI.Boundary[0].Value["low"];
-										vp2 = ann.SupportingROI.Boundary[0].Value["high"];
+									switch (IndexOf(releventValues, (string)val))
+									{
+										case 0:
+											vp1 = ann.SupportingROI.Boundary[0].Value["low"];
+											vp2 = ann.SupportingROI.Boundary[0].Value["high"];
 
-										if (((vp1 != null)
-										||	 (vp2 != null))
-										&&	((vp1 == null)
-										||	 (string.Compare(vp1.Unit, "ms") == 0))
-										&&	((vp2 == null)
-										||	 (string.Compare(vp2.Unit, "ms") == 0)))
-										{
-											if ((gm == null)
-											||	(gm.Ponset != GlobalMeasurement.NoValue)
-											||	(gm.Ponset != GlobalMeasurement.NoValue))
+											if (((vp1 != null)
+											||	 (vp2 != null))
+											&&	((vp1 == null)
+											||	 (string.Compare(vp1.Unit, "ms") == 0))
+											&&	((vp2 == null)
+											||	 (string.Compare(vp2.Unit, "ms") == 0)))
 											{
-												gm = new GlobalMeasurement();
+												if ((gm == null)
+												||	(gm.Ponset != GlobalMeasurement.NoValue)
+												||	(gm.Ponset != GlobalMeasurement.NoValue))
+												{
+													gm = new GlobalMeasurement();
 
-												alMeasurments.Add(gm);
+													alMeasurments.Add(gm);
+												}
+
+												if (vp1 != null)
+													gm.Ponset = (ushort) ((double)vp1.Value);
+
+												if (vp2 != null)
+													gm.Poffset = (ushort) ((double)vp2.Value);
 											}
 
-											if (vp1 != null)
-												gm.Ponset = (ushort) ((double)vp1.Value);
+											break;
+										case 1:
+											vp1 = ann.SupportingROI.Boundary[0].Value["low"];
+											vp2 = ann.SupportingROI.Boundary[0].Value["high"];
 
-											if (vp2 != null)
-												gm.Poffset = (ushort) ((double)vp2.Value);
-										}
-
-										break;
-									case 1:
-										vp1 = ann.SupportingROI.Boundary[0].Value["low"];
-										vp2 = ann.SupportingROI.Boundary[0].Value["high"];
-
-										if (((vp1 != null)
-										||	 (vp2 != null))
-										&&	((vp1 == null)
-										||	 (string.Compare(vp1.Unit, "ms") == 0))
-										&&	((vp2 == null)
-										||	 (string.Compare(vp2.Unit, "ms") == 0)))
-										{
-											if ((gm == null)
-											||	(gm.QRSonset != GlobalMeasurement.NoValue)
-											||	(gm.QRSoffset != GlobalMeasurement.NoValue))
+											if (((vp1 != null)
+											||	 (vp2 != null))
+											&&	((vp1 == null)
+											||	 (string.Compare(vp1.Unit, "ms") == 0))
+											&&	((vp2 == null)
+											||	 (string.Compare(vp2.Unit, "ms") == 0)))
 											{
-												gm = new GlobalMeasurement();
+												if ((gm == null)
+												||	(gm.QRSonset != GlobalMeasurement.NoValue)
+												||	(gm.QRSoffset != GlobalMeasurement.NoValue))
+												{
+													gm = new GlobalMeasurement();
 
-												alMeasurments.Add(gm);
+													alMeasurments.Add(gm);
+												}
+
+												if (vp1 != null)
+													gm.QRSonset = (ushort) ((double)vp1.Value);
+
+												if (vp2 != null)
+													gm.QRSoffset = (ushort) ((double)vp2.Value);
 											}
+											break;
+										case 2:
+											vp1 = ann.SupportingROI.Boundary[0].Value["high"];
 
-											if (vp1 != null)
-												gm.QRSonset = (ushort) ((double)vp1.Value);
-
-											if (vp2 != null)
-												gm.QRSoffset = (ushort) ((double)vp2.Value);
-										}
-										break;
-									case 2:
-										vp1 = ann.SupportingROI.Boundary[0].Value["high"];
-
-										if ((vp1 != null)
-										&&	(string.Compare(vp1.Unit, "ms") == 0))
-										{
-											if ((gm == null)
-											||	(gm.Toffset != GlobalMeasurement.NoValue))
+											if ((vp1 != null)
+											&&	(string.Compare(vp1.Unit, "ms") == 0))
 											{
-												gm = new GlobalMeasurement();
+												if ((gm == null)
+													||	(gm.Toffset != GlobalMeasurement.NoValue))
+												{
+													gm = new GlobalMeasurement();
 
-												alMeasurments.Add(gm);
+													alMeasurments.Add(gm);
+												}
+
+												gm.Toffset = (ushort) ((double) vp1.Value);
 											}
+											break;
+									}
+								}
+								else if (string.Compare(ann.SupportingROI.Boundary[0].Code.Code, "TIME_ABSOLUTE") == 0)
+								{
 
-											gm.Toffset = (ushort) ((double) vp1.Value);
-										}
-										break;
 								}
 							}
 							else if (val is double)
@@ -1596,10 +1658,10 @@ namespace ECGConversion.aECG
 
 		public int setGlobalMeasurements(GlobalMeasurements mes)
 		{
-            if ((mes != null)
+			if ((mes != null)
 			&&	(mes.measurment != null)
 			&&	(Component.Count > 0))
-            {
+			{
 				aECGSeries
 					series = Component[0],
 					seriesMedian = (series.DerivedSet.Count == 1) ? series.DerivedSet[0] : null;
@@ -1752,7 +1814,29 @@ namespace ECGConversion.aECG
 
 				for (int i=0;i < mes.measurment.Length;i++)
 				{
-					aECGAnnotationSet tempset = (i == 0) && (asetMedian != null) ? asetMedian : aset;
+					IaECGAnnotationHolder tempset = null;
+
+					if ((i == 0)
+					&&	(asetMedian != null))
+					{
+						tempset = asetMedian;
+					}
+					else
+					{
+						aECGAnnotation tempAnn = new aECGAnnotation();
+						tempAnn.Code.Code = "MDC_ECG_BEAT";
+						tempAnn.Code.CodeSystem = "2.16.840.1.113883.6.24";
+						tempAnn.Code.CodeSystemName = "MDC";
+
+						tempAnn.Value.Type = "CE";
+						tempAnn.Value.Code = "MDC_ECG_BEAT";
+						tempAnn.Value.CodeSystem = "2.16.840.1.113883.6.24";
+						tempAnn.Value.CodeSystemName = "MDC";
+
+						aset.Add(tempAnn);
+
+						tempset = tempAnn;
+					}
 
 					GlobalMeasurement gmes = mes.measurment[i];
 
@@ -1874,7 +1958,7 @@ namespace ECGConversion.aECG
 					seriesMedian.Add(asetMedian);
 
 				return 0;
-            }
+			}
 
 			return 1;
 		}
@@ -1892,6 +1976,19 @@ namespace ECGConversion.aECG
 					return i;
 
 			return -1;
+		}
+
+		private static string GetFileName(string temp1)
+		{
+			if (temp1 != null)
+			{
+				string[] temp2 = temp1.Split(' ');
+				temp2 = temp2[temp2.Length-1].Split('\\', '/');
+						
+				return temp2[temp2.Length-1];
+			}
+
+			return string.Empty;
 		}
 	}
 }
