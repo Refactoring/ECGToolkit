@@ -238,7 +238,7 @@ namespace ECGViewer
 		}
 		private float _Gain = 10f;
 
-		public ECGViewer()
+		public ECGViewer(string[] args)
 		{
 /*			// Might be intressting to add different colors.
 			ECGDraw.BackColor = Color.Black;
@@ -255,11 +255,31 @@ namespace ECGViewer
 			this.menuGridNone.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.None;
 			this.menuGridOne.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.OneMillimeters;
 			this.menuGridFive.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.FiveMillimeters;
+ 
+			if (args.Length == 1)
+			{
+				IECGFormat format = _ECGReader.Read(args[0]);
+ 
+				if (format != null)
+				{
+					CurrentECG = format; 
+ 
+					this.statusBar.Text = "Opened file!";
+				}
+				else
+				{
+					CurrentECG = null;
+ 
+					this.statusBar.Text = "Failed to open file!";
+				}
+ 
+				this.InnerECGPanel.Refresh();
+			}
 		}
 
 		public static void Main(string[] args)
 		{
-			Application.Run(new ECGViewer());
+			Application.Run(new ECGViewer(args));
 		}
 
 		/// <summary>
