@@ -1829,7 +1829,7 @@ namespace ECGConversion.DICOM
 							if (temp3[i] != null)
 								b |= (1UL << i);
 
-						if ((((a | b) & (~a | ~b))) == (a + b))
+						if ((a ^ b) == (a + b))
 						{
 							for (int i=0;i < temp1;i++)
 								if (temp2[i] != null)
