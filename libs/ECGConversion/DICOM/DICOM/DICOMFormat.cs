@@ -1562,7 +1562,7 @@ namespace ECGConversion.DICOM
 							Dataset ds = element.AddNewItem();
 
 							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.10.3-15", "SCPECG", "1.3", "QRS Axis");
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.10.3-15", "SCPECG", "1.3", "T Axis");
 
 							ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
@@ -1829,7 +1829,7 @@ namespace ECGConversion.DICOM
 							if (temp3[i] != null)
 								b |= (1UL << i);
 
-						if ((((a | b) & (~a | ~b)) + 1) == (1UL << temp1))
+						if ((((a | b) & (~a | ~b))) == (a + b))
 						{
 							for (int i=0;i < temp1;i++)
 								if (temp2[i] != null)

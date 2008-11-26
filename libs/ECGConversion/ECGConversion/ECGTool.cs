@@ -17,6 +17,7 @@ Written by Maarten JB van Ettinger.
 
 ****************************************************************************/
 using System;
+using System.Collections;
 
 namespace ECGConversion
 {
@@ -506,7 +507,7 @@ namespace ECGConversion
 				}
 				int err = 0;
 
-				dst = new short[(nrsamples * dstFreq) / srcFreq + 1];
+				dst = new short[(nrsamples * dstFreq) / srcFreq];
 				int tussenFreq = KGV(srcFreq, dstFreq);
 				int srcAdd = tussenFreq / srcFreq;
 				int dstAdd = tussenFreq / dstFreq;

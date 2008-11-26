@@ -129,11 +129,7 @@ namespace ECGConversion.aECG
 
 						reader = temp;
 					}
-					catch (Exception ex)
-					{
-						int i=0;
-						i++;
-					}
+					catch {}
 
 
 					break;
