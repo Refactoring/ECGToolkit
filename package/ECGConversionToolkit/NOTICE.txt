@@ -1,6 +1,6 @@
 =========================================================================
 ==  Example NOTICE file for use with the Apache License, Version 2.0,  ==
-==  in this case for the Apache httpd-2.0 distribution.                ==
+==  in this case for the ECG Conversion Toolkit distribution.          ==
 =========================================================================
 
 ECG Conversion Toolkit
