@@ -507,7 +507,7 @@ namespace ECGConversion
 				}
 				int err = 0;
 
-				dst = new short[(nrsamples * dstFreq) / srcFreq];
+				dst = new short[(nrsamples * dstFreq) / srcFreq + 1];
 				int tussenFreq = KGV(srcFreq, dstFreq);
 				int srcAdd = tussenFreq / srcFreq;
 				int dstAdd = tussenFreq / dstFreq;
