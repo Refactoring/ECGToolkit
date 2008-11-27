@@ -142,5 +142,46 @@ namespace ECGConversion.ECGGlobalMeasurements
 					_QTc = 0;
 			}
 		}
+		public GlobalMeasurements Clone()
+		{
+			GlobalMeasurements ret = new GlobalMeasurements();
+
+			ret._QTc = _QTc;
+			ret._VentRate = VentRate;
+			ret.AvgPP = AvgPP;
+			ret.AvgRR = AvgRR;
+
+			if (measurment != null)
+			{
+				ret.measurment = new GlobalMeasurement[measurment.Length];
+				for (int i=0;i < measurment.Length;i++)
+				{
+					ret.measurment[i] = new GlobalMeasurement();
+
+					ret.measurment[i].Ponset = measurment[i].Ponset;
+					ret.measurment[i].Poffset = measurment[i].Poffset;
+					ret.measurment[i].QRSonset = measurment[i].QRSonset;
+					ret.measurment[i].QRSoffset = measurment[i].QRSoffset;
+					ret.measurment[i].Toffset = measurment[i].Toffset;
+
+					ret.measurment[i].Paxis = measurment[i].Paxis;
+					ret.measurment[i].QRSaxis = measurment[i].QRSaxis;
+					ret.measurment[i].Taxis = measurment[i].Taxis;
+				}
+			}
+
+			if (spike != null)
+			{
+				ret.spike = new Spike[spike.Length];
+				for (int i=0;i < spike.Length;i++)
+				{
+					ret.spike[i] = new Spike();
+					ret.spike[i].Amplitude = spike[i].Amplitude;
+					ret.spike[i].Time = spike[i].Time;
+				}
+			}
+
+			return ret;
+		}
 	}
 }
