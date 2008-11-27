@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 using ECGConversion;
+using ECGConversion.ECGGlobalMeasurements;
 using ECGConversion.ECGSignals;
 
 namespace ECGConversion.CSV
@@ -30,9 +31,10 @@ namespace ECGConversion.CSV
 	/// <summary>
 	/// Summary description for CSVFormat.
 	/// </summary>
-	public sealed class CSVFormat : IECGFormat, ISignal
+	public sealed class CSVFormat : IECGFormat, ISignal, IGlobalMeasurement
 	{
 		public Signals _Sigs =  null;
+		public GlobalMeasurements _Mes = null;
 
 		public CSVFormat()
 		{
@@ -144,7 +146,7 @@ namespace ECGConversion.CSV
 		{
 			get
 			{
-				return null;
+				return this;
 			}
 		}
 		public override ISignal Signals
@@ -205,6 +207,32 @@ namespace ECGConversion.CSV
 			_Sigs = signals.Clone();
 
 			return 0;
+		}
+
+		#endregion
+
+		#region IGlobalMeasurement Members
+
+		public int getGlobalMeasurements(out GlobalMeasurements mes)
+		{
+			mes = null;
+
+			if (_Mes != null)
+				mes = _Mes.Clone();
+
+			return mes == null ? 1 : 0;
+		}
+
+		public int setGlobalMeasurements(GlobalMeasurements mes)
+		{
+			if (mes != null)
+			{
+				_Mes = mes;
+
+				return 0;
+			}
+
+			return 1;
 		}
 
 		#endregion

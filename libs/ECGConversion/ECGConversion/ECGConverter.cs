@@ -635,6 +635,10 @@ namespace ECGConversion
 				ISignal sigread = src.Signals;
 				if (sigread != null)
 				{
+					ECGGlobalMeasurements.GlobalMeasurements mes = null;
+					if (src.GlobalMeasurements != null)
+						src.GlobalMeasurements.getGlobalMeasurements(out mes);
+
 					Signals data;
 					sigread.getSignals(out data);
 
@@ -659,6 +663,10 @@ namespace ECGConversion
 								output.Write("{0}?", hSeperator);
 							}
 						}
+						if ((mes != null)
+						&&	(mes.measurment != null))
+							output.Write("{0}measurement", hSeperator);
+
 						output.WriteLine();
 
 						for (int sample=minstart;sample < maxend;sample++)
@@ -679,6 +687,60 @@ namespace ECGConversion
 									output.Write("{0}0", hSeperator);
 								}
 							}
+
+							if ((mes != null)
+							&&	(mes.measurment != null))
+							{
+								bool bWrite = false;
+
+								for (int i=(data.MedianLength == 0 ? 0 : 1);i < mes.measurment.Length;i++)
+								{
+									bWrite = false;
+
+									if ((mes.measurment[i].Ponset != GlobalMeasurement.NoValue)
+									&&	(mes.measurment[i].Ponset == sample))
+									{
+										output.Write("{0}1000{0}P+{1}", hSeperator, i);
+										break;
+									}
+
+									if ((mes.measurment[i].Poffset != GlobalMeasurement.NoValue)
+									&&	(mes.measurment[i].Poffset == sample))
+									{
+										output.Write("{0}-1000{0}P-{1}", hSeperator, i);
+										break;
+									}
+
+									if ((mes.measurment[i].QRSonset != GlobalMeasurement.NoValue)
+									&&	(mes.measurment[i].QRSonset == sample))
+									{
+										output.Write("{0}1500{0}QRS+{1}", hSeperator, i);
+										break;
+									}
+
+									if ((mes.measurment[i].QRSoffset != GlobalMeasurement.NoValue)
+									&&	(mes.measurment[i].QRSoffset == sample))
+									{
+										output.Write("{0}-1500{0}QRS-{1}", hSeperator, i);
+										break;
+									}
+
+									if ((mes.measurment[i].Toffset != GlobalMeasurement.NoValue)
+									&&	(mes.measurment[i].Toffset == sample))
+									{
+										output.Write("{0}-1250{0}T-{1}", hSeperator, i);
+										break;
+									}
+
+									bWrite = true;
+								}
+
+								if (bWrite)
+								{
+									output.Write("{0}0", hSeperator);
+								}
+							}
+
 							output.WriteLine();
 						}
 
