@@ -15,16 +15,6 @@ limitations under the License.
 
 Written by Maarten JB van Ettinger.
 
-$Header$
-
-$Log$
-Revision 1.1  2008/09/12 17:52:52  mvanettinger
-All the source code finally check-in.
-
- * 
- * 3     9/05/08 11:22a 231850
- * Changes licenses.
-
 ****************************************************************************/
 using System;
 using System.Runtime.InteropServices;
