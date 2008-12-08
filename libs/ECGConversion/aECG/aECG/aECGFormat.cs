@@ -312,11 +312,14 @@ namespace ECGConversion.aECG
 			try
 			{
 				while (reader.Read())
+				{
 					if ((String.Compare(reader.Name, "AnnotatedECG") == 0)
 					&&  (reader.NodeType == XmlNodeType.Element)
 					&&	(string.Compare(reader.GetAttribute("type"), "Observation", true) == 0))
 					{
-						switch (GetFileName(reader.GetAttribute("xsi:schemaLocation")))
+						string schemaLocation = reader.GetAttribute("xsi:schemaLocation");
+
+						switch (GetFileName(schemaLocation))
 						{
 							case "PORT_MT020001.xsd":
 							case "PORI_MT020001.xsd":
@@ -325,8 +328,12 @@ namespace ECGConversion.aECG
 								break;
 						}
 
+						if (schemaLocation == null)
+							return true;
+
 						break;
 					}
+				}
 			}
 			catch
 			{

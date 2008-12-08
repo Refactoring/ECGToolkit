@@ -130,7 +130,7 @@ namespace ECGConversion.aECG
 				{
 					try
 					{
-						_Time = aECGTime.ParseDate(val);
+						_Time = (string.Compare(val, "0") == 0) ? DateTime.MinValue : aECGTime.ParseDate(val);
 					}
 					catch
 					{
@@ -233,6 +233,10 @@ namespace ECGConversion.aECG
 
 					if (DisplayName != null)
 						writer.WriteAttributeString("displayName", DisplayName);
+				}
+				else
+				{
+					writer.WriteAttributeString("value", "0");
 				}
 			}
 
