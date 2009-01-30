@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ namespace ECGConversion.SCP
 
 			if (_NrRefTypeQRS > 0)
 			{
-				if ((offset + (_NrRefTypeQRS * Marshal.SizeOf(typeof(SCPMeasurement)))) > end)
+				if ((offset + (_NrRefTypeQRS * SCPMeasurement.Size)) > end)
 				{
 					return 0x2;
 				}
@@ -83,12 +83,12 @@ namespace ECGConversion.SCP
 				{
 					_Measurements[loper] = new SCPMeasurement();
 					_Measurements[loper].Read(buffer, offset);
-					offset += Marshal.SizeOf(_Measurements[loper]);
+					offset += SCPMeasurement.Size;
 				}
 			}
 			if (_NrSpikes > 0)
 			{
-				if ((offset + (_NrSpikes * Marshal.SizeOf(typeof(SCPSpike)))) > end)
+				if ((offset + (_NrSpikes * SCPSpike.Size)) > end)
 				{
 					return 0x4;
 				}
@@ -97,9 +97,9 @@ namespace ECGConversion.SCP
 				{
 					_Spikes[loper] = new SCPSpike();
 					_Spikes[loper].Read(buffer, offset);
-					offset += Marshal.SizeOf(_Spikes[loper]);
+					offset += SCPSpike.Size;
 				}
-				if (offset + (_NrSpikes * Marshal.SizeOf(typeof(SCPSpikeInfo))) > end)
+				if (offset + (_NrSpikes * SCPSpikeInfo.Size) > end)
 				{
 					_AfterSpikes = false;
 					_AfterSpikesInfo = false;
@@ -111,7 +111,7 @@ namespace ECGConversion.SCP
 				{
 					_SpikesInfo[loper] = new SCPSpikeInfo();
 					_SpikesInfo[loper].Read(buffer, offset);
-					offset += Marshal.SizeOf(_SpikesInfo[loper]);
+					offset += SCPSpikeInfo.Size;
 				}
 			}
 			
@@ -177,7 +177,7 @@ namespace ECGConversion.SCP
 					{
 						return 0x1;
 					}
-					offset += Marshal.SizeOf(_Measurements[loper]);
+					offset += SCPMeasurement.Size;
 				}
 			}
 			if (_NrSpikes > 0)
@@ -189,7 +189,7 @@ namespace ECGConversion.SCP
 					{
 						return 0x2;
 					}
-					offset += Marshal.SizeOf(_Spikes[loper]);
+					offset += SCPSpike.Size;
 				}
 				if (!_AfterSpikes)
 				{
@@ -202,7 +202,7 @@ namespace ECGConversion.SCP
 					{
 						return 0x4;
 					}
-					offset += Marshal.SizeOf(_SpikesInfo[loper]);
+					offset += SCPSpikeInfo.Size;
 				}
 			}
 
@@ -267,8 +267,8 @@ namespace ECGConversion.SCP
 			if (Works())
 			{
 				int sum = Marshal.SizeOf(_NrRefTypeQRS) + Marshal.SizeOf(_NrSpikes) + Marshal.SizeOf(_AvgPPInterval) + Marshal.SizeOf(_AvgRRInterval);
-				sum += (_NrRefTypeQRS * Marshal.SizeOf(typeof(SCPMeasurement)));
-				sum += (_NrSpikes * (Marshal.SizeOf(typeof(SCPSpike)) + Marshal.SizeOf(typeof(SCPSpikeInfo))));
+				sum += _NrRefTypeQRS * SCPMeasurement.Size;
+				sum += (_NrSpikes * (SCPSpike.Size + SCPSpikeInfo.Size));
 				if (_AfterSpikes)
 				{
 					sum += Marshal.SizeOf(_NrQRS) + (_NrQRS * Marshal.SizeOf(typeof(byte)));
@@ -454,9 +454,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing measurements for SCP.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPMeasurement
 		{
+			public const int Size = 16;
+
 			public ushort Ponset = GlobalMeasurement.NoValue;
 			public ushort Poffset = GlobalMeasurement.NoValue;
 			public ushort QRSonset = GlobalMeasurement.NoValue;
@@ -473,7 +474,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -505,7 +506,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -533,9 +534,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing SCP spikes.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPSpike
 		{
+			public const int Size = 4;
+
 			public ushort Time = GlobalMeasurement.NoValue;
 			public short Amplitude = GlobalMeasurement.NoAxisValue;
 			/// <summary>
@@ -546,7 +548,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -566,7 +568,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -582,9 +584,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing SCP Spike info.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPSpikeInfo
 		{
+			public const int Size = 6;
+
 			public byte Type = 255;
 			public byte Source = 0;
 			public ushort TriggerIndex = GlobalMeasurement.NoValue;
@@ -597,7 +600,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -621,7 +624,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}

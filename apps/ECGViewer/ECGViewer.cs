@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -96,6 +96,9 @@ namespace ECGViewer
 
 					if (value == null)
 					{
+						if (_CurrentECG != null)
+							_CurrentECG.Dispose();
+
 						_CurrentECG = null;
 						_CurrentSignal = null;
 						ECGTimeScrollbar.Visible = false;
@@ -113,6 +116,7 @@ namespace ECGViewer
 						{
 							this.statusBar.Text = "Failed to get signal!";
 
+							_CurrentECG.Dispose();
 							_CurrentECG = null;
 						}
 						else
@@ -887,14 +891,23 @@ namespace ECGViewer
 						{
 							if (CurrentECG.GetType() != ECGConverter.Instance.getType(index))
 							{
-								if ((ECGConverter.Instance.Convert(CurrentECG, index, cfg, out writeFile) != 0)
+								if (((ECGConverter.Instance.Convert(CurrentECG, index, cfg, out writeFile) != 0)
 								||	!writeFile.Works())
+								&&	(writeFile != null))
+								{
+									writeFile.Dispose();
 									writeFile = null;
+								}
+								
 							}
 						}
 						catch
 						{
-							writeFile = null;
+							if (writeFile != null)
+							{
+								writeFile.Dispose();
+								writeFile = null;
+							}
 						}
 
 						if (writeFile == null)
@@ -906,6 +919,8 @@ namespace ECGViewer
 					}
 				
 					ECGWriter.Write(writeFile, saveECGFileDialog.FileName, true);
+
+					writeFile.Dispose();
 
 					if (ECGWriter.getLastError() != 0)
 					{

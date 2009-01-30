@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ namespace ECGConversion.SCP
 				return 0x1;
 			}
 
-			int nrPointers = (Length - Size) / Marshal.SizeOf(typeof(SCPPointer));
+			int nrPointers = (Length - Size) / SCPPointer.Size;
 			if (nrPointers < 12)
 			{
 				return 0x2;
@@ -68,7 +68,7 @@ namespace ECGConversion.SCP
 				{
 					return err << 2;
 				}
-				offset += Marshal.SizeOf(_MandatoryPointers[loper]);
+				offset += SCPPointer.Size;
 			}
 			nrPointers -= _NrMandatory;
 			if (nrPointers > 0)
@@ -82,7 +82,7 @@ namespace ECGConversion.SCP
 					{
 						return err << 3;
 					}
-					offset += Marshal.SizeOf(_OptionalPointers[loper]);
+					offset += SCPPointer.Size;
 				}
 			}
 			return 0x0;
@@ -96,7 +96,7 @@ namespace ECGConversion.SCP
 				{
 					return err;
 				}
-				offset += Marshal.SizeOf(_MandatoryPointers[loper]);
+				offset += SCPPointer.Size;
 			}
 			if (_OptionalPointers != null)
 			{
@@ -107,7 +107,7 @@ namespace ECGConversion.SCP
 					{
 						return err << 1;
 					}
-					offset += Marshal.SizeOf(_OptionalPointers[loper]);
+					offset += SCPPointer.Size;
 				}
 			}
 			return 0x0;
@@ -135,7 +135,7 @@ namespace ECGConversion.SCP
 		}
 		protected override int _getLength()
 		{
-			int sum = Marshal.SizeOf(typeof(SCPPointer)) * getNrPointers();
+			int sum = SCPPointer.Size * getNrPointers();
 			return ((sum % 2) == 0 ? sum : sum + 1);
 		}
 		public override bool Works()
@@ -373,9 +373,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing a SCP pointer.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPPointer
 		{
+			public const int Size = 10;
+
 			public ushort Nr;
 			public int Length;
 			public int Index;
@@ -387,7 +388,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -409,7 +410,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}

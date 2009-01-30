@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ Written by Maarten JB van Ettinger.
 ****************************************************************************/
 using System;
 using System.Xml;
+using System.Collections;
 
 namespace ECGConversion.aECG
 {
@@ -73,7 +74,7 @@ namespace ECGConversion.aECG
 		private double _Value;
 		private string _InnerValue;
 
-		private System.Collections.SortedList _InnerList = new System.Collections.SortedList();
+		private SortedList _InnerList = new SortedList();
 
 		public aECGValuePair this[string name]
 		{

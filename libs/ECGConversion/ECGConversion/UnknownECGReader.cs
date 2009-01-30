@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright (c) 2004-2007,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright (c) 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -78,13 +78,14 @@ namespace ECGConversion
 								}
 							}
 						}
-						catch (Exception ex)
-						{
-							Console.Error.WriteLine(ex.ToString());
-						}
+						catch {}
 
+						if (ret != null)
+						{
+							ret.Dispose();
 						ret = null;
 					}
+				}
 				}
 
 				if (i == converter.getNrSupportedFormats())
@@ -127,12 +128,13 @@ namespace ECGConversion
 								}
 							}
 						}
-						catch (Exception ex)
-						{
-							Console.Error.WriteLine(ex.ToString());
-						}
+						catch {}
 
-						ret = null;
+						if (ret != null)
+						{
+							ret.Dispose();
+							ret = null;
+						}
 					}
 				}
 

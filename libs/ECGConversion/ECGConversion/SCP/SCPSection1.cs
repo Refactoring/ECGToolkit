@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2005,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -684,7 +684,7 @@ namespace ECGConversion.SCP
 				{
 					SCPHeaderField field = new SCPHeaderField();
 					field.Tag = 5;
-					field.Length = (ushort) Marshal.SizeOf(typeof(SCPDate));
+					field.Length = (ushort) SCPDate.Size;
 					field.Value = new byte[field.Length];
 					SCPDate scpdate = new SCPDate();
 					scpdate.Year = value.Year;
@@ -1075,7 +1075,7 @@ namespace ECGConversion.SCP
 				{
 					SCPHeaderField field = new SCPHeaderField();
 					field.Tag = 25;
-					field.Length = (ushort) Marshal.SizeOf(typeof(SCPDate));
+					field.Length = (ushort) SCPDate.Size;
 					field.Value = new byte[field.Length];
 					SCPDate scpdate = new SCPDate();
 					scpdate.Year = (ushort) time.Year;
@@ -1089,7 +1089,7 @@ namespace ECGConversion.SCP
 
 					field = new SCPHeaderField();
 					field.Tag = 26;
-					field.Length = (ushort) Marshal.SizeOf(typeof(SCPTime));
+					field.Length = (ushort) SCPTime.Size;
 					field.Value = new byte[field.Length];
 					SCPTime scptime = new SCPTime();
 					scptime.Hour = (byte) time.Hour;

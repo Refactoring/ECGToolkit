@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,13 +42,13 @@ namespace ECGConversion.ECGLeadMeasurements
 		{
 			get
 			{
-				int index = _List.IndexOfKey(mt);
+				int index = _List.IndexOfKey((int) mt);
 
 				return index >= 0 ? (short) _List.GetByIndex(index) : NoValue;
 			}
 			set
 			{
-				int index = _List.IndexOfKey(mt);
+				int index = _List.IndexOfKey((int) mt);
 
 				if (value == NoValue)
 				{
@@ -60,7 +60,7 @@ namespace ECGConversion.ECGLeadMeasurements
 					if (index >= 0)
 						_List.SetByIndex(index, value);
 					else
-						_List.Add(mt, value);
+						_List.Add((int) mt, value);
 				}
 			}
 		}
@@ -80,7 +80,7 @@ namespace ECGConversion.ECGLeadMeasurements
 
 		public MeasurementType getKeyByIndex(int index)
 		{
-			return (index >= 0) && (index < _List.Count) ? (MeasurementType) _List.GetKey(index) : MeasurementType.None;
+			return (index >= 0) && (index < _List.Count) ? (MeasurementType) ((int) _List.GetKey(index)) : MeasurementType.None;
 		}
 	}
 }

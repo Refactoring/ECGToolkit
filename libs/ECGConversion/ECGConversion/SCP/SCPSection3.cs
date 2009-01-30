@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ namespace ECGConversion.SCP
 			offset += Marshal.SizeOf(_NrLeads);
 			_Flags = (byte) BytesTool.readBytes(buffer, offset, Marshal.SizeOf(_Flags), true);
 			offset += Marshal.SizeOf(_Flags);
-			if (offset + (_NrLeads * Marshal.SizeOf(typeof(SCPLead))) > end)
+			if (offset + (_NrLeads * SCPLead.Size) > end)
 			{
 				_Empty();
 				return 0x2;
@@ -54,9 +54,9 @@ namespace ECGConversion.SCP
 
 			// BEGIN DIRTY SOLUTION!!!
 			// this solution is for a bug in some CCW files.
-			if (((end - offset) / Marshal.SizeOf(typeof(SCPLead))) > _NrLeads)
+			if (((end - offset) / SCPLead.Size) > _NrLeads)
 			{
-				_NrLeads = (byte) ((end - offset) / Marshal.SizeOf(typeof(SCPLead)));
+				_NrLeads = (byte) ((end - offset) / SCPLead.Size);
 			}
 			// END DIRTY SOLUTION!!!
 
@@ -69,7 +69,7 @@ namespace ECGConversion.SCP
 				{
 					return err << 2 + loper;
 				}
-				offset += Marshal.SizeOf(_Leads[loper]);
+				offset += SCPLead.Size;
 			}
 			return 0x0;
 		}
@@ -86,7 +86,7 @@ namespace ECGConversion.SCP
 				{
 					return err << loper;
 				}
-				offset += Marshal.SizeOf(_Leads[loper]);
+				offset += SCPLead.Size;
 			}
 			return 0x0;
 		}
@@ -100,7 +100,7 @@ namespace ECGConversion.SCP
 			if (Works())
 			{
 				int sum = (Marshal.SizeOf(_NrLeads) + Marshal.SizeOf(this._Flags));
-				sum += (_NrLeads * Marshal.SizeOf(typeof(SCPLead)));
+				sum += (_NrLeads * SCPLead.Size);
 				return ((sum % 2) == 0 ? sum : sum + 1);
 			}
 			return 0;
@@ -365,9 +365,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing SCP lead information.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPLead
 		{
+			public const int Size = 9;
+
 			public int Start;
 			public int End;
 			public byte ID;
@@ -396,7 +397,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -417,7 +418,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}

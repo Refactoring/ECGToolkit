@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2005,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ namespace ECGConversion.SCP
 			offset += Marshal.SizeOf(_FirstFiducial);
 			_NrQRS = (ushort) BytesTool.readBytes(buffer, offset, Marshal.SizeOf(_NrQRS), true);
 			offset += Marshal.SizeOf(_NrQRS);
-			if ((offset + (_NrQRS * Marshal.SizeOf(typeof(SCPQRSSubtraction)))) > end)
+			if ((offset + (_NrQRS * SCPQRSSubtraction.Size)) > end)
 			{
 				return 0x2;
 			}
@@ -64,10 +64,10 @@ namespace ECGConversion.SCP
 				{
 					return err << (2 + loper);
 				}
-				offset += Marshal.SizeOf(_Subtraction[loper]);
+				offset += SCPQRSSubtraction.Size;
 			}
 
-			if ((offset + (_NrQRS * Marshal.SizeOf(typeof(SCPQRSProtected)))) > end)
+			if ((offset + (_NrQRS * SCPQRSProtected.Size)) > end)
 			{
 				return 0x0;
 			}
@@ -81,7 +81,7 @@ namespace ECGConversion.SCP
 				{
 					return err << (2 + loper);
 				}
-				offset += Marshal.SizeOf(_Protected[loper]);
+				offset += SCPQRSProtected.Size;
 			}
 			return 0x0;
 		}
@@ -100,7 +100,7 @@ namespace ECGConversion.SCP
 				{
 					return err << loper;
 				}
-				offset += Marshal.SizeOf(_Subtraction[loper]);
+				offset += SCPQRSSubtraction.Size;
 			}
 
 			if (_Protected != null)
@@ -112,7 +112,7 @@ namespace ECGConversion.SCP
 					{
 						return err << loper;
 					}
-					offset += Marshal.SizeOf(_Protected[loper]);
+					offset += SCPQRSProtected.Size;
 				}
 			}
 			return 0x0;
@@ -130,10 +130,10 @@ namespace ECGConversion.SCP
 			if (Works())
 			{
 				int sum = (Marshal.SizeOf(_MedianDataLength) + Marshal.SizeOf(_FirstFiducial) + Marshal.SizeOf(_NrQRS));
-				sum += (_NrQRS * Marshal.SizeOf(typeof(SCPQRSSubtraction)));
+				sum += (_NrQRS * SCPQRSSubtraction.Size);
 				if (_Protected != null)
 				{
-					sum += (_NrQRS * Marshal.SizeOf(typeof(SCPQRSProtected)));
+					sum += (_NrQRS * SCPQRSProtected.Size);
 				}
 				return ((sum % 2) == 0 ? sum : sum + 1);
 			}
@@ -538,9 +538,9 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing SCP QRS subtraction zone.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPQRSSubtraction
 		{
+			public const int Size = 14;
 			public ushort Type = ushort.MaxValue;
 			public int Start = 0;
 			public int Fiducial = 0;
@@ -572,7 +572,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if (offset + Marshal.SizeOf(this) > buffer.Length)
+				if (offset + Size > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -596,7 +596,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if (offset + Marshal.SizeOf(this) > buffer.Length)
+				if (offset + Size > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -616,9 +616,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class containing QRS protected zones.
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPQRSProtected
 		{
+			public const int Size = 8;
+
 			public int Start = 0;
 			public int End = 0;
 			/// <summary>
@@ -644,7 +645,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if (offset + Marshal.SizeOf(this) > buffer.Length)
+				if (offset + Size > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -664,7 +665,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if (offset + Marshal.SizeOf(this) > buffer.Length)
+				if (offset + Size > buffer.Length)
 				{
 					return 0x1;
 				}

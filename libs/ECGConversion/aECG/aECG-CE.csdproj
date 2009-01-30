@@ -1,62 +1,54 @@
 <VisualStudioProject>
-    <CSHARP
+    <ECSHARP
         ProjectType = "Local"
-        ProductVersion = "7.10.6030"
-        SchemaVersion = "2.0"
-        ProjectGuid = "{663357A3-FC3A-4E55-8CEB-711D81CF88DB}"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "1.0"
+        ProjectGuid = "{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "ECGConversion"
+                AssemblyName = "ECGCpluginaECG"
                 AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
+                OutputFileFolder = "\Program Files\aECG"
                 RootNamespace = "ECGConversion"
-                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
+                <Platform Name = "Windows CE" />
                 <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "true"
-                    BaseAddress = "285212672"
+                    Name = "Debug-CE|Windows CE"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "0"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE"
+                    DefineConstants = "DEBUG;TRACE;WINCE"
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
-                    OutputPath = "bin\Debug\"
+                    OutputPath = "bin\Debug-CE\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
                     WarningLevel = "4"
                 />
                 <Config
-                    Name = "Release"
-                    AllowUnsafeBlocks = "true"
-                    BaseAddress = "285212672"
+                    Name = "Release-CE|Windows CE"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "0"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
+                    DefineConstants = "TRACE;WINCE"
                     DocumentationFile = ""
                     DebugSymbols = "false"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "true"
-                    OutputPath = "bin\Release\"
+                    OutputPath = "bin\Release-CE\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -65,320 +57,270 @@
             </Settings>
             <References>
                 <Reference
+                    Platform = "Windows CE"
+                    Name = "MSCorLib"
+                    AssemblyName = "mscorlib"
+                    Private = "False"
+                />
+                <Reference
+                    Platform = "Windows CE"
                     Name = "System"
                     AssemblyName = "System"
-                    HintPath = "..\..\..\..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                    Private = "False"
                 />
                 <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                    Platform = "Windows CE"
+                    Name = "ECGConversion"
+                    Project = "{1643B579-4920-4F1B-B06F-0B828A98B8DD}"
+                    Package = "{20D4826A-C6FA-45DB-90F4-C717570B9F32}"
+                    Private = "True"
                 />
                 <Reference
-                    Name = "System.XML"
+                    Platform = "Windows CE"
+                    Name = "System.Xml"
                     AssemblyName = "System.Xml"
-                    HintPath = "..\..\..\..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
                 />
                 <Reference
-                    Name = "System.Drawing"
-                    AssemblyName = "System.Drawing"
-                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
+                    Platform = "Windows CE-Designer"
+                    Name = "System.CF.Design"
+                    AssemblyName = "System.CF.Design"
+                    Private = "False"
+                />
+                <Reference
+                    Platform = "Windows CE-Designer"
+                    Name = "System.CF.Design.UI"
+                    AssemblyName = "System.CF.Design.UI"
+                    Private = "False"
+                />
+                <Reference
+                    Platform = "Windows CE-Designer"
+                    Name = "System.CF.Windows.Forms"
+                    AssemblyName = "System.CF.Windows.Forms"
+                    Private = "False"
+                />
+                <Reference
+                    Platform = "Windows CE-Designer"
+                    Name = "System.CF.Drawing"
+                    AssemblyName = "System.CF.Drawing"
+                    Private = "False"
+                />
+                <Reference
+                    Platform = "Windows CE-Designer"
+                    Name = "System"
+                    AssemblyName = "System"
+                    Private = "False"
                 />
             </References>
         </Build>
         <Files>
             <Include>
                 <File
+                    RelPath = "aECGReader.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "AssemblyInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGConfig.cs"
+                    RelPath = "ECGLoad.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGConverter.cs"
+                    RelPath = "aECG\aECGAddress.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDraw.cs"
+                    RelPath = "aECG\aECGAnnotation.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGPlugin.cs"
+                    RelPath = "aECG\aECGAnnotationSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGTool.cs"
+                    RelPath = "aECG\aECGAssignedAuthorType.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGWriter.cs"
+                    RelPath = "aECG\aECGAuthor.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "IECGFormat.cs"
+                    RelPath = "aECG\aECGBoundary.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "IECGReader.cs"
+                    RelPath = "aECG\aECGClinicalTrial.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "RawECGReader.cs"
+                    RelPath = "aECG\aECGCode.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "SCPReader.cs"
+                    RelPath = "aECG\aECGComponent.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "SortedList.cs"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "UnknownECGReader.cs"
+                    RelPath = "aECG\aECGControlVariable.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CSV\CSVFormat.cs"
+                    RelPath = "aECG\aECGControlVariableHolder.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDemographics\AcquiringDeviceID.cs"
+                    RelPath = "aECG\aECGDevice.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDemographics\Date.cs"
+                    RelPath = "aECG\aECGElement.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDemographics\DemographicEnumrations.cs"
+                    RelPath = "aECG\aECGFormat.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDemographics\Drug.cs"
+                    RelPath = "aECG\aECGId.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDemographics\IDemographic.cs"
+                    RelPath = "aECG\aECGIdentification.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDiagnostic\IDiagnostic.cs"
+                    RelPath = "aECG\aECGLocation.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGDiagnostic\Statements.cs"
+                    RelPath = "aECG\aECGName.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGGlobalMeasurements\GlobalMeasurement.cs"
+                    RelPath = "aECG\aECGOrganization.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGGlobalMeasurements\GlobalMeasurements.cs"
+                    RelPath = "aECG\aECGPerformer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGGlobalMeasurements\IGlobalMeasurement.cs"
+                    RelPath = "aECG\aECGPerson.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGGlobalMeasurements\Spike.cs"
+                    RelPath = "aECG\aECGPlayedManufacturedDevice.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGLeadMeasurements\ILeadMeasurement.cs"
+                    RelPath = "aECG\aECGRelatedObservation.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGLeadMeasurements\LeadMeasurement.cs"
+                    RelPath = "aECG\aECGSequence.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGLeadMeasurements\LeadMeasurements.cs"
+                    RelPath = "aECG\aECGSequenceSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGLeadMeasurements\MeasurementType.cs"
+                    RelPath = "aECG\aECGSeries.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGLeadMeasurements\Morphology.cs"
+                    RelPath = "aECG\aECGSite.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGManagementSysteem\ECGInfo.cs"
+                    RelPath = "aECG\aECGSubjectAssignment.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGManagementSysteem\IECGManagementSystem.cs"
+                    RelPath = "aECG\aECGSubjectAssignmentDefinition.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGSignals\ISignal.cs"
+                    RelPath = "aECG\aECGSubjectFindingComment.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGSignals\LeadType.cs"
+                    RelPath = "aECG\aECGSupportingROI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGSignals\QRSZone.cs"
+                    RelPath = "aECG\aECGTime.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGSignals\Signal.cs"
+                    RelPath = "aECG\aECGTimepointEvent.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ECGSignals\Signals.cs"
+                    RelPath = "aECG\aECGTransactionType.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "RawFormat\RawECGData.cs"
+                    RelPath = "aECG\aECGTrialSubject.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "RawFormat\RawECGFormat.cs"
+                    RelPath = "aECG\aECGUnknownElement.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "RawFormat\RawECGHeader.cs"
+                    RelPath = "aECG\aECGValue.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "SCP\SCPDate.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPFormat.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection0.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection1.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection10.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection11.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection2.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection3.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection4.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection5.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection6.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection7.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSection8.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPSectionUnkown.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SCP\SCPTime.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tools\BytesTool.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tools\CRCTool.cs"
+                    RelPath = "aECG\aECGValuePair.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
             </Include>
         </Files>
-    </CSHARP>
+    </ECSHARP>
 </VisualStudioProject>
 

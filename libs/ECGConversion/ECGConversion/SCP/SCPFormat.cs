@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2005,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ namespace ECGConversion.SCP
 			{
 				try
 				{
-					return (EncodingType) Enum.Parse(typeof(EncodingType), _Config["Compression Type"], true);
+					return (EncodingType) ECGConverter.EnumParse(typeof(EncodingType), _Config["Compression Type"], true);
 				}
 				catch {}
 
@@ -181,7 +181,8 @@ namespace ECGConversion.SCP
 		{
 			try
 			{
-				Enum.Parse(typeof(EncodingType), _Config["Compression Type"], true);
+				ECGConverter.EnumParse(typeof(EncodingType), _Config["Compression Type"], true);
+
 				int ddm = int.Parse(_Config["Difference Data Median"]),
 					ddr = int.Parse(_Config["Difference Data Rhythm"]);
 
@@ -274,7 +275,6 @@ namespace ECGConversion.SCP
 			// read in all section but pointers (section0).
 			for (int loper=1;loper < pointers.getNrPointers();loper++)
 			{				
-
 				// Special case for SCP Section 5 and 6 (they need to know the nr of leads used).
 				if ((loper < _MinNrSections)
 				&&	(_Default[loper] is SCPSection5))

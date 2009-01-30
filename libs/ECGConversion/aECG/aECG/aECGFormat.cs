@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml;
+#if !WINCE
 using System.Xml.XPath;
 using System.Xml.Xsl;
+#endif
 
 using Communication.IO.Tools;
 
@@ -55,7 +57,7 @@ namespace ECGConversion.aECG
 			}
 			set
 			{
-				_Config["Encoding"] = value.BodyName;
+				_Config["Encoding"] = value.WebName;
 			}
 		}
 		public const string Name = "AnnotatedECG";
@@ -103,38 +105,43 @@ namespace ECGConversion.aECG
 
 			Encoding = reader.Encoding;
 
-			switch (GetFileName(reader.GetAttribute("xsi:schemaLocation")))
+			string schemaLocation = reader.GetAttribute("xsi:schemaLocation");
+
+			if (schemaLocation != null)
 			{
-				case "PORI_MT020001.xsd":
-					try
-					{
-						XmlUrlResolver resolver = new XmlUrlResolver();
-						resolver.Credentials = System.Net.CredentialCache.DefaultCredentials; 
+				switch (GetFileName(schemaLocation))
+				{
+#if !WINCE
+					case "PORI_MT020001.xsd":
+						try
+						{
+							XmlUrlResolver resolver = new XmlUrlResolver();
+							resolver.Credentials = System.Net.CredentialCache.DefaultCredentials; 
 
-						MemoryStream ms = new MemoryStream(5 * 1024 * 1024);
+							MemoryStream ms = new MemoryStream(5 * 1024 * 1024);
 					
-						XslTransform xslTrans = new XslTransform();
+							XslTransform xslTrans = new XslTransform();
 
-						XPathDocument xslt = new XPathDocument(Assembly.GetExecutingAssembly().GetManifestResourceStream("ECGConversion.MegaCare.xslt"));
-						xslTrans.Load(xslt, resolver, this.GetType().Assembly.Evidence); 
+							XPathDocument xslt = new XPathDocument(Assembly.GetExecutingAssembly().GetManifestResourceStream("ECGConversion.MegaCare.xslt"));
+							xslTrans.Load(xslt, resolver, this.GetType().Assembly.Evidence); 
 
-						xslTrans.Transform(new System.Xml.XPath.XPathDocument(reader), null, ms, resolver);
+							xslTrans.Transform(new System.Xml.XPath.XPathDocument(reader), null, ms, resolver);
 
-						ms.Seek(0, SeekOrigin.Begin);
+							ms.Seek(0, SeekOrigin.Begin);
 
-						XmlTextReader temp = new XmlTextReader(ms);
+							XmlTextReader temp = new XmlTextReader(ms);
 
-						if (!CheckFormat(temp))
-							return 2;
+							if (!CheckFormat(temp))
+								return 2;
 
-						reader = temp;
-					}
-					catch {}
-
-
-					break;
-				default:
-					break;
+							reader = temp;
+						}
+						catch {}
+						break;
+#endif
+					default:
+						break;
+				}
 			}
 
 			int ret = 0;
@@ -319,17 +326,19 @@ namespace ECGConversion.aECG
 					{
 						string schemaLocation = reader.GetAttribute("xsi:schemaLocation");
 
+						if (schemaLocation == null)
+							return true;
+
 						switch (GetFileName(schemaLocation))
 						{
 							case "PORT_MT020001.xsd":
+#if !WINCE
 							case "PORI_MT020001.xsd":
+#endif
 								return true;
 							default:
 								break;
 						}
-
-						if (schemaLocation == null)
-							return true;
 
 						break;
 					}
@@ -555,7 +564,7 @@ namespace ECGConversion.aECG
 							signals.MedianAVM);
 					}
 
-					LeadTypeVitalRefId lt = (LeadTypeVitalRefId) Enum.Parse(
+					LeadTypeVitalRefId lt = (LeadTypeVitalRefId) ECGConverter.EnumParse(
 						typeof(LeadTypeVitalRefId),
 						series.SequenceSet[1 + i].Code.Code,
 						true);
@@ -608,7 +617,7 @@ namespace ECGConversion.aECG
 				EffectiveTime.ValTwo = EffectiveTime.ValOne + TimeSpan.FromSeconds(((double)(end - start)) / signals.RhythmSamplesPerSecond);
 			}
 
-			Id.Root = Guid.NewGuid().ToString();
+			Id.Root = ECGConverter.NewGuid().ToString();
 
 			Code.Code = "93000";
 			Code.CodeSystem = "2.16.840.1.113883.6.12";
@@ -617,7 +626,7 @@ namespace ECGConversion.aECG
 			aECGSeries series = Component[0];
 			aECGSeries derivedSeries = null;
 			
-			series.Id.Root = Guid.NewGuid().ToString();
+			series.Id.Root = ECGConverter.NewGuid().ToString();
 			
 			series.Code.Code = "RHYTHM";
 			series.Code.CodeSystem = "2.16.840.1.113883.5.4";
@@ -643,7 +652,7 @@ namespace ECGConversion.aECG
 			{
 				derivedSeries = series.DerivedSet[0];
 
-				derivedSeries.Id.Root = Guid.NewGuid().ToString();
+				derivedSeries.Id.Root = ECGConverter.NewGuid().ToString();
 
 				derivedSeries.Code.Code = "REPRESENTATIVE_BEAT";
 				derivedSeries.Code.CodeSystem = "2.16.840.1.113883.5.4";
@@ -942,7 +951,7 @@ namespace ECGConversion.aECG
 
 					try
 					{
-						id.ManufactorID = (byte) ((DeviceManufactor) Enum.Parse(typeof(DeviceManufactor), this.Component[0].SeriesAuthor.Organization.name, true));
+						id.ManufactorID = (byte) ((DeviceManufactor) ECGConverter.EnumParse(typeof(DeviceManufactor), this.Component[0].SeriesAuthor.Organization.name, true));
 					}
 					catch {}
 

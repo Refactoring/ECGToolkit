@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ namespace ECGConversion.SCP
 		private SCPStatement[] _Statements = null;
 		protected override int _Read(byte[] buffer, int offset)
 		{
-			int startsize = Marshal.SizeOf(_Confirmed) + Marshal.SizeOf(typeof(SCPDate)) + Marshal.SizeOf(typeof(SCPTime)) + Marshal.SizeOf(_NrStatements);
+			int startsize = Marshal.SizeOf(_Confirmed) + SCPDate.Size + SCPTime.Size + Marshal.SizeOf(_NrStatements);
 			int end = offset - Size + Length;
 			if ((offset + startsize) > end)
 			{
@@ -51,10 +51,10 @@ namespace ECGConversion.SCP
 			offset += Marshal.SizeOf(_Confirmed);
 			_Date = new SCPDate();
 			_Date.Read(buffer, offset);
-			offset += Marshal.SizeOf(_Date);
+			offset += SCPDate.Size;
 			_Time = new SCPTime();
 			_Time.Read(buffer, offset);
-			offset += Marshal.SizeOf(_Time);
+			offset += SCPTime.Size;
 			_NrStatements = (byte) BytesTool.readBytes(buffer, offset, Marshal.SizeOf(_NrStatements), true);
 			offset += Marshal.SizeOf(_NrStatements);
 
@@ -86,9 +86,9 @@ namespace ECGConversion.SCP
 			BytesTool.writeBytes(_Confirmed, buffer, offset, Marshal.SizeOf(_Confirmed), true);
 			offset += Marshal.SizeOf(_Confirmed);
 			_Date.Write(buffer, offset);
-			offset += Marshal.SizeOf(_Date);
+			offset += SCPDate.Size;
 			_Time.Write(buffer, offset);
-			offset += Marshal.SizeOf(_Time);
+			offset += SCPTime.Size;
 			BytesTool.writeBytes(_NrStatements, buffer, offset, Marshal.SizeOf(_NrStatements), true);
 			offset += Marshal.SizeOf(_NrStatements);
 			for (int loper=0;loper < _NrStatements;loper++)
@@ -110,7 +110,7 @@ namespace ECGConversion.SCP
 		{
 			if (Works())
 			{
-				int sum = Marshal.SizeOf(_Confirmed) + Marshal.SizeOf(_Date) + Marshal.SizeOf(_Time) + Marshal.SizeOf(_NrStatements);
+				int sum = Marshal.SizeOf(_Confirmed) + SCPDate.Size + SCPTime.Size + Marshal.SizeOf(_NrStatements);
 				for (int loper=0;loper < _NrStatements;loper++)
 				{
 					sum += _Statements[loper].getLength();

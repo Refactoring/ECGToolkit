@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2139,7 +2139,7 @@ namespace ECGConversion.DICOM
 						break;
 					case "MDC":
 					{
-						type = (LeadType) Enum.Parse(typeof(LeadTypeVitalRefId), ds2.GetString(Tags.CodeValue));
+						type = (LeadType) ECGConverter.EnumParse(typeof(LeadTypeVitalRefId), ds2.GetString(Tags.CodeValue), false);
 					}
 						break;
 				}

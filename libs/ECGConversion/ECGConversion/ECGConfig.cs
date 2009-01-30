@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ namespace ECGConversion
 				for (int j=0;j < posConf.Length;i++,j++)
 					_PossibleConfigs[i] = posConf[j];
 			}
-
 		}
 		/// <summary>
 		/// Constructor for an ECGConversion Configuration 
@@ -103,7 +102,7 @@ namespace ECGConversion
 		{
 			get
 			{
-				if (_Configs.Contains(val))
+				if (_Configs.ContainsKey(val))
 					return (string) _Configs[val];
 
 				return null;
@@ -115,13 +114,12 @@ namespace ECGConversion
 					if ((value == null)
 					||	(value.Length == 0))
 					{
-						if (_Configs.Contains(val))
+						if (_Configs.ContainsKey(val))
 							_Configs.Remove(val);
 					}
 					else
 					{
-
-						if (_Configs.Contains(val))
+						if (_Configs.ContainsKey(val))
 							_Configs[val] = value;
 						else
 							_Configs.Add(val, value);
@@ -178,7 +176,7 @@ namespace ECGConversion
 		public bool ConfigurationWorks()
 		{
 			for (int i=0;i < _MustValue;i++)
-				if (!_Configs.Contains(_PossibleConfigs[i]))
+				if (!_Configs.ContainsKey(_PossibleConfigs[i]))
 					return false;
 
 			return (_CheckConfig == null) || _CheckConfig();

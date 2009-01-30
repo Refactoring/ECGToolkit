@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2007, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ namespace ECGConversion.SCP
 					}
 					_Tables[table] = new SCPHuffmanStruct[BytesTool.readBytes(buffer, offset, Marshal.SizeOf(_NrTables), true)];
 					offset += Marshal.SizeOf(_NrTables);
-					if ((offset + (_Tables[table].Length * Marshal.SizeOf(typeof(SCPHuffmanStruct)) )) > end)
+					if ((offset + (_Tables[table].Length * SCPHuffmanStruct.Size)) > end)
 					{
 						_Empty();
 						return 0x4;
@@ -77,7 +77,7 @@ namespace ECGConversion.SCP
 						{
 							return err << 3 + table;
 						}
-						offset += Marshal.SizeOf(_Tables[table][loper]);
+						offset += SCPHuffmanStruct.Size;
 					}
 				}
 			}
@@ -100,7 +100,7 @@ namespace ECGConversion.SCP
 						{
 							return err << table;
 						}
-						offset += Marshal.SizeOf(_Tables[table][loper]);
+						offset += SCPHuffmanStruct.Size;
 					}
 				}
 			}
@@ -120,7 +120,7 @@ namespace ECGConversion.SCP
 				{
 					for (int table=0;table < _NrTables;table++)
 					{
-						sum += Marshal.SizeOf(_NrTables) + (_Tables[table].Length * Marshal.SizeOf(typeof(SCPHuffmanStruct)));
+						sum += Marshal.SizeOf(_NrTables) + (_Tables[table].Length * SCPHuffmanStruct.Size);
 					}
 				}
 				return ((sum % 2) == 0 ? sum : sum + 1);
@@ -800,7 +800,6 @@ namespace ECGConversion.SCP
 				// Make buffer to contain samples
 				byte[] ret = new byte[time * sizeOfSample];
 
-
 				// For each sample do encode.
 				for (int currentTime=0;currentTime < time;currentTime++)
 				{
@@ -910,9 +909,10 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Class that contains a SCP Huffman struct
 		/// </summary>
-		[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 		public class SCPHuffmanStruct
 		{
+			public const int Size = 9;
+
 			public byte prefix;
 			public byte entire;
 			public byte tablemode;
@@ -936,7 +936,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Read(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}
@@ -971,7 +971,7 @@ namespace ECGConversion.SCP
 			/// <returns>0 on success</returns>
 			public int Write(byte[] buffer, int offset)
 			{
-				if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+				if ((offset + Size) > buffer.Length)
 				{
 					return 0x1;
 				}

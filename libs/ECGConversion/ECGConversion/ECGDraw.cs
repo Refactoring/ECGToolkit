@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,6 +42,10 @@ namespace ECGConversion
 					_uV_Per_Channel = value;
 			}
 		}
+
+#if WINCE
+		public static RectangleF ClipBounds;
+#endif
 
 		public static float DpiX = 96.0f;
 		public static float DpiY = 96.0f;
@@ -175,6 +179,12 @@ namespace ECGConversion
 		/// <returns>Sample number to start next draw ECG on.</returns>
 		public static int DrawECG(Graphics myGraphics, ECGSignals.Signals signals, DateTime dtRecordTime, int nTime, float fmm_Per_s, float fmm_Per_mV, bool bAllowResample)
 		{
+#if WINCE
+			RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+			RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
+
 			// begin: drawing of ECG.
 			float
 				fPixel_Per_ms = fmm_Per_s * DpiX * Inch_Per_mm * 0.001f,
@@ -191,9 +201,9 @@ namespace ECGConversion
 			||	(signals == null))
 				return 0;
 
-			if (Math.Ceiling((fLeadYSpace * signals.NrLeads) + fGridY) >= (myGraphics.VisibleClipBounds.Height - nMinY))
+			if (Math.Ceiling((fLeadYSpace * signals.NrLeads) + fGridY) >= (Bounds.Height - nMinY))
 			{
-				fLeadYSpace = (float) Math.Floor(((myGraphics.VisibleClipBounds.Height - nMinY - (fGridY * 2)) / signals.NrLeads) / fGridY) * fGridY;
+				fLeadYSpace = (float) Math.Floor(((Bounds.Height - nMinY - (fGridY * 2)) / signals.NrLeads) / fGridY) * fGridY;
 			}
 
 			DrawGrid(myGraphics, fLeadYSpace, signals.NrLeads, nMinX, nMinY, out nMaxX, out nMaxY);
@@ -386,27 +396,27 @@ namespace ECGConversion
 
 					if (_End == 1)
 					{
-						g.DrawLine(myPen, _X, _Y, _X, _Y - (float) (_AVM * fPixel_Per_uV));
-						g.DrawLine(myPen, _X, _Y - (float) (_AVM * fPixel_Per_uV), _X + end, _Y - (float) (_AVM * fPixel_Per_uV));
-						g.DrawLine(myPen, _X + end, _Y - (float) (_AVM * fPixel_Per_uV), _X + end, _Y);
+						DrawLine(g, myPen, _X, _Y, _X, _Y - (float) (_AVM * fPixel_Per_uV));
+						DrawLine(g, myPen, _X, _Y - (float) (_AVM * fPixel_Per_uV), _X + end, _Y - (float) (_AVM * fPixel_Per_uV));
+						DrawLine(g, myPen, _X + end, _Y - (float) (_AVM * fPixel_Per_uV), _X + end, _Y);
 					}
 					else
 					{
 						int a = ((end * 2) / 10),
 							b = ((end * 7) / 10);
 
-						g.DrawLine(myPen, _X, _Y, _X + a, _Y);
-						g.DrawLine(myPen, _X + a, _Y, _X + a, _Y - (float) (_AVM * fPixel_Per_uV));
-						g.DrawLine(myPen, _X + a, _Y - (float) (_AVM * fPixel_Per_uV), _X + b, _Y - (float) (_AVM * fPixel_Per_uV));
-						g.DrawLine(myPen, _X + b, _Y - (float) (_AVM * fPixel_Per_uV), _X + b, _Y);
-						g.DrawLine(myPen, _X + b, _Y, _X + end, _Y);
+						DrawLine(g, myPen, _X, _Y, _X + a, _Y);
+						DrawLine(g, myPen, _X + a, _Y, _X + a, _Y - (float) (_AVM * fPixel_Per_uV));
+						DrawLine(g, myPen, _X + a, _Y - (float) (_AVM * fPixel_Per_uV), _X + b, _Y - (float) (_AVM * fPixel_Per_uV));
+						DrawLine(g, myPen, _X + b, _Y - (float) (_AVM * fPixel_Per_uV), _X + b, _Y);
+						DrawLine(g, myPen, _X + b, _Y, _X + end, _Y);
 					}
 				}
 				else
 				{
 					if (_LeadType != ECGConversion.ECGSignals.LeadType.Unknown)
 					{
-						Font fontText = new Font("Verdana", _TextSize);
+						Font fontText = new Font("Verdana", _TextSize, FontStyle.Regular);
 						SolidBrush solidBrush = new SolidBrush(TextColor);
 
 						g.DrawString(
@@ -420,7 +430,7 @@ namespace ECGConversion
 						fontText.Dispose();
 					}
 
-					g.DrawLine(myPen, _X, _Y - (1000.0f * fPixel_Per_uV), _X, _Y - (1250.0f * fPixel_Per_uV));
+					DrawLine(g, myPen, _X, _Y - (1000.0f * fPixel_Per_uV), _X, _Y - (1250.0f * fPixel_Per_uV));
 
 					int t2=1;
 					for (;t2 < length;t2++)
@@ -443,7 +453,7 @@ namespace ECGConversion
 						if ((y1 != short.MinValue)
 						&&	(y2 != short.MinValue))
 						{
-							g.DrawLine(
+							DrawLine(g, 
 								myPen,
 								_X + t1,
 								_Y - (float) (y1 * _AVM * fPixel_Per_uV),
@@ -454,7 +464,7 @@ namespace ECGConversion
 
 					t2--;
 
-					g.DrawLine(myPen, _X + t2, _Y - (1000.0f * fPixel_Per_uV), _X + t2, _Y - (1250.0f * fPixel_Per_uV));
+					DrawLine(g, myPen, _X + t2, _Y - (1000.0f * fPixel_Per_uV), _X + t2, _Y - (1250.0f * fPixel_Per_uV));
 				}
 
 				myPen.Dispose();
@@ -545,12 +555,17 @@ namespace ECGConversion
 			{
 				case ECGDrawType.Regular:
 				{
+#if WINCE
+					RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+					RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
 					nMinY = (int) (_TextSize * DpiY * Inch_Per_mm * .4f);
 
 					// begin: drawing of ECG.
-					if (Math.Ceiling(fLeadYSpace * signals.NrLeads) >= (myGraphics.VisibleClipBounds.Height - nMinY))
+					if (Math.Ceiling(fLeadYSpace * signals.NrLeads) >= (Bounds.Height - nMinY))
 					{
-						fLeadYSpace = (float) Math.Floor(((myGraphics.VisibleClipBounds.Height - nMinY - fGridY) / signals.NrLeads) / fGridY) * fGridY;
+						fLeadYSpace = (float) Math.Floor(((Bounds.Height - nMinY - fGridY) / signals.NrLeads) / fGridY) * fGridY;
 					}
 
 					DrawGrid(myGraphics, fLeadYSpace, signals.NrLeads, nMinX, nMinY, out nMaxX, out nMaxY);
@@ -726,7 +741,7 @@ namespace ECGConversion
 
 			if (drawSections != null)
 			{
-				Font fontText = new Font("Verdana", _TextSize);
+				Font fontText = new Font("Verdana", _TextSize, FontStyle.Regular);
 				SolidBrush solidBrush = new SolidBrush(TextColor);
 
 				ret = DrawECG(myGraphics, drawSections, nMinX, nMinY, nMaxX, nMaxY);
@@ -770,13 +785,19 @@ namespace ECGConversion
 		/// <returns>Sample number to start next draw ECG on.</returns>
 		public static int DrawECG(Graphics myGraphics, ECGDrawSection[] drawSections, int nMinX, int nMinY, int nBoxesX, int nBoxesY)
 		{
+#if WINCE
+			RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+			RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
+
 			if (drawSections == null)
 				return -4;
 
 			float fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
 			int ret = int.MinValue;
 
-			if ((((nBoxesY * fGridY) + (_TextSize * DpiY * Inch_Per_mm * .4f)) > myGraphics.VisibleClipBounds.Height)
+			if ((((nBoxesY * fGridY) + (_TextSize * DpiY * Inch_Per_mm * .4f)) > Bounds.Height)
 			||	!DrawGrid(myGraphics, nMinX, nMinY, nBoxesX, nBoxesY))
 				return -5;
 
@@ -798,9 +819,15 @@ namespace ECGConversion
 		/// <param name="nMaxY">returns the maximum Y for drawing signal</param>
 		private static void DrawGrid(Graphics myGraphics, float fLeadYSpace, int nNrLeads, int nMinX, int nMinY, out int nMaxX, out int nMaxY)
 		{
+#if WINCE
+			RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+			RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
+
 			// begin: draw grid.
 			Brush backBrush = new SolidBrush(BackColor);
-			myGraphics.FillRectangle(backBrush, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
+			myGraphics.FillRectangle(backBrush, 0, 0, (int) Bounds.Width, (int) Bounds.Height);
 			backBrush.Dispose();
 
 			float
@@ -810,7 +837,7 @@ namespace ECGConversion
 			int nExtraSpace = nMinY,
 				nAlternate = 1;
 
-			nMaxX = (int) (Math.Floor((myGraphics.VisibleClipBounds.Width - nMinX - 1) / fGridX) * fGridX) + nMinX;
+			nMaxX = (int) (Math.Floor((Bounds.Width - nMinX - 1) / fGridX) * fGridX) + nMinX;
 			nMaxY = nMinY;
 
 			float
@@ -818,8 +845,13 @@ namespace ECGConversion
 				fMaxY = fTempY + nMinY,
 				fPenWidth = DpiX * 0.015625f;
 
+#if WINCE
+			Pen gridPen = new Pen(GraphColor),
+				gridSecondPen = new Pen(GraphSecondColor);
+#else
 			Pen	gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
 				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);			
+#endif
 
 			Brush gridBrush = null;
 
@@ -832,12 +864,14 @@ namespace ECGConversion
 				
 				nAlternate = 5;
 			}
+#if !WINCE
 			else if (DisplayGrid == GridType.OneMillimeters)
 			{
 				gridBrush = new HatchBrush(HatchStyle.Percent30, GraphSecondColor, BackColor);
 			}
+#endif
 
-			while (fMaxY < myGraphics.VisibleClipBounds.Height)
+			while (fMaxY < Bounds.Height)
 			{
 				nMaxY = (int) fMaxY;
 
@@ -853,7 +887,7 @@ namespace ECGConversion
 
 					if (DisplayGrid != GridType.None)
 					{
-						myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
+						DrawLine(myGraphics, (j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
 					}
 				}
 
@@ -866,7 +900,7 @@ namespace ECGConversion
 
 					if (DisplayGrid != GridType.None)
 					{
-						myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
+						DrawLine(myGraphics, (j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
 					}
 				}
 
@@ -894,8 +928,14 @@ namespace ECGConversion
 		/// <returns>true if successfull</returns>
 		private static bool DrawGrid(Graphics myGraphics, int nMinX, int nMinY, int nBoxesX, int nBoxesY)
 		{
+#if WINCE
+			RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+			RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
+
 			Brush backBrush = new SolidBrush(BackColor);
-			myGraphics.FillRectangle(backBrush, 0, 0, myGraphics.VisibleClipBounds.Width, myGraphics.VisibleClipBounds.Height);
+			myGraphics.FillRectangle(backBrush, 0, 0, (int) Bounds.Width, (int) Bounds.Height);
 			backBrush.Dispose();
 
 			float
@@ -907,15 +947,20 @@ namespace ECGConversion
 				nMaxY = nMinY + (int) Math.Round(fGridY * nBoxesY),
 				nAlternate = 1;
 
-			if ((nMaxX > myGraphics.VisibleClipBounds.Width)
-			||	(nMaxY > myGraphics.VisibleClipBounds.Height))
+			if ((nMaxX > Bounds.Width)
+			||	(nMaxY > Bounds.Height))
 				return false;
 
 			if (DisplayGrid == GridType.None)
 				return true;
 
+#if WINCE
+			Pen gridPen = new Pen(GraphColor),
+				gridSecondPen = new Pen(GraphSecondColor);
+#else
 			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
 				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
+#endif
 
 			Brush gridBrush = null;
 
@@ -928,10 +973,12 @@ namespace ECGConversion
 				
 				nAlternate = 5;
 			}
+#if !WINCE 
 			else if (DisplayGrid == GridType.OneMillimeters)
 			{
 				gridBrush = new HatchBrush(HatchStyle.Percent30, GraphSecondColor, BackColor);
 			}
+#endif
 			
 			if (gridBrush != null)
 				myGraphics.FillRectangle(gridBrush, nMinX, nMinY, nMaxX, nMaxY);
@@ -942,7 +989,7 @@ namespace ECGConversion
 			for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX,j++)
 			{
 				int nTempX = (int) Math.Round(i);
-				myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
+				DrawLine(myGraphics, (j % nAlternate) == 0 ? gridPen : gridSecondPen, nTempX, nMinY, nTempX, nMaxY);
 			}
 
 			j = 0;
@@ -951,7 +998,7 @@ namespace ECGConversion
 			for (float i=nMinY;i <= (nMaxY + fPenWidth);i+=fGridY,j++)
 			{
 				int nTempY = (int) Math.Round(i);
-				myGraphics.DrawLine((j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
+				DrawLine(myGraphics, (j % nAlternate) == 0 ? gridPen : gridSecondPen, nMinX, nTempY, nMaxX, nTempY);
 			}
 
 			if (gridBrush != null)
@@ -1089,7 +1136,7 @@ namespace ECGConversion
 
 					if ((y1 != short.MinValue)
 					&&	(y2 != short.MinValue))
-						myGraphics.DrawLine(
+						DrawLine(myGraphics, 
 							myPen,
 							x1,
 							(float) (((i + .5f) * fLeadYSpace) + fGridY - (y1 * signals.RhythmAVM * fPixel_Per_uV) + fYOffset),
@@ -1130,7 +1177,7 @@ namespace ECGConversion
 			int nY = (int) Math.Round(fY);
 
 			// begin: write tags per lead. 
-			Font fontText = new Font("Verdana", _TextSize);
+			Font fontText = new Font("Verdana", _TextSize, FontStyle.Regular);
 			SolidBrush solidBrush = new SolidBrush(TextColor);
 
 			long lTime = (nTime * 1000) / signals.RhythmSamplesPerSecond;
@@ -1178,7 +1225,7 @@ namespace ECGConversion
 					nY + 2.0f + i * fLeadYSpace);
 
 			fontText.Dispose();
-			fontText = new Font("System", _TextSize);
+			fontText = new Font("System", _TextSize, FontStyle.Regular);
 
 			fontText.Dispose();
 			solidBrush.Dispose();
@@ -1193,13 +1240,27 @@ namespace ECGConversion
 					b = (int) Math.Round(((i + .5f) * fLeadYSpace) - (1000.0f * fPixel_Per_uV)) + nY,
 					c = (int) Math.Round((i + .5f) * fLeadYSpace) + nY;
 				
-				myGraphics.DrawLine(myPen, a, c, a, b);
-				myGraphics.DrawLine(myPen, a, b, nPulseSpace + nX, b);
-				myGraphics.DrawLine(myPen, nPulseSpace + nX, c, nPulseSpace + nX, b);
+				DrawLine(myGraphics, myPen, a, c, a, b);
+				DrawLine(myGraphics, myPen, a, b, nPulseSpace + nX, b);
+				DrawLine(myGraphics, myPen, nPulseSpace + nX, c, nPulseSpace + nX, b);
 			}
 
 			myPen.Dispose();
 			// end: draw pulse.
+		}
+
+		private static void DrawLine(Graphics g, Pen pen, float x1, float y1, float x2, float y2)
+		{
+#if WINCE
+			g.DrawLine(
+				pen,
+				(int) Math.Round(x1),
+				(int) Math.Round(y1),
+				(int) Math.Round(x2),
+				(int) Math.Round(y2));
+#else
+			g.DrawLine(pen, x1, y1, x2, y2);
+#endif
 		}
 	}
 }

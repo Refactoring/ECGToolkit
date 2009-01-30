@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ Written by Maarten JB van Ettinger.
 
 ****************************************************************************/
 using System;
-using System.Collections;
 
 namespace ECGConversion
 {
@@ -207,15 +206,23 @@ namespace ECGConversion
 		/// <summary>
 		/// Hidden function to calculate III (input must be checked before using this function).
 		/// </summary>
-		private static short[] _CalculateLeadIII(short[] leadI, int beginI, int lengthI, short[] leadII, int beginII, int lengthII, int totalLength)
+		private unsafe static short[] _CalculateLeadIII(short[] leadI, int beginI, int lengthI, short[] leadII, int beginII, int lengthII, int totalLength)
 		{
 			short[] ret = new short[totalLength];
-			for (int loper=0;loper < totalLength;loper++)
+
+			fixed (short* pLeadI = leadI, pLeadII = leadII, pLeadIII = ret)
 			{
-				short dataI = ((loper >= beginI) && (loper < (beginI + lengthI)) ? leadI[loper - beginI] : (short)0);
-				short dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? leadII[loper - beginII] : (short)0);
-				ret[loper] = (short) (dataII - dataI);
+				short dataI, dataII;
+
+				for (int loper=0;loper < totalLength;loper++)
+				{
+					dataI = ((loper >= beginI) && (loper < (beginI + lengthI)) ? pLeadI[loper - beginI] : (short)0);
+					dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? pLeadII[loper - beginII] : (short)0);
+
+					pLeadIII[loper] = (short) (dataII - dataI);
+				}
 			}
+
 			return ret;
 		}
 		/// <summary>
@@ -236,20 +243,29 @@ namespace ECGConversion
 			{
 				return _CalculateLeadaVR(leadI, beginI, lengthI, leadII, beginII, lengthII, totalLength);
 			}
+
 			return null;
 		}
 		/// <summary>
 		/// Hidden function to calculate aVR (input must be checked before using this function).
 		/// </summary>
-		private static short[] _CalculateLeadaVR(short[] leadI, int beginI, int lengthI, short[] leadII, int beginII, int lengthII, int totalLength)
+		private unsafe static short[] _CalculateLeadaVR(short[] leadI, int beginI, int lengthI, short[] leadII, int beginII, int lengthII, int totalLength)
 		{
 			short[] ret = new short[totalLength];
-			for (int loper=0;loper < totalLength;loper++)
+
+			fixed (short* pLeadI = leadI, pLeadII = leadII, pLeadaVR = ret)
 			{
-				short dataI = ((loper >= beginI) && (loper < (beginI + lengthI)) ? leadI[loper - beginI] : (short)0);
-				short dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? leadII[loper - beginII] : (short)0);
-				ret[loper] = (short) -((dataI + dataII) >> 1);
+				short dataI, dataII;
+
+				for (int loper=0;loper < totalLength;loper++)
+				{
+					dataI = ((loper >= beginI) && (loper < (beginI + lengthI)) ? pLeadI[loper - beginI] : (short)0);
+					dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? pLeadII[loper - beginII] : (short)0);
+
+					pLeadaVR[loper] = (short) -((dataI + dataII) >> 1);
+				}
 			}
+
 			return ret;
 		}
 		/// <summary>
@@ -275,27 +291,38 @@ namespace ECGConversion
 		/// <summary>
 		/// Hidden function to calculate aVL (input must be checked before using this function).
 		/// </summary>
-		private static short[] _CalculateLeadaVL(short[] leadI, int beginI, int lengthI, short[] leadX, int beginX, int lengthX, int totalLength, bool threeLead)
+		private unsafe static short[] _CalculateLeadaVL(short[] leadI, int beginI, int lengthI, short[] leadX, int beginX, int lengthX, int totalLength, bool threeLead)
 		{
 			short[] ret = new short[totalLength];
-			if (threeLead)
+
+			fixed (short* pLeadI = leadI, pLeadX = leadX, pLeadaVL = ret)
 			{
-				for (int loper=0;loper < totalLength;loper++)
+				if (threeLead)
 				{
-					short dataI	= ((loper >= beginI) && (loper < (beginI + lengthI)) ? leadI[loper - beginI] : (short)0);
-					short dataIII = ((loper >= beginX) && (loper < (beginX + lengthX)) ? leadX[loper - beginX] : (short)0);
-					ret[loper] = (short) ((dataI - dataIII) >> 1);
+					short dataI, dataIII;
+
+					for (int loper=0;loper < totalLength;loper++)
+					{
+						dataI	= ((loper >= beginI) && (loper < (beginI + lengthI)) ? pLeadI[loper - beginI] : (short)0);
+						dataIII = ((loper >= beginX) && (loper < (beginX + lengthX)) ? pLeadX[loper - beginX] : (short)0);
+
+						pLeadaVL[loper] = (short) ((dataI - dataIII) >> 1);
+					}
+				}
+				else
+				{
+					short dataI, dataII;
+
+					for (int loper=0;loper < totalLength;loper++)
+					{
+						dataI = ((loper >= beginI) && (loper < (beginI + lengthI)) ? pLeadI[loper - beginI] : (short)0);
+						dataII = ((loper >= beginX) && (loper < (beginX + lengthX)) ? pLeadX[loper - beginX] : (short)0);
+
+						pLeadaVL[loper] = (short) (((dataI << 1) - dataII) >> 1);
+					}
 				}
 			}
-			else
-			{
-				for (int loper=0;loper < totalLength;loper++)
-				{
-					short dataI = ((loper >= beginI) && (loper < (beginI + lengthI)) ? leadI[loper - beginI] : (short)0);
-					short dataII = ((loper >= beginX) && (loper < (beginX + lengthX)) ? leadX[loper - beginX] : (short)0);
-					ret[loper] = (short) (((dataI << 1) - dataII) >> 1);
-				}
-			}
+
 			return ret;
 		}
 		/// <summary>
@@ -319,27 +346,38 @@ namespace ECGConversion
 		/// <summary>
 		/// Hidden function to calculate aVF (input must be checked before using this function).
 		/// </summary>
-		private static short[] _CalculateLeadaVF(short[] leadX, int beginX, int lengthX, short[] leadII, int beginII, int lengthII, int totalLength, bool threeLead)
+		private unsafe static short[] _CalculateLeadaVF(short[] leadX, int beginX, int lengthX, short[] leadII, int beginII, int lengthII, int totalLength, bool threeLead)
 		{
 			short[] ret = new short[totalLength];
-			if (threeLead)
+
+			fixed (short* pLeadX = leadX, pLeadII = leadII, pLeadaVF = ret)
 			{
-				for (int loper=0;loper < totalLength;loper++)
+				if (threeLead)
 				{
-					short dataIII = ((loper >= beginX) && (loper < (beginX + lengthX)) ? leadX[loper - beginX] : (short)0);
-					short dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? leadII[loper - beginII] : (short)0);
-					ret[loper] = (short) ((dataII + dataIII) >> 1);
+					short dataIII, dataII;
+
+					for (int loper=0;loper < totalLength;loper++)
+					{
+						dataIII = ((loper >= beginX) && (loper < (beginX + lengthX)) ? pLeadX[loper - beginX] : (short)0);
+						dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? pLeadII[loper - beginII] : (short)0);
+
+						pLeadaVF[loper] = (short) ((dataII + dataIII) >> 1);
+					}
+				}
+				else
+				{
+					short dataI, dataII;
+
+					for (int loper=0;loper < totalLength;loper++)
+					{
+						dataI = ((loper >= beginX) && (loper < (beginX + lengthX)) ? pLeadX[loper - beginX] : (short)0);
+						dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? pLeadII[loper - beginII] : (short)0);
+
+						pLeadaVF[loper] = (short) (((dataII << 1) - dataI) >> 1);
+					}
 				}
 			}
-			else
-			{
-				for (int loper=0;loper < totalLength;loper++)
-				{
-					short dataI = ((loper >= beginX) && (loper < (beginX + lengthX)) ? leadX[loper - beginX] : (short)0);
-					short dataII = ((loper >= beginII) && (loper < (beginII + lengthII)) ? leadII[loper - beginII] : (short)0);
-					ret[loper] = (short) (((dataII << 1) - dataI) >> 1);
-				}
-			}
+
 			return ret;
 		}
 		/// <summary>
@@ -496,111 +534,126 @@ namespace ECGConversion
 			&&	(nrsamples > 0)
 			&&  ((startsample + nrsamples) <= src.Length))
 			{
-				if (srcFreq == dstFreq)
-				{
-					dst = new short[nrsamples];
-
-					for (int nLoper=0;nLoper < nrsamples;nLoper++)
-						dst[nLoper] = src[nLoper + startsample];
-
-					return 0;
-				}
 				int err = 0;
 
-				dst = new short[(nrsamples * dstFreq) / srcFreq + 1];
-				int tussenFreq = KGV(srcFreq, dstFreq);
-				int srcAdd = tussenFreq / srcFreq;
-				int dstAdd = tussenFreq / dstFreq;
-
-				int start = (startsample * srcAdd);
-				int end = (startsample + nrsamples) * srcAdd;
-
-				for (int tussenLoper=start;tussenLoper < end;tussenLoper+=dstAdd)
+				unsafe
 				{
-					// If sample matches precisly a sample of source do no calculations.
-					if ((tussenLoper % srcAdd) == 0)
+					if (srcFreq == dstFreq)
 					{
-						dst[(tussenLoper - start) / dstAdd] = src[tussenLoper / srcAdd];
+						dst = new short[nrsamples];
+
+						fixed (short* pSrc = src, pDst = dst)
+						{
+							short* pd = pDst;
+							short* pdend = pd + nrsamples;
+							short* ps = pSrc + startsample;
+
+							while (pd < pdend)
+								*(pd++) = *(ps++);
+						}
+
+						return 0;
 					}
-					else
+	
+					dst = new short[(nrsamples * dstFreq) / srcFreq + 1];
+					int tussenFreq = KGV(srcFreq, dstFreq);
+					int srcAdd = tussenFreq / srcFreq;
+					int dstAdd = tussenFreq / dstFreq;
+
+					int start = (startsample * srcAdd);
+					int end = (startsample + nrsamples) * srcAdd;
+
+					// Allocate two arrays for calculations
+					double[] c = new double[n+1];
+					double[] d = new double[n+1];
+
+					fixed (short* pSrc = src, pDst = dst)
 					{
-						// Determine first sample for polynoom.
-						int first = tussenLoper / srcAdd - (n >> 1);
-
-						// determine used N (for n at begin and end of data).
-						int usedN = n;
-						// if first is smaller then 0 make N smaller.
-						if (first < -1)
+						for (int tussenLoper=start;tussenLoper < end;tussenLoper+=dstAdd)
 						{
-							usedN -= ((-1 - first) << 1);
-							first = -1;
-						}
-						// if last is greater or equal then nrsamples make N smaller.
-						if (first + usedN >= nrsamples)
-						{
-							usedN -= (((first + usedN) - nrsamples) << 1);
-							first = nrsamples - usedN - 1;
-						}
-
-						if (((dstFreq / srcFreq) == 2)
-						&&	((dstFreq % srcFreq) == 0))
-						{
-							int p = ((usedN >> 1)-1);
-							double result = 0;
-
-							for (int loper=0;loper < usedN;loper++)
+							// If sample matches precisly a sample of source do no calculations.
+							if ((tussenLoper % srcAdd) == 0)
 							{
-								result += (src[first+1+loper] * Fast[p][loper]);
+								pDst[(tussenLoper - start) / dstAdd] = pSrc[tussenLoper / srcAdd];
 							}
-							dst[(tussenLoper - start) / dstAdd] = (short) result;
-						}
-						else
-						{
-							// Allocate two arrays for calculations
-							double[] c = new double[usedN+1];
-							double[] d = new double[usedN+1];
-
-							double den = 0;
-							int ns = 1;
-							int dif = Math.Abs(tussenLoper - ((first + 1) * srcAdd));
-							// Fill arrays with source samples.
-							for (int loper=1;loper <= usedN;loper++)
+							else
 							{
-								int dift;
-								if ((dift = Math.Abs(tussenLoper - ((first + loper) * srcAdd))) < dif)
+								// Determine first sample for polynoom.
+								int first = tussenLoper / srcAdd - (n >> 1);
+
+								// determine used N (for n at begin and end of data).
+								int usedN = n;
+								// if first is smaller then 0 make N smaller.
+								if (first < -1)
 								{
-									ns = loper;
-									dif = dift;
+									usedN -= ((-1 - first) << 1);
+									first = -1;
 								}
-								c[loper] = src[first + loper];
-								d[loper] = src[first + loper];
-							}
-
-							// The initial approximation
-							double y = src[first + ns--];
-
-							for (int loper1=1;loper1 < usedN;loper1++)
-							{
-								for (int loper2=1;loper2 <= (usedN - loper1);loper2++)
+								// if last is greater or equal then nrsamples make N smaller.
+								if (first + usedN >= nrsamples)
 								{
-									int ho = ((first + loper2) * srcAdd) - tussenLoper;
-									int hp = ((first + loper2 + loper1) * srcAdd) - tussenLoper;
-									double w = c[loper2 + 1] - d[loper2];
-									if ((den = ho - hp) == 0)
+									usedN -= (((first + usedN) - nrsamples) << 1);
+									first = nrsamples - usedN - 1;
+								}
+
+								if (((dstFreq / srcFreq) == 2)
+								&&	((dstFreq % srcFreq) == 0))
+								{
+									int p = ((usedN >> 1)-1);
+									double result = 0;
+
+									for (int loper=0;loper < usedN;loper++)
 									{
-										// Error when no difference (dividing by zero is impossible)
-										err |= 0x2;
+										result += (pSrc[first+1+loper] * Fast[p][loper]);
 									}
-									den = w / den;
-									d[loper2]= hp * den;
-									c[loper2]= ho * den;
-								}
-								// Change approxiamation.
-								y += ((ns << 1) < (usedN - loper1) ? c[ns + 1] : d[ns--]);
-							}
 
-							// set value destination with approxiamation.
-							dst[(tussenLoper - start) / dstAdd] = (short) y; 
+									pDst[(tussenLoper - start) / dstAdd] = (short) result;
+								}
+								else
+								{
+									double den = 0;
+									int ns = 1;
+									int dif = Math.Abs(tussenLoper - ((first + 1) * srcAdd));
+									// Fill arrays with source samples.
+									for (int loper=1;loper <= usedN;loper++)
+									{
+										int dift;
+										if ((dift = Math.Abs(tussenLoper - ((first + loper) * srcAdd))) < dif)
+										{
+											ns = loper;
+											dif = dift;
+										}
+										c[loper] = pSrc[first + loper];
+										d[loper] = pSrc[first + loper];
+									}
+
+									// The initial approximation
+									double y = pSrc[first + ns--];
+
+									for (int loper1=1;loper1 < usedN;loper1++)
+									{
+										for (int loper2=1;loper2 <= (usedN - loper1);loper2++)
+										{
+											int ho = ((first + loper2) * srcAdd) - tussenLoper;
+											int hp = ((first + loper2 + loper1) * srcAdd) - tussenLoper;
+											double w = c[loper2 + 1] - d[loper2];
+											if ((den = ho - hp) == 0)
+											{
+												// Error when no difference (dividing by zero is impossible)
+												err |= 0x2;
+											}
+											den = w / den;
+											d[loper2] = hp * den;
+											c[loper2] = ho * den;
+										}
+										// Change approxiamation.
+										y += ((ns << 1) < (usedN - loper1) ? c[ns + 1] : d[ns--]);
+									}
+
+									// set value destination with approxiamation.
+									pDst[(tussenLoper - start) / dstAdd] = (short) y; 
+								}
+							}
 						}
 					}
 				}
@@ -632,7 +685,7 @@ namespace ECGConversion
 					{
 						// If fast table previously available, don't calculate again.
 						if ((temp != null)
-							&&	(temp.Length > x))
+						&&	(temp.Length > x))
 						{
 							Fast[x] = temp[x];
 						}
@@ -701,9 +754,19 @@ namespace ECGConversion
 				&&   (srcmulti > 0)
 				&&   (dstmulti > 0))
 			{
-				for (int loper=0;loper < src.Length;loper++)
+				unsafe
 				{
-					src[loper] = (short) ((src[loper] * srcmulti) / dstmulti);
+					fixed (short* pSrc = src)
+					{
+						short* ps = pSrc;
+						short* psend = ps + src.Length;
+
+						while (ps < psend)
+						{
+							*ps = (short) ((*ps * srcmulti) / dstmulti);
+							ps++;
+						}
+					}
 				}
 				return 0;
 			}
@@ -730,8 +793,18 @@ namespace ECGConversion
 				if ((src_offset + len) > src.Length)
 					len = src.Length - src_offset;
 
-				for (int i=0;i < len;i++)
-					dst[dst_offset + i] = src[src_offset + i];
+				unsafe
+				{
+					fixed (short* pSrc = src, pDst = dst)
+					{
+						short* ps = pSrc + src_offset;
+						short* pd = pDst + dst_offset;
+						short* pdend = pd + len;
+
+						while (pd < pdend)
+							*(pd++) = *(ps++);
+					}
+				}
 
 				return 0;
 			}

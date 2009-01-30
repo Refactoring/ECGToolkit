@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,9 +25,10 @@ namespace ECGConversion.SCP
 	/// <summary>
 	/// class containing time in SCP format.
 	/// </summary>
-	[StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
 	public class SCPTime
 	{
+		public const int Size = 3;
+
 		public byte Hour = 0;
 		public byte Min = 0;
 		public byte Sec = 0;
@@ -56,7 +57,7 @@ namespace ECGConversion.SCP
 		/// <returns>0 on success</returns>
 		public int Read(byte[] buffer, int offset)
 		{
-			if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+			if ((offset + Size) > buffer.Length)
 			{
 				return 0x1;
 			}
@@ -78,7 +79,7 @@ namespace ECGConversion.SCP
 		/// <returns>0 on success</returns>
 		public int Write(byte[] buffer, int offset)
 		{
-			if ((offset + Marshal.SizeOf(this)) > buffer.Length)
+			if ((offset + Size) > buffer.Length)
 			{
 				return 0x1;
 			}

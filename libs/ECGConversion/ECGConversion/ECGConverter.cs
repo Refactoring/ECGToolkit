@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -66,9 +66,13 @@ namespace ECGConversion
 
 						if (LoadAvailablePlugins)
 						{
+#if WINCE
+							AddPlugins(_Instance, ".");
+#else
 							AddPlugins(
 								_Instance,
 								Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+#endif
 						}
 					}
 				}
@@ -194,7 +198,7 @@ namespace ECGConversion
 		/// <returns>the format</returns>
 		public bool hasFormatSupport(string type)
 		{
-			return type != null && _SupportedFormats.Contains(type.ToUpper());
+			return type != null && _SupportedFormats.ContainsKey(type.ToUpper());
 		}
 
 		/// <summary>
@@ -204,7 +208,7 @@ namespace ECGConversion
 		/// <returns>the format</returns>
 		public bool hasECGManagementSystemSupport(string type)
 		{
-			return type != null && _SupportedECGMS.Contains(type.ToUpper());
+			return type != null && _SupportedECGMS.ContainsKey(type.ToUpper());
 		}
 
 		/// <summary>
@@ -551,7 +555,11 @@ namespace ECGConversion
 
     			string[] asPlugin = Directory.GetFiles(dir, "*.dll");
 
-                String currentDll = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+#if WINCE
+                string currentDll = Assembly.GetExecutingAssembly().FullName.Split(',')[0] + ".dll";
+#else
+				string currentDll = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+#endif
 
     			foreach (string sPlugin in asPlugin)
 	    		{
@@ -1469,5 +1477,46 @@ namespace ECGConversion
 			return ret;
 		}
 		
+		public static object EnumParse(Type enumType, string str, bool ignoreCase)
+		{
+#if WINCE
+			if (enumType.BaseType != typeof(Enum))
+				throw new Exception("EnumParse: enumType isn't an enum!");
+
+			if (ignoreCase)
+			{
+				foreach (FieldInfo fi in enumType.GetFields())
+				{
+					if (string.Compare(fi.Name, str, ignoreCase) == 0)
+						return fi.GetValue(null);
+				}
+			}
+			else
+			{
+				FieldInfo fi = enumType.GetField(str);
+
+				if (fi != null)
+					return fi.GetValue(null);
+			}
+
+				throw new Exception("EnumParse: str value not found in enum!");
+#else
+			return Enum.Parse(enumType, str, ignoreCase);
+#endif
+		}
+
+		public static Guid NewGuid()
+		{
+#if WINCE
+			Random randGen = new Random();
+			byte[] randBytes = new byte[16];
+
+			randGen.NextBytes(randBytes);
+
+			return new Guid(randBytes);
+#else
+			return Guid.NewGuid();
+#endif
+		}
 	}
 }

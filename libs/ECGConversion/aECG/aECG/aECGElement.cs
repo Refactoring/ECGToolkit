@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ namespace ECGConversion.aECG
 						}
 					}
 					else if ((fieldInfo.FieldType == typeof(string))
-						&&	 char.IsLower(fieldInfo.Name, 0))
+						&&	 char.IsLower(fieldInfo.Name[0]))
 					{
 						if (String.Compare(reader.Name, fieldInfo.Name) == 0)
 						{
@@ -166,7 +166,7 @@ namespace ECGConversion.aECG
                         }
 					}
 					else if ((fieldInfo.FieldType == typeof(string))
-						&&	 char.IsLower(fieldInfo.Name, 0))
+						&&	 char.IsLower(fieldInfo.Name[0]))
 					{
 						string val = (string) fieldInfo.GetValue(obj);
 
@@ -249,7 +249,7 @@ namespace ECGConversion.aECG
 						temp.Empty();
 					}
 					else if ((fieldInfo.FieldType == typeof(string))
-						&&	 char.IsLower(fieldInfo.Name, 0))
+						&&	 char.IsLower(fieldInfo.Name[0]))
 					{
 						fieldInfo.SetValue(obj, null);
 					}
@@ -262,9 +262,9 @@ namespace ECGConversion.aECG
 						if (array != null)
 						{
 							for (int i = 0; i < array.Length; i++)
-							{
 								array.SetValue(null, i);
-							}
+
+							fieldInfo.SetValue(obj, null);
 						}
                     }
 				}

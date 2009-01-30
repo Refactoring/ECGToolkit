@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ namespace ECGConversion.PDF
 			{
 				try
 				{
-					return (ECGDraw.ECGDrawType) Enum.Parse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
+					return (ECGDraw.ECGDrawType) ECGConverter.EnumParse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
 				}
 				catch {}
 
@@ -81,7 +81,7 @@ namespace ECGConversion.PDF
 			{
 				try
 				{
-					return (SupportedPaper) Enum.Parse(typeof(SupportedPaper), _Config["Paper Type"], true);
+					return (SupportedPaper) ECGConverter.EnumParse(typeof(SupportedPaper), _Config["Paper Type"], true);
 				}
 				catch {}
 
@@ -183,9 +183,9 @@ namespace ECGConversion.PDF
 		{
 			try
 			{
-				Enum.Parse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
+				ECGConverter.EnumParse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
 				float.Parse(_Config["Gain"], System.Globalization.CultureInfo.CurrentUICulture);
-				Enum.Parse(typeof(SupportedPaper), _Config["Paper Type"], true);
+				ECGConverter.EnumParse(typeof(SupportedPaper), _Config["Paper Type"], true);
 
 				return true;
 			}
