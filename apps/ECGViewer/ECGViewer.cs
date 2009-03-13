@@ -1079,7 +1079,7 @@ namespace ECGViewer
 
 					for (;n < s.GetLength(0);n++)
 						if ((s[n, 0] > w)
-							||	(s[n, 1] > h))
+						||	(s[n, 1] > h))
 							break;
 
 					n+=2;

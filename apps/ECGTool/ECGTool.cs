@@ -304,8 +304,14 @@ namespace ECGTool
 					{
 						IECGFormat dst = src.GetType() == ECGConverter.Instance.getType(_OutType) ? src : null;
 
-						if  (dst == null)
+						if (dst == null)
+						{
+							if ((src.Demographics != null)
+							&&	(src.Demographics.PatientID == null))
+								src.Demographics.PatientID = _PatientId;
+
 							ECGConverter.Instance.Convert(src, _OutType, config1, out dst);
+						}
 
 						if ((dst == null)
 						||	!dst.Works())

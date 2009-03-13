@@ -61,6 +61,12 @@ namespace ECGConversion.aECG
 
 		public override int Read(XmlReader reader)
 		{
+			if (reader.IsEmptyElement)
+			{
+				Type = TimeType.Empty;
+				return 0;
+			}
+
 			while (reader.Read())
 			{
 				if ((reader.NodeType == XmlNodeType.Comment)
