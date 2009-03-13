@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGPrint-2K5", "ECGPrint-2K5.csproj", "{E012D54E-F361-49D3-91FE-848EBCD063AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion-2K5", "..\..\libs\ECGConversion\ECGConversion\ECGConversion-2K5.csproj", "{663357A3-FC3A-4E55-8CEB-711D81CF88DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug-2K5|Any CPU = Debug-2K5|Any CPU
+		Release-2K5|Any CPU = Release-2K5|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Debug-2K5|Any CPU.ActiveCfg = Debug-2K5|Any CPU
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Debug-2K5|Any CPU.Build.0 = Debug-2K5|Any CPU
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Release-2K5|Any CPU.ActiveCfg = Release-2K5|Any CPU
+		{E012D54E-F361-49D3-91FE-848EBCD063AB}.Release-2K5|Any CPU.Build.0 = Release-2K5|Any CPU
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug-2K5|Any CPU.ActiveCfg = Debug-2K5|Any CPU
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug-2K5|Any CPU.Build.0 = Debug-2K5|Any CPU
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Release-2K5|Any CPU.ActiveCfg = Release-2K5|Any CPU
+		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Release-2K5|Any CPU.Build.0 = Release-2K5|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

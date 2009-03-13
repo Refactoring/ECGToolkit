@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion-CE-2K5", "ECGConversion\ECGConversion-CE-2K5.csproj", "{1643B579-4920-4F1B-B06F-0B828A98B8DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aECG-CE-2K5", "aECG\aECG-CE-2K5.csproj", "{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug-CE-2K5|Any CPU = Debug-CE-2K5|Any CPU
+		Release-CE-2K5|Any CPU = Release-CE-2K5|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1643B579-4920-4F1B-B06F-0B828A98B8DD}.Debug-CE-2K5|Any CPU.ActiveCfg = Debug-CE-2K5|Any CPU
+		{1643B579-4920-4F1B-B06F-0B828A98B8DD}.Debug-CE-2K5|Any CPU.Build.0 = Debug-CE-2K5|Any CPU
+		{1643B579-4920-4F1B-B06F-0B828A98B8DD}.Debug-CE-2K5|Any CPU.Deploy.0 = Debug-CE-2K5|Any CPU
+		{1643B579-4920-4F1B-B06F-0B828A98B8DD}.Release-CE-2K5|Any CPU.ActiveCfg = Release-CE-2K5|Any CPU
+		{1643B579-4920-4F1B-B06F-0B828A98B8DD}.Release-CE-2K5|Any CPU.Build.0 = Release-CE-2K5|Any CPU
+		{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}.Debug-CE-2K5|Any CPU.ActiveCfg = Debug-CE-2K5|Any CPU
+		{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}.Debug-CE-2K5|Any CPU.Build.0 = Debug-CE-2K5|Any CPU
+		{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}.Debug-CE-2K5|Any CPU.Deploy.0 = Debug-CE-2K5|Any CPU
+		{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}.Release-CE-2K5|Any CPU.ActiveCfg = Release-CE-2K5|Any CPU
+		{F98EB72E-9AF7-4F29-AB79-087BCB0492FF}.Release-CE-2K5|Any CPU.Build.0 = Release-CE-2K5|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

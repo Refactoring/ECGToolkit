@@ -120,12 +120,21 @@ namespace ECGConversion.aECG
 
 							MemoryStream ms = new MemoryStream(5 * 1024 * 1024);
 					
+#if NET_1_1
 							XslTransform xslTrans = new XslTransform();
 
 							XPathDocument xslt = new XPathDocument(Assembly.GetExecutingAssembly().GetManifestResourceStream("ECGConversion.MegaCare.xslt"));
 							xslTrans.Load(xslt, resolver, this.GetType().Assembly.Evidence); 
 
 							xslTrans.Transform(new System.Xml.XPath.XPathDocument(reader), null, ms, resolver);
+#else
+                            XslCompiledTransform xslTrans = new XslCompiledTransform();
+
+                            XmlTextReader xslt = new XmlTextReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("ECGConversion.MegaCare.xslt"));
+                            xslTrans.Load(xslt, XsltSettings.TrustedXslt, resolver);
+
+                            xslTrans.Transform(reader, null, ms);
+#endif
 
 							ms.Seek(0, SeekOrigin.Begin);
 

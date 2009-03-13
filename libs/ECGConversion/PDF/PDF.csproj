@@ -28,7 +28,7 @@
                     BaseAddress = "285212672"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE"
+                    DefineConstants = "DEBUG;TRACE;NET_1_1"
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
@@ -48,7 +48,7 @@
                     BaseAddress = "285212672"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
+                    DefineConstants = "TRACE;NET_1_1"
                     DocumentationFile = ""
                     DebugSymbols = "false"
                     FileAlignment = "4096"
@@ -98,7 +98,7 @@
                 <Reference
                     Name = "itextsharp"
                     AssemblyName = "itextsharp"
-                    HintPath = "itextsharp.dll"
+                    HintPath = "libs\1.1\itextsharp.dll"
                 />
             </References>
         </Build>
@@ -115,13 +115,13 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "itextsharp.dll"
-                    BuildAction = "Content"
-                />
-                <File
                     RelPath = "PDFTool.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "libs\1.1\itextsharp.dll"
+                    BuildAction = "Content"
                 />
                 <File
                     RelPath = "PDF\PDFDemographics.cs"

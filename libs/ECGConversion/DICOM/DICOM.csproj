@@ -28,7 +28,7 @@
                     BaseAddress = "285212672"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE"
+                    DefineConstants = "DEBUG;TRACE;NET_1_1"
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
@@ -48,7 +48,7 @@
                     BaseAddress = "285212672"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
+                    DefineConstants = "TRACE;NET_1_1"
                     DocumentationFile = ""
                     DebugSymbols = "false"
                     FileAlignment = "4096"
@@ -88,12 +88,12 @@
                 <Reference
                     Name = "dicomcs"
                     AssemblyName = "dicomcs"
-                    HintPath = "libs\dicomcs.dll"
+                    HintPath = "libs\1.1\dicomcs.dll"
                 />
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "libs\log4net.dll"
+                    HintPath = "libs\1.1\log4net.dll"
                 />
             </References>
         </Build>
@@ -125,11 +125,11 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "libs\dicomcs.dll"
+                    RelPath = "libs\1.1\dicomcs.dll"
                     BuildAction = "Content"
                 />
                 <File
-                    RelPath = "libs\log4net.dll"
+                    RelPath = "libs\1.1\log4net.dll"
                     BuildAction = "Content"
                 />
             </Include>

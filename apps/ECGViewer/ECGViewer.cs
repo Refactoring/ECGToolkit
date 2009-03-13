@@ -281,6 +281,7 @@ namespace ECGViewer
 			}
 		}
 
+        [STAThread]
 		public static void Main(string[] args)
 		{
 			Application.Run(new ECGViewer(args));

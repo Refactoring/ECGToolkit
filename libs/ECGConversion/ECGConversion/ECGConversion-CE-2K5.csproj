@@ -1,0 +1,284 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1643B579-4920-4F1B-B06F-0B828A98B8DD}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{4D628B5B-2FBC-4AA6-8C16-197242AEB884};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>ECGConversion</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <OutputFileFolder>\Program Files\ECGConversion</OutputFileFolder>
+    <RootNamespace>ECGConversion</RootNamespace>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <FormFactorID>
+    </FormFactorID>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PlatformID>E2BECB1F-8C8C-41ba-B736-9BE7D946A398</PlatformID>
+    <PlatformFamilyName>WindowsCE</PlatformFamilyName>
+    <DeployDirSuffix>$(AssemblyName)</DeployDirSuffix>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-CE-2K5|AnyCPU' ">
+    <OutputPath>bin\Debug-CE-2K5\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>0</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE;WINCE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-CE-2K5|AnyCPU' ">
+    <OutputPath>bin\Release-CE-2K5\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>0</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;WINCE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <Name>MSCorLib</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CSV\CSVFormat.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDemographics\AcquiringDeviceID.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDemographics\Date.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDemographics\DemographicEnumrations.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDemographics\Drug.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDemographics\IDemographic.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDiagnostic\IDiagnostic.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDiagnostic\Statements.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGDraw.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGGlobalMeasurements\GlobalMeasurement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGGlobalMeasurements\GlobalMeasurements.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGGlobalMeasurements\IGlobalMeasurement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGGlobalMeasurements\Spike.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGLeadMeasurements\ILeadMeasurement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGLeadMeasurements\LeadMeasurement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGLeadMeasurements\LeadMeasurements.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGLeadMeasurements\MeasurementType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGLeadMeasurements\Morphology.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGManagementSysteem\ECGInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGManagementSysteem\IECGManagementSystem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGPlugin.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGSignals\ISignal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGSignals\LeadType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGSignals\QRSZone.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGSignals\Signal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGSignals\Signals.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGTool.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ECGWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IECGFormat.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IECGReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RawECGReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RawFormat\RawECGData.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RawFormat\RawECGFormat.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RawFormat\RawECGHeader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCPReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPDate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPFormat.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection0.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection1.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection10.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection11.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection2.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection3.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection4.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection5.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection6.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection7.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSection8.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPSectionUnkown.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP\SCPTime.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SortedList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tools\BytesTool.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tools\CRCTool.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnknownECGReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}">
+        <HostingProcess disable="1" />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Condition="'$(TargetFrameworkVersion)' == 'v1.0'" Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.v1.targets" />
+  <Import Condition="'$(TargetFrameworkVersion)' == 'v2.0'" Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
