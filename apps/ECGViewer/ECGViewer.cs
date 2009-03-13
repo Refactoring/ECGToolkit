@@ -921,7 +921,8 @@ namespace ECGViewer
 				
 					ECGWriter.Write(writeFile, saveECGFileDialog.FileName, true);
 
-					writeFile.Dispose();
+					if (writeFile != CurrentECG)
+						writeFile.Dispose();
 
 					if (ECGWriter.getLastError() != 0)
 					{
