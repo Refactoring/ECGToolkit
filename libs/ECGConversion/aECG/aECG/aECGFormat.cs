@@ -1325,8 +1325,7 @@ namespace ECGConversion.aECG
 							for (int i=0;i < stat.statement.Length;i++)
 								stat.statement[i] = (string) al[i];
 
-							if (stat.confirmed)
-								stat.time = (DateTime) aset.ActivityTime.Value;
+							stat.time = (DateTime) aset.ActivityTime.Value;
 
 							return 0;
 						}
@@ -1347,10 +1346,10 @@ namespace ECGConversion.aECG
 		public int setDiagnosticStatements(Statements stat)
 		{
 			if ((stat != null)
-				&&  (stat.time.Year > 1000)
-				&&  (stat.statement != null)
-				&&  (stat.statement.Length > 0)
-				&&	(Component.Count > 0))
+			&&  (stat.time.Year > 1000)
+			&&  (stat.statement != null)
+			&&  (stat.statement.Length > 0)
+			&&	(Component.Count > 0))
 			{
 				aECGSeries series = Component[0];
 
@@ -1358,8 +1357,8 @@ namespace ECGConversion.aECG
 
 				aECGAnnotationSet aset = series.Annotation[0];
 				if (stat.confirmed
-					||	(tempOver != null)
-					||	(aset == null))
+				||	(tempOver != null)
+				||	(aset == null))
 				{
 					aset = null;
 
@@ -1369,7 +1368,7 @@ namespace ECGConversion.aECG
 							break;
 
 						if ((series.Annotation[j].Author.AssignedAuthorType.AssignedPerson != null)
-							&&	(series.Annotation[j].Author.AssignedAuthorType.AssignedPerson.PersonName.family == tempOver))
+						&&	(series.Annotation[j].Author.AssignedAuthorType.AssignedPerson.PersonName.family == tempOver))
 							aset = series.Annotation[j];
 					}
 

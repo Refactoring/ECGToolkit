@@ -3,6 +3,12 @@
 \obj\
 \Release\
 \Debug\
+\Release-CE\
+\Debug-CE\
+\Release-2K5\
+\Debug-2K5\
+\Release-CE-2K5\
+\Debug-CE-2K5\
 exclude.txt
 release.bat
 .csproj.user

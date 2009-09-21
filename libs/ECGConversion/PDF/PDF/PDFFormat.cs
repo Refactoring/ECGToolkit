@@ -47,6 +47,20 @@ namespace ECGConversion.PDF
 		private GlobalMeasurements _GlobalMeasurements;
 		private Statements _Diagnostic;
 
+		private bool _DrawGrid
+		{
+			get
+			{
+				try
+				{
+					return bool.Parse(_Config["Grid"]);
+				}
+				catch {}
+
+				return true;
+			}
+		}
+
 		private float _Gain
 		{
 			get
@@ -58,6 +72,20 @@ namespace ECGConversion.PDF
 				catch {}
 
 				return 10f;
+			}
+		}
+
+		private float _DrawSpeed
+		{
+			get
+			{
+				try
+				{
+					return float.Parse(_Config["Speed"], System.Globalization.CultureInfo.CurrentUICulture);
+				} 
+				catch {}
+
+				return 25.0f;
 			}
 		}
 
@@ -167,7 +195,7 @@ namespace ECGConversion.PDF
 		public PDFFormat()
 		{
 			string[]
-				must = new string[]{"Lead Format", "Paper Type", "Gain"},
+				must = new string[]{"Lead Format", "Paper Type", "Gain", "Speed", "Grid"},
 				poss = new string[]{"Document Title", "Document Creator", "Document Author"};
 
 			_Config = new ECGConfig(must, poss, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
@@ -175,6 +203,8 @@ namespace ECGConversion.PDF
 			_Config["Lead Format"] = ECGDraw.ECGDrawType.Regular.ToString();
 			_Config["Paper Type"] = "A4";
 			_Config["Gain"] = "10";
+			_Config["Speed"] = "25";
+			_Config["Grid"] = "true";
 
 			Empty();
 		}
@@ -252,6 +282,9 @@ namespace ECGConversion.PDF
 								||	 (sigLength == 9)
 								||	 (sigLength == 10));
 
+					if (_DrawSpeed != 25.0f)
+						bRotated = false;
+
 					Document document = new Document(bRotated ? _PageSize.Rotate() : _PageSize);
 					
 					float
@@ -283,15 +316,18 @@ namespace ECGConversion.PDF
 
 							DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
 
-							cb.SetLineWidth(0.25f);
-							cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
+							if (_DrawGrid)
+							{
+								cb.SetLineWidth(0.25f);
+								cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
 
-							PDFTool.DrawGrid(cb, 1.0f, gridRect);
+								PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
-							cb.SetLineWidth(0.5f);
-							cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
+								cb.SetLineWidth(0.5f);
+								cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
 
-							PDFTool.DrawGrid(cb, 5.0f, gridRect);
+								PDFTool.DrawGrid(cb, 5.0f, gridRect);
+							}
 
 							PointF point = new PointF(gridRect.X, gridRect.Y);
 
@@ -453,7 +489,8 @@ namespace ECGConversion.PDF
 							}
 						}
 						else if ((sigLength <= 8)
-							&&	 sigs.IsTwelveLeads)
+							&&	 sigs.IsTwelveLeads
+							&&	 (_DrawSpeed == 25.0f))
 						{
 							RectangleF gridRect = (_PaperType == SupportedPaper.LETTER) ? PDFTool.CreateRectangle(width, height, 200.0f, (15.0f * sigs.NrLeads) + 20.0f, 230.0f) : PDFTool.CreateRectangle(width, height, 200.0f, (20.0f * sigs.NrLeads) + 15.0f, 257.5f); 
 
@@ -462,15 +499,18 @@ namespace ECGConversion.PDF
 
 							DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
 
-							cb.SetLineWidth(0.25f);
-							cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
+							if (_DrawGrid)
+							{
+								cb.SetLineWidth(0.25f);
+								cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
 
-							PDFTool.DrawGrid(cb, 1.0f, gridRect);
+								PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
-							cb.SetLineWidth(0.5f);
-							cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
+								cb.SetLineWidth(0.5f);
+								cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
 
-							PDFTool.DrawGrid(cb, 5.0f, gridRect);
+								PDFTool.DrawGrid(cb, 5.0f, gridRect);
+							}
 
 							PointF point = new PointF(gridRect.X, gridRect.Y + 15.0f);
 
@@ -545,28 +585,31 @@ namespace ECGConversion.PDF
 									DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
 								}
 
-								cb.SetLineWidth(0.25f);
-								cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
+								if (_DrawGrid)
+								{
+									cb.SetLineWidth(0.25f);
+									cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
 
-								PDFTool.DrawGrid(cb, 1.0f, gridRect);
+									PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
-								cb.SetLineWidth(0.5f);
-								cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
+									cb.SetLineWidth(0.5f);
+									cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
 
-								PDFTool.DrawGrid(cb, 5.0f, gridRect);
+									PDFTool.DrawGrid(cb, 5.0f, gridRect);
+								}
 
 								PointF point = new PointF(gridRect.X, gridRect.Y + fStartY);
 
 								cb.SetLineWidth(0.5f);
 								cb.SetRGBColorStroke(0, 0, 0);
 
-								PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), 25.0f, _Gain);
+								PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), _DrawSpeed, _Gain);
 
 								int temp = 0;
 
 								for (int i=0;i < sigs.NrLeads;i++)
 								{
-									temp = Math.Max(temp, PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, start, 5.0f, false));
+									temp = Math.Max(temp, PDFTool.DrawSignal(cb, point, gridRect.Width, _DrawSpeed, _Gain, sigs, i, start, 5.0f, false));
 
 									point.Y += fIncrement;
 								}

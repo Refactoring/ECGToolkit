@@ -282,7 +282,7 @@ namespace ECGConversion.ECGSignals
 				{
 					int pos = (n - startPoint) + start;
 
-					newSig[n] = ((pos >= sig.RhythmStart) && (pos <= sig.RhythmEnd)) ? sig.Rhythm[pos - sig.RhythmStart] : (short) 0;
+					newSig[n] = ((pos >= sig.RhythmStart) && (pos < sig.RhythmEnd)) ? sig.Rhythm[pos - sig.RhythmStart] : (short) 0;
 				}
 
 				sig.Rhythm = newSig;

@@ -48,6 +48,9 @@ namespace ECGConversion
 		private SortedList _SupportedFormats;
 		private SortedList _SupportedECGMS;
 
+		public delegate void NewPluginDelegate(ECGConverter instance);
+		public event NewPluginDelegate OnNewPlugin;
+
 		/// <summary>
 		/// Get the one instance of the converter object.
 		/// </summary>
@@ -66,13 +69,11 @@ namespace ECGConversion
 
 						if (LoadAvailablePlugins)
 						{
-#if WINCE
-							AddPlugins(_Instance, ".");
-#else
-							AddPlugins(
-								_Instance,
-								Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-#endif
+							LoadAvailablePlugins = false;
+
+							System.Threading.ThreadPool.QueueUserWorkItem(
+								new WaitCallback(LoadAvailablePlugin),
+								_Instance);
 						}
 					}
 				}
@@ -82,6 +83,23 @@ namespace ECGConversion
 				}
 
 				return _Instance;
+			}
+		}
+
+		private static void LoadAvailablePlugin(object obj)
+		{
+			if ((obj != null)
+			&&	(obj is ECGConverter))
+			{
+				ECGConverter instance = (ECGConverter) obj;
+
+#if WINCE
+				AddPlugins(instance, ".");
+#else
+				AddPlugins(
+					instance,
+					Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+#endif
 			}
 		}
 
@@ -110,7 +128,10 @@ namespace ECGConversion
 		/// <returns>nr of supported formats</returns>
 		public int getNrSupportedFormats()
 		{
-			return _SupportedFormats.Count;
+			lock (_SupportedFormats)
+			{
+				return _SupportedFormats.Count;
+			}
 		}	
 
 		/// <summary>
@@ -119,10 +140,15 @@ namespace ECGConversion
 		/// <returns>array containing the names of all the supported formats.</returns>
 		public string[] getSupportedFormatsList()
 		{
-			string[] ret = new string[_SupportedFormats.Count];
+			string[] ret = null;
+			
+			lock (_SupportedFormats)
+			{
+				ret = new string[_SupportedFormats.Count];
 
-			for (int i=0;i < _SupportedFormats.Count;i++)
-				ret[i] = ((ECGPlugin) _SupportedFormats.GetByIndex(i)).Name;
+				for (int i=0;i < _SupportedFormats.Count;i++)
+					ret[i] = ((ECGPlugin) _SupportedFormats.GetByIndex(i)).Name;
+			}
 
 			return ret;
 		}
@@ -133,7 +159,10 @@ namespace ECGConversion
 		/// <returns>nr of supported formats</returns>
 		public int getNrSupportedECGManagementSystems()
 		{
-			return _SupportedECGMS.Count;
+			lock (_SupportedECGMS)
+			{
+				return _SupportedECGMS.Count;
+			}
 		}
 
 		/// <summary>
@@ -142,10 +171,15 @@ namespace ECGConversion
 		/// <returns>array containing the names of all the supported formats.</returns>
 		public string[] getSupportedManagementSystemsList()
 		{
-			string[] ret = new string[_SupportedECGMS.Count];
+			string[] ret = null;
 
-			for (int i=0;i < _SupportedECGMS.Count;i++)
-				ret[i] = ((ECGManagementSystem.IECGManagementSystem) _SupportedECGMS.GetByIndex(i)).Name;
+			lock (_SupportedECGMS)
+			{
+				ret = new string[_SupportedECGMS.Count];
+
+				for (int i=0;i < _SupportedECGMS.Count;i++)
+					ret[i] = ((ECGManagementSystem.IECGManagementSystem) _SupportedECGMS.GetByIndex(i)).Name;
+			}
 
 			return ret;
 		}
@@ -183,7 +217,12 @@ namespace ECGConversion
 
 			if (toType != null)
 			{
-				int index = _SupportedFormats.IndexOfKey(toType.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedFormats)
+				{
+					index = _SupportedFormats.IndexOfKey(toType.ToUpper());
+				}
 
 				return Convert(src, index, cfg, out dst);
 			}
@@ -198,7 +237,10 @@ namespace ECGConversion
 		/// <returns>the format</returns>
 		public bool hasFormatSupport(string type)
 		{
-			return type != null && _SupportedFormats.ContainsKey(type.ToUpper());
+			lock (_SupportedFormats)
+			{
+				return type != null && _SupportedFormats.ContainsKey(type.ToUpper());
+			}
 		}
 
 		/// <summary>
@@ -208,7 +250,10 @@ namespace ECGConversion
 		/// <returns>the format</returns>
 		public bool hasECGManagementSystemSupport(string type)
 		{
-			return type != null && _SupportedECGMS.ContainsKey(type.ToUpper());
+			lock (_SupportedECGMS)
+			{
+				return type != null && _SupportedECGMS.ContainsKey(type.ToUpper());
+			}
 		}
 
 		/// <summary>
@@ -218,7 +263,14 @@ namespace ECGConversion
 		/// <returns>the format</returns>
 		public bool hasECGManagementSystemSaveSupport(string type)
 		{
-			return type != null && hasECGManagementSystemSaveSupport(_SupportedECGMS.IndexOfKey(type.ToUpper()));
+			int index = -1;
+
+			lock (_SupportedECGMS)
+			{
+				index = _SupportedECGMS.IndexOfKey(type.ToUpper());
+			}
+
+			return type != null && hasECGManagementSystemSaveSupport(index);
 		}
 
 		/// <summary>
@@ -230,7 +282,12 @@ namespace ECGConversion
 		{
 			if (type != null)
 			{
-				int index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedFormats)
+				{
+					index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				}
 
 				return getFormat(index);
 			}
@@ -247,7 +304,12 @@ namespace ECGConversion
 		{
 			if (type != null)
 			{
-				int index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedFormats)
+				{
+					index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				}
 
 				return getExtension(index);
 			}
@@ -264,7 +326,12 @@ namespace ECGConversion
 		{
 			if (type != null)
 			{
-				int index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedFormats)
+				{
+					index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				}
 
 				return getType(index);
 			}
@@ -281,7 +348,12 @@ namespace ECGConversion
 		{
 			if (type != null)
 			{
-				int index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedFormats)
+				{
+					index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				}
 
 				return getConfig(index);
 			}
@@ -298,7 +370,12 @@ namespace ECGConversion
 		{
 			if (type != null)
 			{
-				int index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedFormats)
+				{
+					index = _SupportedFormats.IndexOfKey(type.ToUpper());
+				}
 
 				return getReader(index);
 			}
@@ -315,7 +392,12 @@ namespace ECGConversion
 		{
 			if (type != null)
 			{
-				int index = _SupportedECGMS.IndexOfKey(type.ToUpper());
+				int index = -1;
+				
+				lock (_SupportedECGMS)
+				{
+					index = _SupportedECGMS.IndexOfKey(type.ToUpper());
+				}
 
 				return getECGManagementSystem(index);
 			}
@@ -346,13 +428,20 @@ namespace ECGConversion
 		/// <returns>0 if successful</returns>
 		public int Convert(IECGFormat src, int i, ECGConfig cfg, out IECGFormat dst)
 		{
-			dst = null;
+			ECGPlugin plugin = null;
 
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return 1;
+			lock (_SupportedFormats)
+			{
+				dst = null;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).Convert(src, cfg, out dst);
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return 1;
+
+				plugin = (ECGPlugin)_SupportedFormats.GetByIndex(i);
+			}
+
+			return plugin.Convert(src, cfg, out dst);
 		}
 
 		/// <summary>
@@ -362,11 +451,18 @@ namespace ECGConversion
 		/// <returns>format</returns>
 		public IECGFormat getFormat(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return null;
+			ECGPlugin plugin = null;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).getFormat();
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return null;
+
+				plugin = (ECGPlugin)_SupportedFormats.GetByIndex(i);
+			}
+
+			return plugin.getFormat();
 		}
 
 		/// <summary>
@@ -376,11 +472,14 @@ namespace ECGConversion
 		/// <returns>extension of format</returns>
 		public string getExtension(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return null;
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return null;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).Extension;
+				return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).Extension;
+			}
 		}
 
 		/// <summary>
@@ -390,11 +489,14 @@ namespace ECGConversion
 		/// <returns>type</returns>
 		public Type getType(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return null;
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return null;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).getType();
+				return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).getType();
+			}
 		}
 
 		/// <summary>
@@ -404,11 +506,18 @@ namespace ECGConversion
 		/// <returns>configuration</returns>
 		public ECGConfig getConfig(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return null;
+			ECGPlugin plugin = null;
 
-			IECGFormat format = ((ECGPlugin)_SupportedFormats.GetByIndex(i)).getFormat();
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return null;
+
+				plugin = (ECGPlugin)_SupportedFormats.GetByIndex(i);
+			}
+
+			IECGFormat format = plugin.getFormat();
 
 			if (format == null)
 				return null;
@@ -423,11 +532,18 @@ namespace ECGConversion
 		/// <returns>reader</returns>
 		public IECGReader getReader(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return null;
+			ECGPlugin plugin = null;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).getReader();
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return null;
+
+				plugin = (ECGPlugin)_SupportedFormats.GetByIndex(i);
+			}
+
+			return plugin.getReader();
 		}
 
 		/// <summary>
@@ -437,11 +553,14 @@ namespace ECGConversion
 		/// <returns>ECG Management System</returns>
 		public ECGManagementSystem.IECGManagementSystem getECGManagementSystem(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedECGMS.Count))
-				return null;
+			lock (_SupportedECGMS)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedECGMS.Count))
+					return null;
 
-			return ((ECGManagementSystem.IECGManagementSystem)_SupportedECGMS.GetByIndex(i));
+				return ((ECGManagementSystem.IECGManagementSystem)_SupportedECGMS.GetByIndex(i));
+			}
 		}
 
 		/// <summary>
@@ -451,11 +570,14 @@ namespace ECGConversion
 		/// <returns>true if supported</returns>
 		public bool hasUnknownReaderSupport(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return false;
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return false;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).hasUnknownReaderSupport;
+				return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).hasUnknownReaderSupport;
+			}
 		}
 
 		/// <summary>
@@ -465,11 +587,14 @@ namespace ECGConversion
 		/// <returns>the format</returns>
 		public bool hasECGManagementSystemSaveSupport(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedECGMS.Count))
-				return false;
+			lock (_SupportedECGMS)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedECGMS.Count))
+					return false;
 			
-			return ((ECGManagementSystem.IECGManagementSystem) _SupportedECGMS.GetByIndex(i)).CanSave();
+				return ((ECGManagementSystem.IECGManagementSystem) _SupportedECGMS.GetByIndex(i)).CanSave();
+			}
 		}
 
 		/// <summary>
@@ -479,11 +604,14 @@ namespace ECGConversion
 		/// <returns>extra offset</returns>
 		public int getExtraOffset(int i)
 		{
-			if ((i < 0)
-			||	(i >= _SupportedFormats.Count))
-				return 0;
+			lock (_SupportedFormats)
+			{
+				if ((i < 0)
+				||	(i >= _SupportedFormats.Count))
+					return 0;
 
-			return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).ExtraOffset;
+				return ((ECGPlugin)_SupportedFormats.GetByIndex(i)).ExtraOffset;
+			}
 		}
 		
 		/// <summary>
@@ -495,14 +623,17 @@ namespace ECGConversion
 			if ((plugin != null)
 			&&	(plugin.Name != null))
 			{
-				string temp = plugin.Name.ToUpper();
+				lock (_SupportedFormats)
+				{
+					string temp = plugin.Name.ToUpper();
 
-				int index = _SupportedFormats.IndexOfKey(temp);
+					int index = _SupportedFormats.IndexOfKey(temp);
 
-				if (index >= 0)
-					_SupportedFormats.SetByIndex(index, plugin);
-				else
-					_SupportedFormats.Add(temp, plugin);
+					if (index >= 0)
+						_SupportedFormats.SetByIndex(index, plugin);
+					else
+						_SupportedFormats.Add(temp, plugin);
+				}
 			}	
 		}
 
@@ -515,14 +646,17 @@ namespace ECGConversion
 			if ((manSys != null)
 			&&	(manSys.Name != null))
 			{
-				string temp = manSys.Name.ToUpper();
+				lock (_SupportedECGMS)
+				{
+					string temp = manSys.Name.ToUpper();
 
-				int index = _SupportedECGMS.IndexOfKey(temp);
+					int index = _SupportedECGMS.IndexOfKey(temp);
 
-				if (index >= 0)
-					_SupportedECGMS.SetByIndex(index, manSys);
-				else
-					_SupportedECGMS.Add(temp, manSys);
+					if (index >= 0)
+						_SupportedECGMS.SetByIndex(index, manSys);
+					else
+						_SupportedECGMS.Add(temp, manSys);
+				}
 			}	
 		}
 
@@ -568,6 +702,8 @@ namespace ECGConversion
 						AddPlugin(converter, sPlugin);
 					}
 			    }
+
+				converter.OnNewPlugin(converter);
             }
             catch (Exception)
             {
@@ -619,6 +755,8 @@ namespace ECGConversion
 						if (ecgms != null)
 							converter.AddPlugin(ecgms);
 				}
+
+				converter.OnNewPlugin(converter);
 			}
 			catch (Exception)
 			{
