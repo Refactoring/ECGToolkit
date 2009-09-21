@@ -244,6 +244,8 @@ namespace ECGViewer
 
 		public ECGViewer(string[] args)
 		{
+			ECGConverter.Instance.OnNewPlugin += new ECGConverter.NewPluginDelegate(this.LoadECGMS);
+
 /*			// Might be intressting to add different colors.
 			ECGDraw.BackColor = Color.Black;
 			ECGDraw.GraphColor = Color.Gray;
@@ -680,10 +682,21 @@ namespace ECGViewer
 
 		private void ECGViewer_Load(object sender, System.EventArgs e)
 		{
+		}
+
+		private void LoadECGMS(ECGConverter instance)
+		{
+			if (InvokeRequired)
+			{
+				Invoke(new ECGConverter.NewPluginDelegate(this.LoadECGMS), new object[] {instance});
+
+				return;
+			}
+
 			menuOpenSystems.MenuItems.Clear();
 			menuSaveSystems.MenuItems.Clear();
 
-			string[] manSysList = ECGConverter.Instance.getSupportedManagementSystemsList();
+			string[] manSysList = instance.getSupportedManagementSystemsList();
 
 			for (int i=0;i < manSysList.Length;i++)
 			{
@@ -691,7 +704,7 @@ namespace ECGViewer
 
 				menuOpenSystems.MenuItems.Add(item);
 
-				if (ECGConverter.Instance.hasECGManagementSystemSaveSupport(i))
+				if (instance.hasECGManagementSystemSaveSupport(i))
 				{
 					item = new MenuItem(manSysList[i], new EventHandler(menuECGMSSave_Click));
 
@@ -1025,7 +1038,6 @@ namespace ECGViewer
 					if (ECGConverter.AddPlugin(openECGFileDialog.FileName) != 0)
 						MessageBox.Show(this, "Selected plugin file is not supported!", "Unsupported plugin!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-					ECGViewer_Load(sender, e);
 				}
 			}
 			catch (Exception ex)
@@ -1044,8 +1056,6 @@ namespace ECGViewer
 				{
 					if (ECGConverter.AddPlugins(folderBrowserDialog.SelectedPath) != 0)
 						MessageBox.Show(this, "Couldn't load entire plugin directory!", "Unsupported plugin!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-					ECGViewer_Load(sender, e);
 				}
 			}
 			catch (Exception ex)
