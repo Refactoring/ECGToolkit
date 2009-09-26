@@ -185,6 +185,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "aECG\aECGDemographicPerson.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "aECG\aECGDevice.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

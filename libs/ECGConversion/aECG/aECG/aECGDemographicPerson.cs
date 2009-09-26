@@ -23,11 +23,15 @@ using System.Xml;
 
 namespace ECGConversion.aECG
 {
-	public sealed class aECGPerson : aECGElement
+	public sealed class aECGDemographicPerson : aECGElement
 	{
 		public aECGName PersonName = new aECGName();
+		public aECGCode AdministrativeGenderCode = new aECGCode("administrativeGenderCode", true);
+		public aECGValuePair BirthTime = new aECGValuePair("birthTime");
+		public aECGCode RaceCode = new aECGCode("raceCode", true);
 
-		public aECGPerson(string name) : base(name)
+		public aECGDemographicPerson(string name)
+			: base(name)
 		{}
 
 		public override int Read(XmlReader reader)
@@ -76,15 +80,30 @@ namespace ECGConversion.aECG
 
 		public override bool Works()
 		{
-			return PersonName.Works();
+			return PersonName.Works()
+				|| AdministrativeGenderCode.Works()
+				|| BirthTime.Works()
+				|| RaceCode.Works();
 		}
 
-		public void Set(aECGPerson pers)
+		public void Set(aECGDemographicPerson pers)
 		{
 			this.PersonName.family = pers.PersonName.family;
 			this.PersonName.given = pers.PersonName.given;
 			this.PersonName.prefix = pers.PersonName.prefix;
 			this.PersonName.suffix = pers.PersonName.suffix;
+
+			this.AdministrativeGenderCode.Code = pers.AdministrativeGenderCode.Code;
+			this.AdministrativeGenderCode.CodeSystem = pers.AdministrativeGenderCode.CodeSystem;
+			this.AdministrativeGenderCode.CodeSystemName = pers.AdministrativeGenderCode.CodeSystemName;
+			this.AdministrativeGenderCode.DisplayName = pers.AdministrativeGenderCode.DisplayName;
+
+			this.BirthTime.Set(pers.BirthTime);
+
+			this.RaceCode.Code = pers.RaceCode.Code;
+			this.RaceCode.CodeSystem = pers.RaceCode.CodeSystem;
+			this.RaceCode.CodeSystemName = pers.RaceCode.CodeSystemName;
+			this.RaceCode.DisplayName = pers.RaceCode.DisplayName;
 		}
 	}
 }

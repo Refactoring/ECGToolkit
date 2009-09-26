@@ -1,7 +1,7 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.10.6030"
+        ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
         ProjectGuid = "{0CC06503-0F64-4202-9EAA-2C01C9B6CF1D}"
     >
@@ -160,6 +160,11 @@
                 />
                 <File
                     RelPath = "aECG\aECGControlVariableHolder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "aECG\aECGDemographicPerson.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

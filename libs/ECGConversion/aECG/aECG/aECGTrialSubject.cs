@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Written by Maarten JB van Ettinger.
+  
+Modified CH09 
 
 ****************************************************************************/
 using System;
@@ -26,9 +28,9 @@ namespace ECGConversion.aECG
 	{
 		private string _InnerName = null;
 
-		public aECGId Id = new aECGId();
+		public aECGId Id = new aECGId(true);
 		public aECGCode Code = new aECGCode();
-		public aECGPerson Demographic = new aECGPerson("subjectDemographicPerson");
+		public aECGDemographicPerson Demographic = new aECGDemographicPerson("subjectDemographicPerson");
 
 		public aECGTrialSubject() : base("subject")
 		{

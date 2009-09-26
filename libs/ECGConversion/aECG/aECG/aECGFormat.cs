@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Written by Maarten JB van Ettinger.
+  
+Modified CH09 
 
 ****************************************************************************/
 using System;
@@ -987,7 +989,7 @@ namespace ECGConversion.aECG
 				{
 					this.Component[0].SeriesAuthor.Device.Id.Extension = "0";
 					this.Component[0].SeriesAuthor.Device.Code.Code = "12LEAD_ELECTROCARDIOGRAPH";
-					this.Component[0].SeriesAuthor.Device.Code.CodeSystem = "";
+					this.Component[0].SeriesAuthor.Device.Code.CodeSystem = null;
 				
 					this.Component[0].SeriesAuthor.Device.manufacturerModelName = Communication.IO.Tools.BytesTool.readString(value.ModelDescription, 0, value.ModelDescription.Length);
 					this.Component[0].SeriesAuthor.Device.softwareName = typeof(ECGConversion.ECGConverter).Namespace;
