@@ -1093,7 +1093,7 @@ namespace ECGConversion.aECG
 					aECGControlVariableHolder var0 = Component[0].getControlVariable("MDC_ECG_CTL_VBL_ATTR_FILTER_NOTCH");
 
 					if ((var0 != null)
-						&&  (var0.ControlVariable != null))
+					&&  (var0.ControlVariable != null))
 					{
 						aECGControlVariable var1 = var0.ControlVariable;
 
@@ -1104,7 +1104,7 @@ namespace ECGConversion.aECG
 						foreach (aECGControlVariable temp in var1.InnerVariables)
 						{
 							if ((temp != null)
-								&&	(string.Compare(temp.Code.Code, "MDC_ECG_CTL_VBL_ATTR_FILTER_NOTCH_FREQ") == 0))
+							&&	(string.Compare(temp.Code.Code, "MDC_ECG_CTL_VBL_ATTR_FILTER_NOTCH_FREQ") == 0))
 							{
 								var2 = temp;
 								break;
@@ -1136,7 +1136,7 @@ namespace ECGConversion.aECG
 			set
 			{
 				if (((value & 0x1) == 0x1)
-					||	((value & 0x2) == 0x2))
+				||	((value & 0x2) == 0x2))
 				{
 					aECGControlVariable var1 = new aECGControlVariable();
 
@@ -1737,6 +1737,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_HEART_RATE";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "bpm";
 					ann.Value.Value = (double) mes.VentRate;
 
@@ -1750,6 +1751,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_PP";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.AvgPP;
 
@@ -1763,6 +1765,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_P";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.Pdur;
 
@@ -1776,6 +1779,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_RR";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.AvgRR;
 
@@ -1789,6 +1793,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_PR";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.PRint;
 
@@ -1802,6 +1807,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_QRS";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.QRSdur;
 
@@ -1815,6 +1821,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_QT";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.QTdur;
 
@@ -1828,6 +1835,7 @@ namespace ECGConversion.aECG
 					ann.Code.Code = "MDC_ECG_TIME_PD_QTc";
 					ann.Code.CodeSystem = "2.16.840.1.113883.6.24";
 
+					ann.Value.Type = "PQ";
 					ann.Value.Unit = "ms";
 					ann.Value.Value = (double) mes.QTc;
 

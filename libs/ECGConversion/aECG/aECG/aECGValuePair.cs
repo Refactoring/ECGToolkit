@@ -235,14 +235,27 @@ namespace ECGConversion.aECG
 					if (DisplayName != null)
 						writer.WriteAttributeString("displayName", DisplayName);
 				}
-				else
+/*				else
 				{
 					writer.WriteAttributeString("value", "0");
-				}
+				}*/
 			}
 
-			foreach (aECGValuePair vp in _InnerList.Values)
-				vp.Write(writer);
+			int indexLow = _InnerList.IndexOfKey("low"),
+				indexHigh = _InnerList.IndexOfKey("high");
+
+			if ((_InnerList.Count == 2)
+			&&	(indexLow >= 0)
+			&&	(indexHigh >= 0))
+			{
+				((aECGValuePair)_InnerList.GetByIndex(indexLow)).Write(writer);
+				((aECGValuePair)_InnerList.GetByIndex(indexHigh)).Write(writer);
+			}
+			else
+			{
+				foreach (aECGValuePair vp in _InnerList.Values)
+					vp.Write(writer);
+			}
 
 			writer.WriteEndElement();
 

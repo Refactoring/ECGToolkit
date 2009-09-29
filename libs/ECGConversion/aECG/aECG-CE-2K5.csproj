@@ -133,6 +133,7 @@
     <Compile Include="aECG\aECGControlVariableHolder.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="aECG\aECGDemographicPerson.cs" />
     <Compile Include="aECG\aECGDevice.cs">
       <SubType>Code</SubType>
     </Compile>

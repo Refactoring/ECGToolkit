@@ -34,7 +34,7 @@ namespace ECGConversion.aECG
 
 		public aECGControlVariable() : base(ControlVariableName)
 		{
-			_InnerName = "component";
+			_InnerName = null;
 
 			InnerVariables = new aECGControlVariable[2];
 		}
@@ -98,7 +98,13 @@ namespace ECGConversion.aECG
 
 			writer.WriteStartElement(Name);
 
+			if (_InnerName != null)
+				writer.WriteStartElement(_InnerName);
+
 			aECGElement.WriteAll(this, writer);
+
+			if (_InnerName != null)
+				writer.WriteEndElement();
 
 			writer.WriteEndElement();
 
