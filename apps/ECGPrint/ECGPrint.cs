@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -184,7 +184,7 @@ namespace ECGPrint
 		{
 			try
 			{
-				if (!ECGConverter.Instance.hasFormatSupport("PDF"))
+				if (!ECGConverter.Instance.waitForFormatSupport("PDF"))
 				{
 					Console.Error.WriteLine("Error: PDF plug-in is not available!");
 
@@ -295,7 +295,8 @@ namespace ECGPrint
 			{
 				string outputTypes, outputECGMS;
 
-				ECGConfig cfg = ECGConverter.Instance.getConfig("PDF");
+				converter.waitForLoadingAllPlugins();
+				ECGConfig cfg = converter.getConfig("PDF");
 
 				StringBuilder sb = new StringBuilder();
 

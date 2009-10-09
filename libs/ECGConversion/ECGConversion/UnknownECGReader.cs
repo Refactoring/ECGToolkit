@@ -29,7 +29,9 @@ namespace ECGConversion
 	public class UnknownECGReader : IECGReader
 	{
 		public UnknownECGReader()
-		{}
+		{
+			ECGConverter.Instance.waitForLoadingAllPlugins();
+		}
 
 		public override IECGFormat Read(string file, int offset, ECGConfig cfg)
 		{

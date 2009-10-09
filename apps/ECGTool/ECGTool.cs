@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -240,7 +240,10 @@ namespace ECGTool
 				}
 				else 
 				{
-					IECGReader reader = _InType == null ? new UnknownECGReader() : ECGConverter.Instance.getReader(_InType);
+					if (_InType != null)
+						converter.waitForLoadingAllPlugins();
+
+					IECGReader reader = _InType == null ? new UnknownECGReader() : converter.getReader(_InType);
 
 					if (reader == null)
 					{
@@ -269,7 +272,8 @@ namespace ECGTool
 						return;
 					}
 
-					IECGManagementSystem manSys = _OutFile == null ? null : ECGConverter.Instance.getECGManagementSystem(_OutType);
+
+					IECGManagementSystem manSys = _OutFile == null ? null : converter.getECGManagementSystem(_OutType);
 
 					config1 = ECGConverter.Instance.getConfig(manSys == null ? _OutType : manSys.FormatName);
 
@@ -368,6 +372,8 @@ namespace ECGTool
 		{
 			try
 			{
+				converter.waitForLoadingAllPlugins();
+
 				bool bHelp = true;
 
 				if ((_OutType != null)

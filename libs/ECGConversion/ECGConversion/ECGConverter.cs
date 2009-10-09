@@ -50,6 +50,7 @@ namespace ECGConversion
 
 		public delegate void NewPluginDelegate(ECGConverter instance);
 		public event NewPluginDelegate OnNewPlugin;
+		private volatile int _Loading = 0;
 
 		/// <summary>
 		/// Get the one instance of the converter object.
@@ -71,9 +72,13 @@ namespace ECGConversion
 						{
 							LoadAvailablePlugins = false;
 
-							System.Threading.ThreadPool.QueueUserWorkItem(
-								new WaitCallback(LoadAvailablePlugin),
-								_Instance);
+#if WINCE
+							AddPlugins(_Instance, ".");
+#else
+							AddPlugins(
+								_Instance,
+								Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+#endif
 						}
 					}
 				}
@@ -83,23 +88,6 @@ namespace ECGConversion
 				}
 
 				return _Instance;
-			}
-		}
-
-		private static void LoadAvailablePlugin(object obj)
-		{
-			if ((obj != null)
-			&&	(obj is ECGConverter))
-			{
-				ECGConverter instance = (ECGConverter) obj;
-
-#if WINCE
-				AddPlugins(instance, ".");
-#else
-				AddPlugins(
-					instance,
-					Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-#endif
 			}
 		}
 
@@ -234,7 +222,7 @@ namespace ECGConversion
 		/// Function to check whether format is supported.
 		/// </summary>
 		/// <param name="type">type of format</param>
-		/// <returns>the format</returns>
+		/// <returns>true if supported</returns>
 		public bool hasFormatSupport(string type)
 		{
 			lock (_SupportedFormats)
@@ -244,16 +232,70 @@ namespace ECGConversion
 		}
 
 		/// <summary>
+		/// Function that waits for all loading threads to stop before providing the has Format Support response.
+		/// </summary>
+		/// <param name="type">type of format</param>
+		/// <returns>true if supported</returns>
+		public bool waitForFormatSupport(string type)
+		{
+			while (_Loading > 0)
+			{
+				if (hasFormatSupport(type))
+					return true;
+
+				Thread.Sleep(250);
+			}
+
+			return hasFormatSupport(type);
+		}
+
+		/// <summary>
 		/// Function to check whether ECG Management Systems is supported.
 		/// </summary>
 		/// <param name="type">type of format</param>
-		/// <returns>the format</returns>
+		/// <returns>true if supported</returns>
 		public bool hasECGManagementSystemSupport(string type)
 		{
 			lock (_SupportedECGMS)
 			{
 				return type != null && _SupportedECGMS.ContainsKey(type.ToUpper());
 			}
+		}
+
+		/// <summary>
+		/// Function that waits for all loading threads to stop before providing the has ECG Management Systems Support response.
+		/// </summary>
+		/// <param name="type">type of format</param>
+		/// <returns>true if supported</returns>
+		public bool waitForECGManagementSystemSupport(string type)
+		{
+			while (_Loading > 0)
+			{
+				if (hasECGManagementSystemSupport(type))
+					return true;
+
+				Thread.Sleep(250);
+			}
+
+			return hasECGManagementSystemSupport(type);
+		}
+
+		/// <summary>
+		/// Waits for the loading of plug-ins to be ready.
+		/// </summary>
+		public void waitForLoadingAllPlugins()
+		{
+			while (_Loading > 0)
+				Thread.Sleep(250);
+		}
+
+		/// <summary>
+		/// retrieve whether all plugins are loaded
+		/// </summary>
+		/// <returns>true if is loaded</returns>
+		public bool allPluginsLoaded()
+		{
+			return _Loading == 0;
 		}
 
 		/// <summary>
@@ -683,27 +725,11 @@ namespace ECGConversion
 
             try
             {
-                if ((dir == null)
-			    ||	(dir.Length == 0))
-				    return 2;
+				converter._Loading++;
 
-    			string[] asPlugin = Directory.GetFiles(dir, "*.dll");
-
-#if WINCE
-                string currentDll = Assembly.GetExecutingAssembly().FullName.Split(',')[0] + ".dll";
-#else
-				string currentDll = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-#endif
-
-    			foreach (string sPlugin in asPlugin)
-	    		{
-					if (String.Compare(System.IO.Path.GetFileName(sPlugin), currentDll, true) != 0)
-					{
-						AddPlugin(converter, sPlugin);
-					}
-			    }
-
-				converter.OnNewPlugin(converter);
+				System.Threading.ThreadPool.QueueUserWorkItem(
+					new WaitCallback(LoadPlugins),
+					new object[]{converter, dir});
             }
             catch (Exception)
             {
@@ -712,6 +738,58 @@ namespace ECGConversion
 
             return 0;
         }
+
+		/// <summary>
+		/// Load plugins Async
+		/// </summary>
+		private static void LoadPlugins(object obj)
+		{
+			if ((obj != null)
+			&&	(obj is object[]))
+			{
+				object[] temp = (object[])obj;
+
+				if ((temp.Length == 2)
+				&&	(temp[0] != null)
+				&&	(temp[0] is ECGConverter))
+				{
+					ECGConverter instance = (ECGConverter) temp[0];
+					
+					try
+					{
+						string dir = (string)temp[1];
+
+						if ((dir == null)
+						||	(dir.Length == 0))
+							return;
+
+						string[] asPlugin = Directory.GetFiles(dir, "*.dll");
+
+#if WINCE
+						string currentDll = Assembly.GetExecutingAssembly().FullName.Split(',')[0] + ".dll";
+#else
+						string currentDll = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+#endif
+
+						foreach (string sPlugin in asPlugin)
+						{
+							if (String.Compare(System.IO.Path.GetFileName(sPlugin), currentDll, true) != 0)
+							{
+								LoadPlugin(new object[]{ instance, sPlugin, true});
+							}
+						}
+					}
+					finally
+					{
+						if (instance.OnNewPlugin != null)
+							instance.OnNewPlugin(instance);
+
+						instance._Loading--;
+					}
+				}
+			}
+		}
+
 
 		/// <summary>
 		/// Function that will add plugins from a certain dll to the supported list.
@@ -736,27 +814,11 @@ namespace ECGConversion
 
 			try
 			{
-				Assembly assembly = Assembly.LoadFrom(dllfile);
-				Type type = assembly.GetType("ECGConversion.ECGLoad");
-				MethodInfo methodInfo = type.GetMethod("LoadPlugin");
+				converter._Loading++;
 
-				if (methodInfo != null)
-				{
-					foreach (ECGPlugin plugin in (Array) methodInfo.Invoke(null, null))
-						if (plugin != null)
-							converter.AddPlugin(plugin);
-				}
-
-				methodInfo = type.GetMethod("LoadECGMS");
-
-				if (methodInfo != null)
-				{
-					foreach (ECGManagementSystem.IECGManagementSystem ecgms in (Array) methodInfo.Invoke(null, null))
-						if (ecgms != null)
-							converter.AddPlugin(ecgms);
-				}
-
-				converter.OnNewPlugin(converter);
+				System.Threading.ThreadPool.QueueUserWorkItem(
+					new WaitCallback(LoadPlugin),
+					new object[]{converter, dllfile});
 			}
 			catch (Exception)
 			{
@@ -764,6 +826,66 @@ namespace ECGConversion
 			}
 
 			return 0;
+		}
+
+		/// <summary>
+		/// Load plugin Async
+		/// </summary>
+		private static void LoadPlugin(object obj)
+		{
+			if ((obj != null)
+			&&	(obj is object[]))
+			{
+				object[] temp = (object[])obj;
+
+				if (((temp.Length == 2)
+				||	 (temp.Length == 3))
+				&&	(temp[0] != null)
+				&&	(temp[0] is ECGConverter))
+				{
+					ECGConverter instance = (ECGConverter) temp[0];
+
+					try
+					{
+						string dllfile = (string) temp[1];
+
+						Assembly assembly = Assembly.LoadFrom(dllfile);
+						Type type = assembly.GetType("ECGConversion.ECGLoad");
+
+						if (type == null)
+							return;
+
+						MethodInfo methodInfo = type.GetMethod("LoadPlugin");
+
+						if (methodInfo != null)
+						{
+							foreach (ECGPlugin plugin in (Array) methodInfo.Invoke(null, null))
+								if (plugin != null)
+									instance.AddPlugin(plugin);
+						}
+
+						methodInfo = type.GetMethod("LoadECGMS");
+
+						if (methodInfo != null)
+						{
+							foreach (ECGManagementSystem.IECGManagementSystem ecgms in (Array) methodInfo.Invoke(null, null))
+								if (ecgms != null)
+									instance.AddPlugin(ecgms);
+						}
+					}
+					catch {}
+					finally
+					{
+						if (temp.Length == 2)
+						{
+							if (instance.OnNewPlugin != null)
+								instance.OnNewPlugin(instance);
+
+							instance._Loading--;
+						}
+					}
+				}
+			}
 		}
 
 		/// <summary>

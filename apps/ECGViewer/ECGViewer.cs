@@ -244,8 +244,6 @@ namespace ECGViewer
 
 		public ECGViewer(string[] args)
 		{
-			ECGConverter.Instance.OnNewPlugin += new ECGConverter.NewPluginDelegate(this.LoadECGMS);
-
 /*			// Might be intressting to add different colors.
 			ECGDraw.BackColor = Color.Black;
 			ECGDraw.GraphColor = Color.Gray;
@@ -280,6 +278,13 @@ namespace ECGViewer
 				}
  
 				this.InnerECGPanel.Refresh();
+			}
+
+			ECGConverter.Instance.OnNewPlugin += new ECGConverter.NewPluginDelegate(this.LoadECGMS);
+
+			if (ECGConverter.Instance.allPluginsLoaded())
+			{
+				LoadECGMS(ECGConverter.Instance);
 			}
 		}
 
