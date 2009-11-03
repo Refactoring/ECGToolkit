@@ -51,6 +51,13 @@ namespace ECGConversion.ECGDemographics
 		public byte ManufactorID = (byte) DeviceManufactor.Unknown;
 		public byte DeviceCapabilities = 0; // Is defined in SCP Section1 tag 14 byte 18.
 		public byte ACFrequencyEnvironment = 0; // Is defined in SCP Section1 tag 14 byte 19.
-		public byte[] ModelDescription = new byte[_ModelDescriptionLen];
+		private byte[] _ModelDescription = new byte[_ModelDescriptionLen];
+		public byte[] ModelDescription
+		{
+			get
+			{
+				return _ModelDescription;
+			}
+		}
 	}
 }
