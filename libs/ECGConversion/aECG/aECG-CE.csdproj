@@ -70,15 +70,14 @@
                 />
                 <Reference
                     Platform = "Windows CE"
-                    Name = "ECGConversion"
-                    Project = "{1643B579-4920-4F1B-B06F-0B828A98B8DD}"
-                    Package = "{20D4826A-C6FA-45DB-90F4-C717570B9F32}"
-                    Private = "True"
+                    Name = "System.Xml"
+                    AssemblyName = "System.Xml"
                 />
                 <Reference
                     Platform = "Windows CE"
-                    Name = "System.Xml"
-                    AssemblyName = "System.Xml"
+                    Name = "ECGConversion-CE"
+                    Project = "{1643B579-4920-4F1B-B06F-0B828A98B8DD}"
+                    Package = "{20D4826A-C6FA-45DB-90F4-C717570B9F32}"
                 />
                 <Reference
                     Platform = "Windows CE-Designer"

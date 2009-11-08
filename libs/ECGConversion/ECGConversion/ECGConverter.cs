@@ -50,7 +50,11 @@ namespace ECGConversion
 
 		public delegate void NewPluginDelegate(ECGConverter instance);
 		public event NewPluginDelegate OnNewPlugin;
+#if WINCE
+		private int _Loading = 0;
+#else
 		private volatile int _Loading = 0;
+#endif
 
 		/// <summary>
 		/// Get the one instance of the converter object.
@@ -66,6 +70,10 @@ namespace ECGConversion
 
 					if (_Instance == null)
 					{
+#if !WINCE
+						CheckVersion.CheckForNewVersion();
+#endif
+
 						_Instance = new ECGConverter();
 
 						if (LoadAvailablePlugins)
