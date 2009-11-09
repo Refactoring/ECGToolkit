@@ -37,6 +37,8 @@ namespace ECGStoreSCU
 		{
 			try
 			{
+				CheckVersion.OnNewVersion += new ECGConversion.CheckVersion.NewVersionCallback(CheckVersion_OnNewVersion);
+
 				ECGConverter.Instance.waitForECGManagementSystemSupport("PACS");
 
 				IECGManagementSystem pacs = ECGConverter.Instance.getECGManagementSystem("PACS");
@@ -275,6 +277,15 @@ namespace ECGStoreSCU
 			{
 				Console.Error.WriteLine("Error: {0}", ex.ToString());
 			}
+		}
+
+		private static void CheckVersion_OnNewVersion(string title, string text, string url)
+		{
+			Console.WriteLine(title);
+			Console.WriteLine();
+			Console.WriteLine(text);
+			Console.WriteLine(new string('_', 79));
+			Console.WriteLine();
 		}
 	}
 }

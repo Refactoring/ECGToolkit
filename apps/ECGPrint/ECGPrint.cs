@@ -31,7 +31,7 @@ namespace ECGPrint
 {
 	public class ECGPrint
 	{
-		private ECGConverter converter = ECGConverter.Instance;
+		private ECGConverter converter;
 
 		private bool _NoArgs;
 		private bool _BadArgs
@@ -58,6 +58,9 @@ namespace ECGPrint
 
 		public void Init()
 		{
+			CheckVersion.OnNewVersion += new ECGConversion.CheckVersion.NewVersionCallback(CheckVersion_OnNewVersion);
+			converter = ECGConverter.Instance;
+
 			_NoArgs = true;
 			_Error = null;
 
@@ -184,7 +187,7 @@ namespace ECGPrint
 		{
 			try
 			{
-				if (!ECGConverter.Instance.waitForFormatSupport("PDF"))
+				if (!converter.waitForFormatSupport("PDF"))
 				{
 					Console.Error.WriteLine("Error: PDF plug-in is not available!");
 
@@ -214,7 +217,7 @@ namespace ECGPrint
 						return;
 					}
 
-					ECGConfig config = ECGConverter.Instance.getConfig("PDF");
+					ECGConfig config = converter.getConfig("PDF");
 
 					for (int i=0;i < _Config.Count;i++)
 					{
@@ -232,7 +235,7 @@ namespace ECGPrint
 
 					IECGFormat dst = null;
 
-					ECGConverter.Instance.Convert(src, "PDF", config, out dst);
+					converter.Convert(src, "PDF", config, out dst);
 
 					if ((dst == null)
 					||	!dst.Works())
@@ -434,6 +437,15 @@ namespace ECGPrint
 			tool.ParseArguments(args);
 
 			tool.Run();
+		}
+
+		private void CheckVersion_OnNewVersion(string title, string text, string url)
+		{
+			Console.WriteLine(title);
+			Console.WriteLine();
+			Console.WriteLine(text);
+			Console.WriteLine(new string('_', 79));
+			Console.WriteLine();
 		}
 	}
 }

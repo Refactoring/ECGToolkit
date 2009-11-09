@@ -22,6 +22,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 using ECGConversion;
@@ -75,7 +76,7 @@ namespace ECGViewer
 		/// </summary>
 		private System.ComponentModel.Container components = null;
 
-		private UnknownECGReader _ECGReader = new UnknownECGReader();
+		private UnknownECGReader _ECGReader = null;
 		private IECGFormat _CurrentECG = null;
 		private IECGFormat CurrentECG
 		{
@@ -259,9 +260,20 @@ namespace ECGViewer
 			this.menuGridNone.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.None;
 			this.menuGridOne.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.OneMillimeters;
 			this.menuGridFive.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.FiveMillimeters;
- 
+			CheckVersion.OnAllowNewVersionCheck += new CheckVersion.AllowNewVersionCheckCallback(CheckVersion_OnAllowNewVersionCheck);
+			CheckVersion.OnNewVersion += new CheckVersion.NewVersionCallback(CheckVersion_OnNewVersion);
+
+			ECGConverter.Instance.OnNewPlugin += new ECGConverter.NewPluginDelegate(this.LoadECGMS);
+
+			if (ECGConverter.Instance.allPluginsLoaded())
+			{
+				LoadECGMS(ECGConverter.Instance);
+			}
+
 			if (args.Length == 1)
 			{
+				_ECGReader = new UnknownECGReader();
+
 				IECGFormat format = _ECGReader.Read(args[0]);
  
 				if (format != null)
@@ -278,13 +290,6 @@ namespace ECGViewer
 				}
  
 				this.InnerECGPanel.Refresh();
-			}
-
-			ECGConverter.Instance.OnNewPlugin += new ECGConverter.NewPluginDelegate(this.LoadECGMS);
-
-			if (ECGConverter.Instance.allPluginsLoaded())
-			{
-				LoadECGMS(ECGConverter.Instance);
 			}
 		}
 
@@ -818,6 +823,9 @@ namespace ECGViewer
 				if ((dr == DialogResult.OK)
 				&&	File.Exists(this.openECGFileDialog.FileName))
 				{
+					if (_ECGReader == null)
+						_ECGReader = new UnknownECGReader();
+
 					IECGFormat format = _ECGReader.Read(this.openECGFileDialog.FileName);
 
 					if (format != null)
@@ -1531,6 +1539,59 @@ namespace ECGViewer
 			}
 
 			Refresh();
+		}
+
+		private CheckVersion.CheckAllowed CheckVersion_OnAllowNewVersionCheck(string title, string question)
+		{
+			DialogResult dr = MessageBox.Show(question, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+			if (dr == DialogResult.Yes)
+				return CheckVersion.CheckAllowed.Yes;
+			else if (dr == DialogResult.No)
+				return CheckVersion.CheckAllowed.No;
+			
+			return CheckVersion.CheckAllowed.Unknown;
+		}
+
+		private void CheckVersion_OnNewVersion(string title, string text, string url)
+		{
+			DialogResult dr = MessageBox.Show(text + "\n\nDo you wish to download the latest version right now?", title, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+			if (dr == DialogResult.Yes)
+			{
+				ThreadPool.QueueUserWorkItem(new WaitCallback(this.LoadUrlDelayed), url); 
+			}
+		}
+
+		private void LoadUrlDelayed(object obj)
+		{
+			if ((obj != null)
+			&&	(obj is string))
+			{
+				System.Diagnostics.Process process = null;
+
+				try
+				{
+					Thread.Sleep(1500);
+
+					process = new System.Diagnostics.Process();
+					process.StartInfo.FileName = "rundll32.exe";
+					process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + (string)obj;
+					process.StartInfo.UseShellExecute = true;
+					process.Start();
+					process.WaitForExit(5000);
+
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(ex.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+				finally
+				{
+					if (process != null)
+						process.Dispose();
+				}
+			}
 		}
 	}
 }

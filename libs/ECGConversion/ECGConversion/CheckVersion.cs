@@ -32,12 +32,12 @@ namespace ECGConversion
 	{
 		// Strings to notify about a new release
 		private const string ReleaseTitle = "C# ECGToolkit: {0} Released!";
-		private const string ReleaseText = "Latest version of the C# ECGToolkit is availble at: " + ReleaseUrl;
+		private const string ReleaseText = "Latest version of the C# ECGToolkit is available at: " + ReleaseUrl;
 		private const string ReleaseUrl = "http://ecgtoolkit-cs.sourceforge.net";
 
 		// Strings to ask about new version check
 		public const string AllowCheckTitle = "Allow new version notification for C# ECGToolkit?";
-		public const string AllowCheckText = "The C# ECG Toolkit can automatically notify you about a new version. \n\nDo you wish to be notified about a new release?";
+		public const string AllowCheckText = "The C# ECG Toolkit can automatically notify you about a new version.\n\nDo you wish to be notified about a new release?";
 
 		// Strings to identify the version part of the feed
 		private const string ReleaseTextStart = "ecgtoolkit-cs-";
@@ -115,13 +115,20 @@ namespace ECGConversion
 		{
 			get
 			{
-				string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "CheckVersion.log");
+				string path = Path.Combine(
+#if DEBUG				
+					Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+					"CheckVersion.log");
+#else
+					Path.GetTempPath(),
+					"ECGConversionCheckVersion.log");
+#endif
 
 				FileInfo fi = new FileInfo(path);
 
 				if (fi.Exists)
 				{
-					if (Math.Abs((DateTime.Now.ToUniversalTime() - fi.LastWriteTimeUtc).TotalHours) <= 1.0)
+					if (Math.Abs((DateTime.Now.ToUniversalTime() - fi.LastWriteTimeUtc).TotalMinutes) <= 15.0)
 						return CheckAllowed.AlreadyChecked;
 
 					StreamReader sw = new StreamReader(path);
@@ -140,7 +147,14 @@ namespace ECGConversion
 			}
 			set
 			{
-				string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "CheckVersion.log");
+				string path = Path.Combine(
+#if DEBUG				
+					Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+					"CheckVersion.log");
+#else
+					Path.GetTempPath(),
+					"ECGConversionCheckVersion.log");
+#endif
 
 				if (value == CheckAllowed.Unknown)
 				{
@@ -171,8 +185,7 @@ namespace ECGConversion
 				switch (CheckNewVersionAllowed)
 				{
 						// Unknown whether check is allowed so ask when handled.
-					case CheckAllowed.Unknown:
-					
+					case CheckAllowed.Unknown:		
 						if (OnAllowNewVersionCheck == null)
 							return;
 

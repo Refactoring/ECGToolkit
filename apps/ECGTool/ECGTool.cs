@@ -30,7 +30,7 @@ namespace ECGTool
 {
 	public class ECGTool
 	{
-		private ECGConverter converter = ECGConverter.Instance;
+		private ECGConverter converter;
 
 		private bool _NoArgs;
 		private bool _BadArgs
@@ -54,6 +54,10 @@ namespace ECGTool
 
 		public ECGTool()
 		{
+			CheckVersion.OnNewVersion += new ECGConversion.CheckVersion.NewVersionCallback(CheckVersion_OnNewVersion);
+
+			converter = ECGConverter.Instance;
+
 			Init();
 		}
 
@@ -527,6 +531,15 @@ namespace ECGTool
 			tool.ParseArguments(args);
 
 			tool.Run();
+		}
+
+		private void CheckVersion_OnNewVersion(string title, string text, string url)
+		{
+			Console.WriteLine(title);
+			Console.WriteLine();
+			Console.WriteLine(text);
+			Console.WriteLine(new string('_', 79));
+			Console.WriteLine();
 		}
 	}
 }
