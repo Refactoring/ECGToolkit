@@ -43,6 +43,9 @@ namespace ECGConversion
 		private const string ReleaseTextStart = "ecgtoolkit-cs-";
 		private const string ReleaseTextEnd = " released";
 
+		// Should redirect to: @"http://sourceforge.net/export/rss2_projfiles.php?group_id=238719";
+		private const string CheckUrl = @"http://ecgtoolkit-cs.sourceforge.net/check_version.php";
+
 		/// <summary>
 		/// Function to fetch version number from a text
 		/// </summary>
@@ -215,7 +218,7 @@ namespace ECGConversion
 
 			int version = GetAssemblyVersion();
 
-			WebRequest wReq = HttpWebRequest.Create(@"http://sourceforge.net/export/rss2_projfiles.php?group_id=238719");
+            WebRequest wReq = HttpWebRequest.Create(CheckUrl);
 			WebResponse wRes = wReq.GetResponse();
 
 			try
