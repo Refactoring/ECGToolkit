@@ -1107,7 +1107,7 @@ namespace ECGConversion.SCP
 			{
 				int p = _SearchField(27);
 				if ((p >= 0)
-				&&  (_Fields[p].Length == 1)
+				&&  (_Fields[p].Length == 2)
 				&&  (_Fields[p].Value != null)
 				&&  (_Fields[p].Length <= _Fields[p].Value.Length))
 				{
@@ -1131,7 +1131,7 @@ namespace ECGConversion.SCP
 			{
 				int p = _SearchField(28);
 				if ((p >= 0)
-				&&  (_Fields[p].Length == 1)
+				&&  (_Fields[p].Length == 2)
 				&&  (_Fields[p].Value != null)
 				&&  (_Fields[p].Length <= _Fields[p].Value.Length))
 				{
