@@ -2075,8 +2075,15 @@ namespace ECGConversion.DICOM
 			baseline = 0.0;
 			skew = 0.0;
 
-			if (string.Compare(ds.GetString(Tags.ChannelSensitivityCorrectionFactor), "1") != 0)
+			try
+			{
+				if (float.Parse(ds.GetString(Tags.ChannelSensitivityCorrectionFactor), System.Globalization.CultureInfo.InvariantCulture.NumberFormat) != 1.0f)
+					return;
+			}
+			catch
+			{
 				return;
+			}
 
 			try
 			{
@@ -2136,12 +2143,12 @@ namespace ECGConversion.DICOM
 
 						type = (LeadType) int.Parse(temp[temp.Length-1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
 					}
-						break;
+					break;
 					case "MDC":
 					{
 						type = (LeadType) ECGConverter.EnumParse(typeof(LeadTypeVitalRefId), ds2.GetString(Tags.CodeValue), false);
 					}
-						break;
+					break;
 				}
 			} catch {}
 		}

@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2005, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2005,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -184,6 +184,13 @@ namespace ECGConversion.SCP
 				{
 					medianFreq = 1;
 					localFreq = 1;
+				}
+
+				if ((medianFreq < localFreq)
+				&&	!leadDefinition.isMediansUsed()
+				&&	(_Bimodal == 0x0))
+				{
+					medianFreq = localFreq;
 				}
 
 				if ((medianFreq % localFreq) != 0
