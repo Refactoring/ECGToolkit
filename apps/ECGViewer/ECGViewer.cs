@@ -270,6 +270,8 @@ namespace ECGViewer
 				LoadECGMS(ECGConverter.Instance);
 			}
 
+			ECGConverter.AddPlugins(@"d:\My Documents\SourceForge\ECGToolkit\ECGToolkit\libs\ECGConversion\DICOM\bin\Debug");
+
 			if (args.Length == 1)
 			{
 				_ECGReader = new UnknownECGReader();

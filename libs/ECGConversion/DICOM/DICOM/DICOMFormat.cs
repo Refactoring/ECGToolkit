@@ -1307,8 +1307,8 @@ namespace ECGConversion.DICOM
 
 		private static int[] s_MeasurementRWC = {1, 0};
 
-		private static string[,] s_AvgRRPPItems = {{"5.10.2.1-3", "5.10.2.1-5", "5.10.2.5-5"}, {"RR Interval", "PP Interval", "QTc Interval"}};
-		private static string[,] s_AvgRRPPUnits = {{"ms", "ms", "ms"}, {"milliseconds", "milliseconds", "milliseconds"}};
+		private static string[,] s_AvgRRPPItems = {{"5.10.2.1-3", "5.10.2.1-5", "5.10.2.5-5", "5.10.2.5-1"}, {"RR Interval", "PP Interval", "QTc Interval", "Vent Rate"}};
+		private static string[,] s_AvgRRPPUnits = {{"ms", "ms", "ms", "/min"}, {"milliseconds", "milliseconds", "milliseconds", "heartbeat per minute"}};
 
 		private static string[,] s_MeasurementItems = {{"5.10.3-1", "5.10.3-2", "5.10.3-3", "5.10.3-4", "5.10.3-5", "5.10.3-11", "5.10.3-13", "5.10.3-15"}, {"P onset", "P offset", "QRS onset", "QRS offset", "T offset", "P Axis", "QRS Axis", "T Axis"}};
 		private static string[,] s_MeasurementUnits = {{"ms", "ms", "ms", "ms", "ms", "deg", "deg", "deg"}, {"milliseconds", "milliseconds", "milliseconds", "milliseconds", "milliseconds", "degrees", "degrees", "degrees"}};
@@ -1365,6 +1365,9 @@ namespace ECGConversion.DICOM
 
 						if (resultAvgRR_PP[0, 2] != null)
 							mes.QTc = ushort.Parse(resultAvgRR_PP[0, 2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+
+						if (resultAvgRR_PP[0, 3] != null)
+							mes.VentRate = ushort.Parse(resultAvgRR_PP[0, 3], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
 					}
 
 					int end1 = resultMeasurments.GetLength(0),
