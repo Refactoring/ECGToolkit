@@ -148,12 +148,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9D3A511D8D58783F73FCECB9BFB2A73A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_F7BBBCCF631D4CE789F3BFCB658B24D3"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -203,6 +197,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_B067201D497F11EC80902239EA6570B4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9D3A511D8D58783F73FCECB9BFB2A73A"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -345,7 +345,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ECGConversion, Version=2.1.3357.20062, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:ECGConversion, Version=2.2.3663.21600, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_9D3A511D8D58783F73FCECB9BFB2A73A"
@@ -563,12 +563,12 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ECG Conversion Toolkit"
         "ProductCode" = "8:{76828BD6-6E8A-4607-B877-D21EDCE54137}"
-        "PackageCode" = "8:{B9117D38-9587-4A25-8C3D-475C4155AB11}"
+        "PackageCode" = "8:{71EB449F-1BBE-43BE-96D8-BE3BF6556978}"
         "UpgradeCode" = "8:{E5E8E14E-B14C-4492-B090-179287F2D05A}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:FALSE"
+        "InstallAllUsers" = "11:TRUE"
         "ProductVersion" = "8:2.1.0"
         "Manufacturer" = "8:Erasmus MC"
         "ARPHELPTELEPHONE" = "8:"
