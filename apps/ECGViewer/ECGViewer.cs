@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -175,6 +175,9 @@ namespace ECGViewer
 			{
 				lock (this)
 				{
+					if (_DrawBuffer != null)
+						_DrawBuffer.Dispose();
+
 					_DrawBuffer = value;
 				}
 			}
@@ -188,6 +191,11 @@ namespace ECGViewer
 		private System.Windows.Forms.MenuItem menuGridFive;
 		private System.Windows.Forms.MenuItem menuGridOne;
 		private System.Windows.Forms.MenuItem menuGridNone;
+		private System.Windows.Forms.MenuItem menuColor;
+		private System.Windows.Forms.MenuItem menuColor1;
+		private System.Windows.Forms.MenuItem menuColor2;
+		private System.Windows.Forms.MenuItem menuColor3;
+		private System.Windows.Forms.MenuItem menuColor4;
 	
 		private float Gain
 		{
@@ -245,17 +253,12 @@ namespace ECGViewer
 
 		public ECGViewer(string[] args)
 		{
-/*			// Might be intressting to add different colors.
-			ECGDraw.BackColor = Color.Black;
-			ECGDraw.GraphColor = Color.Gray;
-			ECGDraw.GraphSecondColor = Color.FromArgb(96, 96, 96);
-			ECGDraw.SignalColor = Color.Lime;
-			ECGDraw.TextColor = Color.Lime;*/
-
 			//
 			// Required for Windows Form Designer support
 			//
 			InitializeComponent();
+
+			SetColors(-1);
 
 			this.menuGridNone.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.None;
 			this.menuGridOne.Checked = ECGDraw.DisplayGrid == ECGDraw.GridType.OneMillimeters;
@@ -340,8 +343,14 @@ namespace ECGViewer
 			this.menuGain2 = new System.Windows.Forms.MenuItem();
 			this.menuGain1 = new System.Windows.Forms.MenuItem();
 			this.menuGridType = new System.Windows.Forms.MenuItem();
+			this.menuGridNone = new System.Windows.Forms.MenuItem();
 			this.menuGridOne = new System.Windows.Forms.MenuItem();
 			this.menuGridFive = new System.Windows.Forms.MenuItem();
+			this.menuColor = new System.Windows.Forms.MenuItem();
+			this.menuColor1 = new System.Windows.Forms.MenuItem();
+			this.menuColor2 = new System.Windows.Forms.MenuItem();
+			this.menuColor3 = new System.Windows.Forms.MenuItem();
+			this.menuColor4 = new System.Windows.Forms.MenuItem();
 			this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
 			this.menuAnnonymize = new System.Windows.Forms.MenuItem();
 			this.menuSave = new System.Windows.Forms.MenuItem();
@@ -362,7 +371,6 @@ namespace ECGViewer
 			this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
-			this.menuGridNone = new System.Windows.Forms.MenuItem();
 			this.ECGPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -403,6 +411,7 @@ namespace ECGViewer
 																					 this.menuLeadFormat,
 																					 this.menuGain,
 																					 this.menuGridType,
+																					 this.menuColor,
 																					 this.menuDisplayInfo,
 																					 this.menuAnnonymize});
 			this.menuView.Text = "View";
@@ -509,6 +518,13 @@ namespace ECGViewer
 																						 this.menuGridFive});
 			this.menuGridType.Text = "Grid Type";
 			// 
+			// menuGridNone
+			// 
+			this.menuGridNone.Index = 0;
+			this.menuGridNone.RadioCheck = true;
+			this.menuGridNone.Text = "None";
+			this.menuGridNone.Click += new System.EventHandler(this.menuGridNone_Click);
+			// 
 			// menuGridOne
 			// 
 			this.menuGridOne.Index = 1;
@@ -523,16 +539,54 @@ namespace ECGViewer
 			this.menuGridFive.Text = "5 mm";
 			this.menuGridFive.Click += new System.EventHandler(this.menuGridFive_Click);
 			// 
+			// menuColor
+			// 
+			this.menuColor.Index = 3;
+			this.menuColor.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+																					  this.menuColor1,
+																					  this.menuColor2,
+																					  this.menuColor3,
+																					  this.menuColor4});
+			this.menuColor.Text = "Color";
+			// 
+			// menuColor1
+			// 
+			this.menuColor1.Index = 0;
+			this.menuColor1.RadioCheck = true;
+			this.menuColor1.Text = "Red / Black";
+			this.menuColor1.Click += new System.EventHandler(this.menuColor1_Click);
+			// 
+			// menuColor2
+			// 
+			this.menuColor2.Index = 1;
+			this.menuColor2.RadioCheck = true;
+			this.menuColor2.Text = "Blue / Black";
+			this.menuColor2.Click += new System.EventHandler(this.menuColor2_Click);
+			// 
+			// menuColor3
+			// 
+			this.menuColor3.Index = 2;
+			this.menuColor3.RadioCheck = true;
+			this.menuColor3.Text = "Green / Black";
+			this.menuColor3.Click += new System.EventHandler(this.menuColor3_Click);
+			// 
+			// menuColor4
+			// 
+			this.menuColor4.Index = 3;
+			this.menuColor4.RadioCheck = true;
+			this.menuColor4.Text = "Gray / Green";
+			this.menuColor4.Click += new System.EventHandler(this.menuColor4_Click);
+			// 
 			// menuDisplayInfo
 			// 
 			this.menuDisplayInfo.Checked = true;
-			this.menuDisplayInfo.Index = 3;
+			this.menuDisplayInfo.Index = 4;
 			this.menuDisplayInfo.Text = "Display Info";
 			this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
 			// 
 			// menuAnnonymize
 			// 
-			this.menuAnnonymize.Index = 4;
+			this.menuAnnonymize.Index = 5;
 			this.menuAnnonymize.Text = "Annonymize";
 			this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
 			// 
@@ -592,7 +646,7 @@ namespace ECGViewer
 			this.ECGPanel.Controls.Add(this.labelDiagnostic);
 			this.ECGPanel.Controls.Add(this.labelTime);
 			this.ECGPanel.Controls.Add(this.labelPatient);
-			this.ECGPanel.Location = new System.Drawing.Point(1, 1);
+			this.ECGPanel.Location = new System.Drawing.Point(0, 0);
 			this.ECGPanel.Name = "ECGPanel";
 			this.ECGPanel.Size = new System.Drawing.Size(684, 449);
 			this.ECGPanel.TabIndex = 0;
@@ -661,13 +715,6 @@ namespace ECGViewer
 			this.ECGTimeScrollbar.Size = new System.Drawing.Size(683, 16);
 			this.ECGTimeScrollbar.TabIndex = 5;
 			this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
-			// 
-			// menuGridNone
-			// 
-			this.menuGridNone.Index = 0;
-			this.menuGridNone.RadioCheck = true;
-			this.menuGridNone.Text = "None";
-			this.menuGridNone.Click += new System.EventHandler(this.menuGridNone_Click);
 			// 
 			// ECGViewer
 			// 
@@ -759,8 +806,8 @@ namespace ECGViewer
 				CurrentECG = _CurrentECG;
 
 				if ((oldSPS != 0)
-					&&	(_CurrentSignal != null)
-					&&	(_DrawType != ECGDraw.ECGDrawType.Median))
+				&&	(_CurrentSignal != null)
+				&&	(_DrawType != ECGDraw.ECGDrawType.Median))
 				{
 					ECGTimeScrollbar.Value = (oldPos * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
 				}
@@ -771,8 +818,8 @@ namespace ECGViewer
 				}
 			}
 
-			this.ECGTimeScrollbar.Width = this.ECGPanel.Width = this.Width - (this.ECGPanel.Left * 2) - 10;
-			this.ECGPanel.Height = this.Height - this.ECGPanel.Top - 50 - this.statusBar.Height - this.ECGTimeScrollbar.Height;
+			this.ECGTimeScrollbar.Width = this.ECGPanel.Width = this.Width - (this.ECGPanel.Left * 2) - 8;
+			this.ECGPanel.Height = this.Height - this.ECGPanel.Top - 48 - this.statusBar.Height - this.ECGTimeScrollbar.Height;
 			this.ECGTimeScrollbar.Top = this.ECGPanel.Bottom;
 
 			this.InnerECGPanel.Height = this.ECGPanel.Height - this.InnerECGPanel.Top;
@@ -1592,6 +1639,135 @@ namespace ECGViewer
 						process.Dispose();
 				}
 			}
+		}
+
+		private void SetColors(int kind)
+		{
+			if (kind < 0)
+			{
+				kind = 0;
+			}
+
+			if (kind == 0)
+			{
+				this.menuColor1.Checked = true;
+				this.menuColor2.Checked = false;
+				this.menuColor3.Checked = false;
+				this.menuColor4.Checked = false;
+
+				// Might be intressting to add different colors.
+				this.ECGPanel.BackColor = Color.White;
+				this.labelPatient.BackColor = Color.White;
+				this.labelPatient.ForeColor = Color.Black;
+				this.labelPatientSecond.BackColor = Color.White;
+				this.labelPatientSecond.ForeColor = Color.Black;
+				this.labelTime.BackColor = Color.White;
+				this.labelTime.ForeColor = Color.Black;
+				this.labelDiagnostic.BackColor = Color.White;
+				this.labelDiagnostic.ForeColor = Color.Black;
+
+				ECGDraw.BackColor = Color.White;
+				ECGDraw.GraphColor = Color.FromArgb(255, 187, 187);
+				ECGDraw.GraphSecondColor = Color.FromArgb(255, 229, 229);
+				ECGDraw.SignalColor = Color.Black;
+				ECGDraw.TextColor = Color.Black;
+			}
+			else if (kind == 1)
+			{
+				this.menuColor1.Checked = false;
+				this.menuColor2.Checked = true;
+				this.menuColor3.Checked = false;
+				this.menuColor4.Checked = false;
+
+				// Might be intressting to add different colors.
+				this.ECGPanel.BackColor = Color.White;
+				this.labelPatient.BackColor = Color.White;
+				this.labelPatient.ForeColor = Color.Black;
+				this.labelPatientSecond.BackColor = Color.White;
+				this.labelPatientSecond.ForeColor = Color.Black;
+				this.labelTime.BackColor = Color.White;
+				this.labelTime.ForeColor = Color.Black;
+				this.labelDiagnostic.BackColor = Color.White;
+				this.labelDiagnostic.ForeColor = Color.Black;
+
+				ECGDraw.BackColor = Color.White;
+				ECGDraw.GraphColor = Color.FromArgb(187, 187, 255);
+				ECGDraw.GraphSecondColor = Color.FromArgb(229, 229, 255);
+				ECGDraw.SignalColor = Color.Black;
+				ECGDraw.TextColor = Color.Black;
+			}
+			else if (kind == 2)
+			{
+				this.menuColor1.Checked = false;
+				this.menuColor2.Checked = false;
+				this.menuColor3.Checked = true;
+				this.menuColor4.Checked = false;
+
+				// Might be intressting to add different colors.
+				this.ECGPanel.BackColor = Color.White;
+				this.labelPatient.BackColor = Color.White;
+				this.labelPatient.ForeColor = Color.Black;
+				this.labelPatientSecond.BackColor = Color.White;
+				this.labelPatientSecond.ForeColor = Color.Black;
+				this.labelTime.BackColor = Color.White;
+				this.labelTime.ForeColor = Color.Black;
+				this.labelDiagnostic.BackColor = Color.White;
+				this.labelDiagnostic.ForeColor = Color.Black;
+
+				ECGDraw.BackColor = Color.White;
+				ECGDraw.GraphColor = Color.FromArgb(28, 255, 28);
+				ECGDraw.GraphSecondColor = Color.FromArgb(204, 255, 204);
+				ECGDraw.SignalColor = Color.Black;
+				ECGDraw.TextColor = Color.Black;
+			}
+			else if (kind == 3)
+			{
+				this.menuColor1.Checked = false;
+				this.menuColor2.Checked = false;
+				this.menuColor3.Checked = false;
+				this.menuColor4.Checked = true;
+
+				// Might be intressting to add different colors.
+				this.ECGPanel.BackColor = Color.Black;
+				this.labelPatient.BackColor = Color.Black;
+				this.labelPatient.ForeColor = Color.Lime;
+				this.labelPatientSecond.BackColor = Color.Black;
+				this.labelPatientSecond.ForeColor = Color.Lime;
+				this.labelTime.BackColor = Color.Black;
+				this.labelTime.ForeColor = Color.Lime;
+				this.labelDiagnostic.BackColor = Color.Black;
+				this.labelDiagnostic.ForeColor = Color.Lime;
+
+				ECGDraw.BackColor = Color.Black;
+				ECGDraw.GraphColor = Color.Gray;
+				ECGDraw.GraphSecondColor = Color.FromArgb(96, 96, 96);
+				ECGDraw.SignalColor = Color.Lime;
+				ECGDraw.TextColor = Color.Lime;
+			}
+
+			this.DrawBuffer = null;
+			this.InnerECGPanel.Refresh();
+		}
+
+		private void menuColor1_Click(object sender, System.EventArgs e)
+		{
+			SetColors(0);
+		}
+
+		private void menuColor2_Click(object sender, System.EventArgs e)
+		{
+			SetColors(1);
+		}
+
+		private void menuColor3_Click(object sender, System.EventArgs e)
+		{
+			SetColors(2);
+		
+		}
+
+		private void menuColor4_Click(object sender, System.EventArgs e)
+		{
+			SetColors(3);
 		}
 	}
 }
