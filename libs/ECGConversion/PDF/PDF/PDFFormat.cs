@@ -39,7 +39,9 @@ namespace ECGConversion.PDF
 		public enum SupportedPaper
 		{
 			A4,
-			LETTER
+			LETTER,
+			A4_Portrait,
+			LETTER_Portrait
 		}
 
 		private PDFDemographics _Demographics;
@@ -125,7 +127,8 @@ namespace ECGConversion.PDF
 
 				switch (_PaperType)
 				{
-					case SupportedPaper.LETTER:	
+					case SupportedPaper.LETTER:
+					case SupportedPaper.LETTER_Portrait:
 						ret = PageSize.LETTER;
 						break;
 					default:
@@ -213,11 +216,13 @@ namespace ECGConversion.PDF
 		{
 			try
 			{
-				ECGConverter.EnumParse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
+				ECGDraw.ECGDrawType dt = (ECGDraw.ECGDrawType) ECGConverter.EnumParse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
 				float.Parse(_Config["Gain"], System.Globalization.CultureInfo.CurrentUICulture);
-				ECGConverter.EnumParse(typeof(SupportedPaper), _Config["Paper Type"], true);
+				SupportedPaper sp = (SupportedPaper) ECGConverter.EnumParse(typeof(SupportedPaper), _Config["Paper Type"], true);
 
-				return true;
+				return ((dt != ECGDraw.ECGDrawType.Regular)
+					&&	((sp == SupportedPaper.A4_Portrait)
+					||	 (sp == SupportedPaper.LETTER_Portrait))) ? false : true;
 			}
 			catch {}
 
@@ -282,7 +287,10 @@ namespace ECGConversion.PDF
 								||	 (sigLength == 9)
 								||	 (sigLength == 10));
 
-					if (_DrawSpeed != 25.0f)
+					if ((_PaperType == SupportedPaper.A4_Portrait)
+					||	(_PaperType == SupportedPaper.LETTER_Portrait))
+						bRotated = false;
+					else if (_DrawSpeed != 25.0f)
 						bRotated = false;
 
 					Document document = new Document(bRotated ? _PageSize.Rotate() : _PageSize);
@@ -488,11 +496,13 @@ namespace ECGConversion.PDF
 									return 2;
 							}
 						}
-						else if ((sigLength <= 8)
+						else if (((sigLength <= 8)
+							||	 (_PaperType == SupportedPaper.A4_Portrait)
+							||	 (_PaperType == SupportedPaper.LETTER_Portrait))
 							&&	 sigs.IsTwelveLeads
 							&&	 (_DrawSpeed == 25.0f))
 						{
-							RectangleF gridRect = (_PaperType == SupportedPaper.LETTER) ? PDFTool.CreateRectangle(width, height, 200.0f, (15.0f * sigs.NrLeads) + 20.0f, 230.0f) : PDFTool.CreateRectangle(width, height, 200.0f, (20.0f * sigs.NrLeads) + 15.0f, 257.5f); 
+							RectangleF gridRect = ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? PDFTool.CreateRectangle(width, height, 200.0f, (15.0f * sigs.NrLeads) + 20.0f, 230.0f) : PDFTool.CreateRectangle(width, height, 200.0f, (20.0f * sigs.NrLeads) + 15.0f, 257.5f); 
 
 							cb.SetLineWidth(0.5f);
 							cb.SetRGBColorStroke(0, 0, 0);
@@ -523,7 +533,7 @@ namespace ECGConversion.PDF
 							{
 								PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, 0, 0.0f, false);
 
-								point.Y += (_PaperType == SupportedPaper.LETTER) ? 15.0f : 20.0f ;
+								point.Y += ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? 15.0f : 20.0f ;
 							}
 
 							point.X = gridRect.X + 5.0f;
@@ -552,7 +562,7 @@ namespace ECGConversion.PDF
 
 							if (sigs.NrLeads > 12)
 							{
-								float fMaxHeight = (_PaperType == SupportedPaper.LETTER ? 240.0f : 255.0f) - 20.0f;
+								float fMaxHeight = (((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? 240.0f : 255.0f) - 20.0f;
 
 								fStartY = 15.0f;
 
@@ -580,7 +590,7 @@ namespace ECGConversion.PDF
 									cb.SetLineWidth(0.5f);
 									cb.SetRGBColorStroke(0, 0, 0);
 
-									gridRect = (_PaperType == SupportedPaper.LETTER) ? PDFTool.CreateRectangle(width, height, 205.0f, (20.0f * sigs.NrLeads), 240.0f) : PDFTool.CreateRectangle(width, height, 180.0f, (20.0f * sigs.NrLeads) + 5.0f, 255.0f); 
+									gridRect = ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? PDFTool.CreateRectangle(width, height, 205.0f, (20.0f * sigs.NrLeads), 240.0f) : PDFTool.CreateRectangle(width, height, 180.0f, (20.0f * sigs.NrLeads) + 5.0f, 255.0f); 
 
 									DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
 								}
