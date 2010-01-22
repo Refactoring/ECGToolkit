@@ -1225,7 +1225,7 @@ namespace ECGConversion
 					nY + 2.0f + i * fLeadYSpace);
 
 			fontText.Dispose();
-			fontText = new Font("System", _TextSize, FontStyle.Regular);
+			fontText = new Font(System.Drawing.FontFamily.GenericMonospace, _TextSize, FontStyle.Regular);
 
 			fontText.Dispose();
 			solidBrush.Dispose();

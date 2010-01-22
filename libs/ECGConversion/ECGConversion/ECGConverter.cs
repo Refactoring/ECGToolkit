@@ -1339,7 +1339,7 @@ namespace ECGConversion
 			}
 
 			dst.PatientBirthDate = src.PatientBirthDate;
-			if (dst.PatientBirthDate != null)
+			if (dst.PatientBirthDate == null)
 				err |= (0x1 << 5);
 
 			HeightDefinition height;

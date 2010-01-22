@@ -195,11 +195,25 @@ namespace ECGConversion.PDF
 			}
 		}
 
+		private string _HeaderImagePath
+		{
+			get
+			{
+				string temp = _Config["Header Image"];
+
+				if ((temp != null)
+				&&	(temp.Length == 0))
+					return null;
+
+				return temp;
+			}
+		}
+
 		public PDFFormat()
 		{
 			string[]
 				must = new string[]{"Lead Format", "Paper Type", "Gain", "Speed", "Grid"},
-				poss = new string[]{"Document Title", "Document Creator", "Document Author"};
+				poss = new string[]{"Document Title", "Document Creator", "Document Author", "Header Image"};
 
 			_Config = new ECGConfig(must, poss, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			
@@ -327,13 +341,11 @@ namespace ECGConversion.PDF
 							if (_DrawGrid)
 							{
 								cb.SetLineWidth(0.25f);
-								cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
-
+								cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
 								PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
 								cb.SetLineWidth(0.5f);
-								cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
-
+								cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
 								PDFTool.DrawGrid(cb, 5.0f, gridRect);
 							}
 
@@ -512,13 +524,11 @@ namespace ECGConversion.PDF
 							if (_DrawGrid)
 							{
 								cb.SetLineWidth(0.25f);
-								cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
-
+								cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
 								PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
 								cb.SetLineWidth(0.5f);
-								cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
-
+								cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
 								PDFTool.DrawGrid(cb, 5.0f, gridRect);
 							}
 
@@ -598,13 +608,11 @@ namespace ECGConversion.PDF
 								if (_DrawGrid)
 								{
 									cb.SetLineWidth(0.25f);
-									cb.SetRGBColorStroke(0xf9, 0xcb, 0xcb);
-
+									cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
 									PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
 									cb.SetLineWidth(0.5f);
-									cb.SetRGBColorStroke(0xf9, 0xba, 0xba);
-
+									cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
 									PDFTool.DrawGrid(cb, 5.0f, gridRect);
 								}
 
@@ -697,6 +705,26 @@ namespace ECGConversion.PDF
 		}
 		private void DrawPageHeader(PdfContentByte cb, RectangleF headerRect, float fLineHeight)
 		{
+			if (_HeaderImagePath != null)
+			{
+				try
+				{
+					iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(_HeaderImagePath);
+
+					if (image != null)
+					{
+						image.ScaleToFit((30f * PDFTool.PdfDocumentDpi) / PDFTool.mm_Per_Inch, (40f * PDFTool.PdfDocumentDpi) / PDFTool.mm_Per_Inch);
+
+						image.SetAbsolutePosition(
+							((headerRect.Right * PDFTool.PdfDocumentDpi) / PDFTool.mm_Per_Inch) - image.ScaledWidth,
+							(-headerRect.Bottom * PDFTool.PdfDocumentDpi) / PDFTool.mm_Per_Inch);
+						
+						cb.AddImage(image);
+					}
+				}
+				catch {}
+			}
+
 			StringBuilder sb = new StringBuilder();
 
 			PointF point = new PointF(headerRect.X + 1.25f, headerRect.Y);
@@ -730,7 +758,7 @@ namespace ECGConversion.PDF
 				PrintValue(sb, QRSdur, 3);
 				sb.Append(" ms");
 
-				sb.Append("\nQT\\QTc:     ");
+				sb.Append("\nQT/QTc:     ");
 				PrintValue(sb, QT, 3);
 				sb.Append('/');
 				PrintValue(sb, QTc, 3);
