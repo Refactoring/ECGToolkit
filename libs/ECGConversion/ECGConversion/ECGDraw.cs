@@ -76,19 +76,53 @@ namespace ECGConversion
 		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
 		/// </summary>   
 		/// <param name="src">an ECG file to convert</param>
+		/// <param name="mm_Per_s">mm per s to draw</param>
+		/// <param name="mm_Per_mV">mm per mV to draw</param>
 		/// <param name="output">returns bitmap with signals.</param>
 		/// <returns>0 on success</returns>
 		public static int ToBitmap(IECGFormat src, float mm_Per_s, float mm_Per_mV, out Bitmap output)
 		{
-			return ToBitmap(src, 4f * mm_Per_Inch, 4f * mm_Per_Inch, mm_Per_s, mm_Per_mV, out output);
+			return ToBitmap(src, 4f * mm_Per_Inch, 4f * mm_Per_Inch, mm_Per_s, mm_Per_mV, false, out output);
 		}
 		/// <summary>
 		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
 		/// </summary>   
 		/// <param name="src">an ECG file to convert</param>
+		/// <param name="mm_Per_s">mm per s to draw</param>
+		/// <param name="mm_Per_mV">mm per mV to draw</param>
+		/// <param name="twelveLeads">make twelve output leads</param>
+		/// <param name="output">returns bitmap with signals.</param>
+		/// <returns>0 on success</returns>
+		public static int ToBitmap(IECGFormat src, float mm_Per_s, float mm_Per_mV, bool twelveLeads, out Bitmap output)
+		{
+			return ToBitmap(src, 4f * mm_Per_Inch, 4f * mm_Per_Inch, mm_Per_s, mm_Per_mV, twelveLeads, out output);
+		}
+		/// <summary>
+		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
+		/// </summary>   
+		/// <param name="src">an ECG file to convert</param>
+		/// <param name="dpiX">Dots Per Inch along the X-axis</param>
+		/// <param name="dpiY">>Dots Per Inch along the Y-axis</param>
+		/// <param name="mm_Per_s">mm per s to draw</param>
+		/// <param name="mm_Per_mV">mm per mV to draw</param>
 		/// <param name="output">returns bitmap with signals.</param>
 		/// <returns>0 on success</returns>
 		public static int ToBitmap(IECGFormat src, float dpiX, float dpiY, float mm_Per_s, float mm_Per_mV, out Bitmap output)
+		{
+			return ToBitmap(src, dpiX, dpiY, mm_Per_s, mm_Per_mV, false, out output);
+		}
+		/// <summary>
+		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
+		/// </summary>   
+		/// <param name="src">an ECG file to convert</param>
+		/// <param name="dpiX">Dots Per Inch along the X-axis</param>
+		/// <param name="dpiY">>Dots Per Inch along the Y-axis</param>
+		/// <param name="mm_Per_s">mm per s to draw</param>
+		/// <param name="mm_Per_mV">mm per mV to draw</param>
+		/// <param name="twelveLeads">make twelve output leads</param>
+		/// <param name="output">returns bitmap with signals.</param>
+		/// <returns>0 on success</returns>
+		public static int ToBitmap(IECGFormat src, float dpiX, float dpiY, float mm_Per_s, float mm_Per_mV, bool twelveLeads, out Bitmap output)
 		{
 			DpiX = dpiX; DpiY = dpiY;
 
@@ -105,6 +139,14 @@ namespace ECGConversion
 			||  (src.Signals.getSignals(out signals) != 0))
 			{
 				return 1;
+			}
+
+			if (twelveLeads)
+			{
+				ECGSignals.Signals tempSig = signals.CalculateTwelveLeads();
+
+				if (tempSig != null)
+					signals = tempSig;
 			}
 
 			int nExtraSpace = (int) (_TextSize * DpiY * Inch_Per_mm * .4f);
@@ -126,11 +168,12 @@ namespace ECGConversion
 			float
 				fPixel_Per_s = mm_Per_s * DpiX * Inch_Per_mm,
 				fPixel_Per_uV = mm_Per_mV * DpiY * Inch_Per_mm * 0.001f,
-				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV;
+				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV,
+				fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
 
 			output = new Bitmap(
 				(int) Math.Ceiling((((float) (nEnd - nStart)) / signals.RhythmSamplesPerSecond) * fPixel_Per_s + (0.2f * fPixel_Per_s)) + 1,
-				(int) Math.Ceiling(fLeadYSpace * signals.NrLeads) + nExtraSpace + 1);
+				(int) Math.Ceiling((fLeadYSpace * signals.NrLeads) + (fGridY * 2)) + nExtraSpace + 1);
 
 			DrawECG(Graphics.FromImage(output), signals, dtRecordTime, 0, mm_Per_s, mm_Per_mV, false);
 
