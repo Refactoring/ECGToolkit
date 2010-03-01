@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004-2005,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -843,6 +843,37 @@ namespace ECGConversion.SCP
 			}
 			_Manufactor = null;
 		}
+
+		/// <summary>
+		///	Get the Manufactor Sections. 
+		/// </summary>
+		public SCPSection[] ManufactorSections
+		{
+			get
+			{
+				return _Manufactor;
+			}
+			set
+			{
+				if (value != null)
+				{
+					ushort secId = 11;
+					for (int i=0;i < _Manufactor.Length;i++)
+					{
+						if ((value[i] == null)
+						||	(value[i].getSectionID() <= secId))
+							return;
+
+						secId = value[i].getSectionID();
+					}
+				}
+
+				_Manufactor = value;
+				setPointers();
+			}
+		}
+
+
 		#region IDisposable Members
 		public override void Dispose()
 		{
