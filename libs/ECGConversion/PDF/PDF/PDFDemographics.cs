@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008,2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
