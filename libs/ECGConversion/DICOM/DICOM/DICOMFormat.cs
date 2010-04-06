@@ -438,8 +438,14 @@ namespace ECGConversion.DICOM
 					if (ret != 0)
 						return (ret > 0 ? 2 + ret : ret);
 
-					if (waveformSet.GetInts(Tags.WaveformPaddingValue) != null)
-						signals.TrimSignals((short) waveformSet.GetInteger(Tags.WaveformPaddingValue));
+					DcmElement element = waveformSet.Get(Tags.WaveformPaddingValue);
+
+					try
+					{
+						if (element != null)
+							signals.TrimSignals((short) element.Int);
+					}
+					catch {}
 
 					if (waveformElement.vm() == 2)
 					{

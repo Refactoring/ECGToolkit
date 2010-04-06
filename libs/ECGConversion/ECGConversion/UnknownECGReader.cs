@@ -85,9 +85,9 @@ namespace ECGConversion
 						if (ret != null)
 						{
 							ret.Dispose();
-						ret = null;
+							ret = null;
+						}
 					}
-				}
 				}
 
 				if (i == converter.getNrSupportedFormats())

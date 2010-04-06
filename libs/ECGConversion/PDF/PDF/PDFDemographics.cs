@@ -51,8 +51,7 @@ namespace ECGConversion.PDF
 
 		public bool Works()
 		{
-			return _PatientID != null
-				&& _AcqTime.Year > 1000;
+			return _PatientID != null;
 		}
 
 		#region IDemographic Members
