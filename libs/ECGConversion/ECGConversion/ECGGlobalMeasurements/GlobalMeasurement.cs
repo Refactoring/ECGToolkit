@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ namespace ECGConversion.ECGGlobalMeasurements
 
 		public ushort Pdur
 		{
-			get {return (ushort) ((Poffset != NoValue) && (Ponset != NoValue) ? (Poffset - Ponset) : NoValue);}
+			get {return (ushort) ((Poffset != NoValue) && (Ponset != NoValue) && (Ponset < Poffset) ? (Poffset - Ponset) : NoValue);}
 		}
 		public ushort PRint
 		{
-			get {return (ushort) ((QRSonset != NoValue) && (Ponset != NoValue) ? (QRSonset - Ponset) : NoValue);}
+			get {return (ushort) ((QRSonset != NoValue) && (Ponset != NoValue) && (Pdur != NoValue) ? (QRSonset - Ponset) : NoValue);}
 		}
 		public ushort QRSdur
 		{
