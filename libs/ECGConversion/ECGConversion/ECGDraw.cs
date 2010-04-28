@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -76,53 +76,19 @@ namespace ECGConversion
 		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
 		/// </summary>   
 		/// <param name="src">an ECG file to convert</param>
-		/// <param name="mm_Per_s">mm per s to draw</param>
-		/// <param name="mm_Per_mV">mm per mV to draw</param>
 		/// <param name="output">returns bitmap with signals.</param>
 		/// <returns>0 on success</returns>
 		public static int ToBitmap(IECGFormat src, float mm_Per_s, float mm_Per_mV, out Bitmap output)
 		{
-			return ToBitmap(src, 4f * mm_Per_Inch, 4f * mm_Per_Inch, mm_Per_s, mm_Per_mV, false, out output);
+			return ToBitmap(src, 4f * mm_Per_Inch, 4f * mm_Per_Inch, mm_Per_s, mm_Per_mV, out output);
 		}
 		/// <summary>
 		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
 		/// </summary>   
 		/// <param name="src">an ECG file to convert</param>
-		/// <param name="mm_Per_s">mm per s to draw</param>
-		/// <param name="mm_Per_mV">mm per mV to draw</param>
-		/// <param name="twelveLeads">make twelve output leads</param>
-		/// <param name="output">returns bitmap with signals.</param>
-		/// <returns>0 on success</returns>
-		public static int ToBitmap(IECGFormat src, float mm_Per_s, float mm_Per_mV, bool twelveLeads, out Bitmap output)
-		{
-			return ToBitmap(src, 4f * mm_Per_Inch, 4f * mm_Per_Inch, mm_Per_s, mm_Per_mV, twelveLeads, out output);
-		}
-		/// <summary>
-		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
-		/// </summary>   
-		/// <param name="src">an ECG file to convert</param>
-		/// <param name="dpiX">Dots Per Inch along the X-axis</param>
-		/// <param name="dpiY">>Dots Per Inch along the Y-axis</param>
-		/// <param name="mm_Per_s">mm per s to draw</param>
-		/// <param name="mm_Per_mV">mm per mV to draw</param>
 		/// <param name="output">returns bitmap with signals.</param>
 		/// <returns>0 on success</returns>
 		public static int ToBitmap(IECGFormat src, float dpiX, float dpiY, float mm_Per_s, float mm_Per_mV, out Bitmap output)
-		{
-			return ToBitmap(src, dpiX, dpiY, mm_Per_s, mm_Per_mV, false, out output);
-		}
-		/// <summary>
-		/// Function to write an ECG in to an bitmap. Will only draw stored leads and will not display average beat.
-		/// </summary>   
-		/// <param name="src">an ECG file to convert</param>
-		/// <param name="dpiX">Dots Per Inch along the X-axis</param>
-		/// <param name="dpiY">>Dots Per Inch along the Y-axis</param>
-		/// <param name="mm_Per_s">mm per s to draw</param>
-		/// <param name="mm_Per_mV">mm per mV to draw</param>
-		/// <param name="twelveLeads">make twelve output leads</param>
-		/// <param name="output">returns bitmap with signals.</param>
-		/// <returns>0 on success</returns>
-		public static int ToBitmap(IECGFormat src, float dpiX, float dpiY, float mm_Per_s, float mm_Per_mV, bool twelveLeads, out Bitmap output)
 		{
 			DpiX = dpiX; DpiY = dpiY;
 
@@ -139,14 +105,6 @@ namespace ECGConversion
 			||  (src.Signals.getSignals(out signals) != 0))
 			{
 				return 1;
-			}
-
-			if (twelveLeads)
-			{
-				ECGSignals.Signals tempSig = signals.CalculateTwelveLeads();
-
-				if (tempSig != null)
-					signals = tempSig;
 			}
 
 			int nExtraSpace = (int) (_TextSize * DpiY * Inch_Per_mm * .4f);
@@ -168,12 +126,11 @@ namespace ECGConversion
 			float
 				fPixel_Per_s = mm_Per_s * DpiX * Inch_Per_mm,
 				fPixel_Per_uV = mm_Per_mV * DpiY * Inch_Per_mm * 0.001f,
-				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV,
-				fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
+				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV;
 
 			output = new Bitmap(
 				(int) Math.Ceiling((((float) (nEnd - nStart)) / signals.RhythmSamplesPerSecond) * fPixel_Per_s + (0.2f * fPixel_Per_s)) + 1,
-				(int) Math.Ceiling((fLeadYSpace * signals.NrLeads) + (fGridY * 2)) + nExtraSpace + 1);
+				(int) Math.Ceiling(fLeadYSpace * signals.NrLeads) + nExtraSpace + 1);
 
 			DrawECG(Graphics.FromImage(output), signals, dtRecordTime, 0, mm_Per_s, mm_Per_mV, false);
 
@@ -885,16 +842,10 @@ namespace ECGConversion
 
 			float
 				fTempY = (float) Math.Round((fLeadYSpace * nNrLeads) / fGridY) * fGridY + fGridY,
-				fMaxY = fTempY + nMinY,
-				fPenWidth = DpiX * 0.015625f;
+				fMaxY = fTempY + nMinY;
 
-#if WINCE
 			Pen gridPen = new Pen(GraphColor),
 				gridSecondPen = new Pen(GraphSecondColor);
-#else
-			Pen	gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
-				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);			
-#endif
 
 			Brush gridBrush = null;
 
@@ -924,7 +875,7 @@ namespace ECGConversion
 					myGraphics.FillRectangle(gridBrush, nMinX, nMinY, nMaxX, nMaxY);
 
 				// draw vertical lines.
-				for (float i=nMinX;i <= (nMaxX + fPenWidth);i+=fGridX,j++)
+				for (float i=nMinX;i <= (nMaxX + 1);i+=fGridX,j++)
 				{
 					int nTempX = (int) Math.Round(i);
 
@@ -937,7 +888,7 @@ namespace ECGConversion
 				j=0;
 
 				// draw horizontal lines.
-				for (float i=nMinY;i <= (fMaxY + fPenWidth);i+=fGridY,j++)
+				for (float i=nMinY;i <= (fMaxY + 1);i+=fGridY,j++)
 				{
 					int nTempY = (int) Math.Round(i);
 
@@ -997,13 +948,8 @@ namespace ECGConversion
 			if (DisplayGrid == GridType.None)
 				return true;
 
-#if WINCE
 			Pen gridPen = new Pen(GraphColor),
 				gridSecondPen = new Pen(GraphSecondColor);
-#else
-			Pen gridPen = new Pen(GraphColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f),
-				gridSecondPen = new Pen(GraphSecondColor, fPenWidth >= 1.0f ? fPenWidth : 1.0f);
-#endif
 
 			Brush gridBrush = null;
 
@@ -1139,7 +1085,7 @@ namespace ECGConversion
 			Pen myPen = new Pen(SignalColor);
 
 			// begin: write rhythm data to image
-			for (int n=nTime+1;n <= nEnd;n++)
+			for (int n=nTime+1;n < nEnd;n++)
 			{
 				for (byte i=0;i < signals.NrLeads;i++)
 				{

@@ -47,7 +47,7 @@ namespace ECGViewer
 		private System.Windows.Forms.Panel InnerECGPanel;
 		private System.Windows.Forms.Label labelPatient;
 		private System.Windows.Forms.Label labelTime;
-		private System.Windows.Forms.Label labelDiagnostic;
+		private System.Windows.Forms.TextBox labelDiagnostic;
 		private System.Windows.Forms.MenuItem menuSave;
 		private System.Windows.Forms.SaveFileDialog saveECGFileDialog;
 		private System.Windows.Forms.MenuItem menuSaveFile;
@@ -91,6 +91,13 @@ namespace ECGViewer
 			{
 				lock (this)
 				{
+					_Zoom = 1;
+					menuZoomIn.Enabled = true;
+					menuZoomOut.Enabled = false;
+
+					_OffsetX = 0;
+					_OffsetY = 0;
+
 					if ((_CurrentECG != null)
 					&&	(_CurrentECG != value))
 						_CurrentECG.Dispose();
@@ -122,6 +129,14 @@ namespace ECGViewer
 						}
 						else
 						{
+							if (_CurrentSignal != null)
+							{
+								for (int i=0,e=_CurrentSignal.NrLeads;i < e;i++)
+								{
+									ECGTool.NormalizeSignal(_CurrentSignal[i].Rhythm, _CurrentSignal.RhythmSamplesPerSecond);
+								}
+							}
+
 							Signals sig = _CurrentSignal.CalculateTwelveLeads();
 
 							if (sig != null)
@@ -196,6 +211,13 @@ namespace ECGViewer
 		private System.Windows.Forms.MenuItem menuColor2;
 		private System.Windows.Forms.MenuItem menuColor3;
 		private System.Windows.Forms.MenuItem menuColor4;
+		private System.Windows.Forms.MenuItem menuZoom;
+		private System.Windows.Forms.MenuItem menuZoomOut;
+		private System.Windows.Forms.MenuItem menuZoomIn;
+		private System.Windows.Forms.MenuItem menuCaliper;
+		private System.Windows.Forms.MenuItem menuCaliperOff;
+		private System.Windows.Forms.MenuItem menuCaliperDuration;
+		private System.Windows.Forms.MenuItem menuCaliperBoth;
 	
 		private float Gain
 		{
@@ -353,6 +375,9 @@ namespace ECGViewer
 			this.menuColor4 = new System.Windows.Forms.MenuItem();
 			this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
 			this.menuAnnonymize = new System.Windows.Forms.MenuItem();
+			this.menuZoom = new System.Windows.Forms.MenuItem();
+			this.menuZoomOut = new System.Windows.Forms.MenuItem();
+			this.menuZoomIn = new System.Windows.Forms.MenuItem();
 			this.menuSave = new System.Windows.Forms.MenuItem();
 			this.menuSaveFile = new System.Windows.Forms.MenuItem();
 			this.menuSaveSystems = new System.Windows.Forms.MenuItem();
@@ -363,7 +388,7 @@ namespace ECGViewer
 			this.ECGPanel = new System.Windows.Forms.Panel();
 			this.InnerECGPanel = new System.Windows.Forms.Panel();
 			this.labelPatientSecond = new System.Windows.Forms.Label();
-			this.labelDiagnostic = new System.Windows.Forms.Label();
+			this.labelDiagnostic = new System.Windows.Forms.TextBox();
 			this.labelTime = new System.Windows.Forms.Label();
 			this.labelPatient = new System.Windows.Forms.Label();
 			this.statusBar = new System.Windows.Forms.StatusBar();
@@ -371,6 +396,10 @@ namespace ECGViewer
 			this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
+			this.menuCaliper = new System.Windows.Forms.MenuItem();
+			this.menuCaliperOff = new System.Windows.Forms.MenuItem();
+			this.menuCaliperDuration = new System.Windows.Forms.MenuItem();
+			this.menuCaliperBoth = new System.Windows.Forms.MenuItem();
 			this.ECGPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -413,7 +442,9 @@ namespace ECGViewer
 																					 this.menuGridType,
 																					 this.menuColor,
 																					 this.menuDisplayInfo,
-																					 this.menuAnnonymize});
+																					 this.menuAnnonymize,
+																					 this.menuZoom,
+																					 this.menuCaliper});
 			this.menuView.Text = "View";
 			// 
 			// menuLeadFormat
@@ -590,6 +621,28 @@ namespace ECGViewer
 			this.menuAnnonymize.Text = "Annonymize";
 			this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
 			// 
+			// menuZoom
+			// 
+			this.menuZoom.Index = 6;
+			this.menuZoom.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+																					 this.menuZoomOut,
+																					 this.menuZoomIn});
+			this.menuZoom.Text = "Zoom";
+			// 
+			// menuZoomOut
+			// 
+			this.menuZoomOut.Index = 0;
+			this.menuZoomOut.Shortcut = System.Windows.Forms.Shortcut.Ctrl9;
+			this.menuZoomOut.Text = "Zoom Out";
+			this.menuZoomOut.Click += new System.EventHandler(this.menuZoomOut_Click);
+			// 
+			// menuZoomIn
+			// 
+			this.menuZoomIn.Index = 1;
+			this.menuZoomIn.Shortcut = System.Windows.Forms.Shortcut.Ctrl0;
+			this.menuZoomIn.Text = "Zoom In";
+			this.menuZoomIn.Click += new System.EventHandler(this.menuZoomIn_Click);
+			// 
 			// menuSave
 			// 
 			this.menuSave.Enabled = false;
@@ -659,6 +712,10 @@ namespace ECGViewer
 			this.InnerECGPanel.Size = new System.Drawing.Size(175, 90);
 			this.InnerECGPanel.TabIndex = 0;
 			this.InnerECGPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.InnerECGPanel_Paint);
+			this.InnerECGPanel.DoubleClick += new System.EventHandler(this.InnerECGPanel_DoubleClick);
+			this.InnerECGPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.InnerECGPanel_MouseMove);
+			this.InnerECGPanel.MouseLeave += new System.EventHandler(this.InnerECGPanel_MouseLeave);
+			this.InnerECGPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.InnerECGPanel_MouseDown);
 			// 
 			// labelPatientSecond
 			// 
@@ -672,13 +729,18 @@ namespace ECGViewer
 			// 
 			// labelDiagnostic
 			// 
-			this.labelDiagnostic.BackColor = System.Drawing.Color.Transparent;
+			this.labelDiagnostic.BackColor = System.Drawing.Color.White;
 			this.labelDiagnostic.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
 			this.labelDiagnostic.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.labelDiagnostic.Location = new System.Drawing.Point(365, 5);
+			this.labelDiagnostic.Multiline = true;
 			this.labelDiagnostic.Name = "labelDiagnostic";
-			this.labelDiagnostic.Size = new System.Drawing.Size(310, 427);
+			this.labelDiagnostic.ReadOnly = true;
+			this.labelDiagnostic.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.labelDiagnostic.Size = new System.Drawing.Size(310, 98);
 			this.labelDiagnostic.TabIndex = 3;
+			this.labelDiagnostic.Text = "";
+			this.labelDiagnostic.Visible = false;
 			// 
 			// labelTime
 			// 
@@ -715,6 +777,37 @@ namespace ECGViewer
 			this.ECGTimeScrollbar.Size = new System.Drawing.Size(683, 16);
 			this.ECGTimeScrollbar.TabIndex = 5;
 			this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
+			// 
+			// menuCaliper
+			// 
+			this.menuCaliper.Index = 7;
+			this.menuCaliper.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+																						this.menuCaliperOff,
+																						this.menuCaliperDuration,
+																						this.menuCaliperBoth});
+			this.menuCaliper.Text = "Caliper";
+			// 
+			// menuCaliperOff
+			// 
+			this.menuCaliperOff.Checked = true;
+			this.menuCaliperOff.Index = 0;
+			this.menuCaliperOff.RadioCheck = true;
+			this.menuCaliperOff.Text = "Off";
+			this.menuCaliperOff.Click += new System.EventHandler(this.menuCaliperOff_Click);
+			// 
+			// menuCaliperDuration
+			// 
+			this.menuCaliperDuration.Index = 1;
+			this.menuCaliperDuration.RadioCheck = true;
+			this.menuCaliperDuration.Text = "Duration";
+			this.menuCaliperDuration.Click += new System.EventHandler(this.menuCaliperDuration_Click);
+			// 
+			// menuCaliperBoth
+			// 
+			this.menuCaliperBoth.Index = 2;
+			this.menuCaliperBoth.RadioCheck = true;
+			this.menuCaliperBoth.Text = "Duration + uV";
+			this.menuCaliperBoth.Click += new System.EventHandler(this.menuCaliperBoth_Click);
 			// 
 			// ECGViewer
 			// 
@@ -825,7 +918,7 @@ namespace ECGViewer
 			this.InnerECGPanel.Height = this.ECGPanel.Height - this.InnerECGPanel.Top;
 			this.InnerECGPanel.Width = this.ECGPanel.Width - this.InnerECGPanel.Left;
 
-			this.labelDiagnostic.Width = this.Width - this.labelDiagnostic.Left - 5;
+			this.labelDiagnostic.Width = this.Width - this.labelDiagnostic.Left - 10;
 
 			this.ECGPanel.Refresh();
 		}
@@ -971,8 +1064,7 @@ namespace ECGViewer
 								{
 									writeFile.Dispose();
 									writeFile = null;
-								}
-								
+								}								
 							}
 						}
 						catch
@@ -1142,7 +1234,6 @@ namespace ECGViewer
 					int w = (int)e.Graphics.VisibleClipBounds.Width,
 						h = (int)e.Graphics.VisibleClipBounds.Height;
 
-					_DrawBuffer = new Bitmap(w, h);
 
 					int n = 0;
 					int[,] s = {{782, 492}, {1042, 657}, {1302, 822}};
@@ -1153,16 +1244,56 @@ namespace ECGViewer
 							break;
 
 					n+=2;
+
+					// zoom mode on
+					if (_Zoom > 1)
+					{
+						n *= _Zoom;
+						w *= _Zoom;
+						h *= _Zoom;
+
+						int start, end;
+
+						if (_DrawType != ECGConversion.ECGDraw.ECGDrawType.Regular)
+						{
+							start = n * 5 * 33 + 1;
+							end = n * 5 * 52 + 1;
+						}
+						else
+						{
+							_CurrentSignal.CalculateStartAndEnd(out start, out end);
+
+							end = (((end - start) * 25 * n) / _CurrentSignal.RhythmSamplesPerSecond) + 1 + (n * 5);
+							start = int.MaxValue;
+						}
+
+						if (w > end)
+							w = end;
+
+						if (w < InnerECGPanel.Width)
+							w = InnerECGPanel.Width;
+
+						if (h > start)
+							h = start;
+
+						if (h < InnerECGPanel.Height)
+							h = InnerECGPanel.Height;
+					}
+
+					_DrawBuffer = new Bitmap(w, h);
 				
 					ECGConversion.ECGDraw.DpiX = ECGConversion.ECGDraw.DpiY = 25.4f * n;
 
 					int
 						oldSPS = _CurrentSignal.RhythmSamplesPerSecond,
-						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), _CurrentSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain, true);
+						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), _CurrentSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain, false);
 
 					if (ret < 0)
 					{
-						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), _CurrentSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain, true);
+						Graphics g = Graphics.FromImage(_DrawBuffer);
+						g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+						ret = ECGDraw.DrawECG(g, _CurrentSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain, true);
 					}
 
 					if (_DrawType != ECGDraw.ECGDrawType.Median)
@@ -1177,7 +1308,7 @@ namespace ECGViewer
 						}
 					
 						if ((ret >= 0)
-							&&	((ret - ECGTimeScrollbar.Value) < ECGTimeScrollbar.Maximum))
+						&&	((ret - ECGTimeScrollbar.Value) < ECGTimeScrollbar.Maximum))
 						{
 							ECGTimeScrollbar.Enabled = true;
 							ECGTimeScrollbar.LargeChange =  Math.Max(ECGTimeScrollbar.LargeChange, ret - ECGTimeScrollbar.Value);
@@ -1192,9 +1323,19 @@ namespace ECGViewer
 					{
 						ECGTimeScrollbar.Enabled = false;
 					}
-				}			
+				}		
+	
+				if (_OffsetX < 0)
+					_OffsetX = 0;
+				else if (_OffsetX > (_DrawBuffer.Width - InnerECGPanel.Width))
+					_OffsetX = _DrawBuffer.Width - InnerECGPanel.Width;
 
-				e.Graphics.DrawImage(_DrawBuffer, 0, 0, _DrawBuffer.Width, _DrawBuffer.Height);
+				if (_OffsetY < 0)
+					_OffsetY = 0;
+				else if (_OffsetY > (_DrawBuffer.Height - InnerECGPanel.Height))
+					_OffsetY = _DrawBuffer.Height - InnerECGPanel.Height;
+
+				e.Graphics.DrawImage(_DrawBuffer, this.InnerECGPanel.DisplayRectangle, _OffsetX, _OffsetY, this.InnerECGPanel.Size.Width, this.InnerECGPanel.Size.Height, GraphicsUnit.Pixel);
 			}
 		}
 
@@ -1211,6 +1352,7 @@ namespace ECGViewer
 				this.labelPatientSecond.Text = "";
 				this.labelTime.Text = "";
 				this.labelDiagnostic.Text = "";
+				this.labelDiagnostic.Visible = false;
 			}
 			else
 			{
@@ -1334,7 +1476,7 @@ namespace ECGViewer
 						foreach (string temp in stat.statement)
 						{
 							sb.Append(temp);
-							sb.Append('\n');
+							sb.Append("\r\n");
 						}
 
 						string temp2 = stat.statement[stat.statement.Length-1];
@@ -1362,6 +1504,7 @@ namespace ECGViewer
 						}
 
 						this.labelDiagnostic.Text = sb.ToString();
+						this.labelDiagnostic.Visible = true;
 					}
 				}
 				else
@@ -1576,7 +1719,6 @@ namespace ECGViewer
 			menuGridNone.Checked = true;
 			menuGridOne.Checked = false;
 			menuGridFive.Checked = false;
-			
 
 			ECGDraw.DisplayGrid = ECGDraw.GridType.None;
 
@@ -1762,12 +1904,244 @@ namespace ECGViewer
 		private void menuColor3_Click(object sender, System.EventArgs e)
 		{
 			SetColors(2);
-		
 		}
 
 		private void menuColor4_Click(object sender, System.EventArgs e)
 		{
 			SetColors(3);
+		}
+
+		private void menuCaliperOff_Click(object sender, System.EventArgs e)
+		{
+			menuCaliperOff.Checked = true;
+			menuCaliperDuration.Checked = false;
+			menuCaliperBoth.Checked = false;
+		}
+
+		private void menuCaliperDuration_Click(object sender, System.EventArgs e)
+		{
+			menuCaliperOff.Checked = false;
+			menuCaliperDuration.Checked = true;
+			menuCaliperBoth.Checked = false;
+		}
+
+		private void menuCaliperBoth_Click(object sender, System.EventArgs e)
+		{
+			menuCaliperOff.Checked = false;
+			menuCaliperDuration.Checked = false;
+			menuCaliperBoth.Checked = true;
+		}
+
+		private int _Zoom = 1;
+		private int _OffsetX = 0;
+		private int _OffsetY = 0;
+		private int _PrevX = 0;
+		private int _PrevY = 0;
+		private int _LineX1 = int.MinValue;
+		private int _LineX2 = int.MinValue;
+		private int _LineY1 = int.MinValue;
+		private int _LineY2 = int.MinValue;
+		private bool _RightMouseButton = false;
+
+		private void InnerECGPanel_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (_DrawBuffer != null)
+			{
+				if (e.Button == MouseButtons.Right)
+				{
+					_OffsetX += (_PrevX - e.X);
+					_OffsetY += (_PrevY - e.Y);
+
+					if (_OffsetX < 0)
+						_OffsetX = 0;
+					else if (_OffsetX > (_DrawBuffer.Width - InnerECGPanel.Width))
+						_OffsetX = _DrawBuffer.Width - InnerECGPanel.Width;
+
+					if (_OffsetY < 0)
+						_OffsetY = 0;
+					else if (_OffsetY > (_DrawBuffer.Height - InnerECGPanel.Height))
+						_OffsetY = _DrawBuffer.Height - InnerECGPanel.Height;
+				}
+
+				Graphics g = Graphics.FromHwndInternal(this.InnerECGPanel.Handle);
+
+				if ((_LineX1 != int.MinValue)
+				&&	(_LineX2 != int.MinValue))
+				{
+					if (_OffsetX < 0)
+						_OffsetX = 0;
+					else if (_OffsetX > (_DrawBuffer.Width - InnerECGPanel.Width))
+						_OffsetX = _DrawBuffer.Width - InnerECGPanel.Width;
+
+					if (_OffsetY < 0)
+						_OffsetY = 0;
+					else if (_OffsetY > (_DrawBuffer.Height - InnerECGPanel.Height))
+						_OffsetY = _DrawBuffer.Height - InnerECGPanel.Height;
+
+					g.DrawImage(_DrawBuffer, this.InnerECGPanel.DisplayRectangle, _OffsetX, _OffsetY, this.InnerECGPanel.Size.Width, this.InnerECGPanel.Size.Height, GraphicsUnit.Pixel);
+				}
+
+				if (e.Button != System.Windows.Forms.MouseButtons.Left)
+				{
+					_LineX1 = e.X;
+					_LineY1 = e.Y;
+				}
+
+				_LineX2 = e.X;
+				_LineY2 = e.Y;
+
+				if (!menuCaliperOff.Checked)
+				{
+					Pen pen = new Pen(ECGDraw.TextColor);
+
+					if (menuCaliperDuration.Checked)
+					{
+						if (_LineX1 != int.MinValue)
+							g.DrawLine(pen, _LineX1, 0, _LineX1, InnerECGPanel.Height);
+
+						if (_LineX2 != int.MinValue)
+							g.DrawLine(pen, _LineX2, 0, _LineX2, InnerECGPanel.Height);
+
+						this.statusBar.Text = ((_LineX1 == _LineX2) ? "" : Math.Round((Math.Abs(_LineX1 - _LineX2) * 1000 * ECGDraw.mm_Per_Inch) / (ECGDraw.DpiX * 25.0f), 0) + " ms");
+					}
+					else if (menuCaliperBoth.Checked)
+					{
+						if ((_LineX2 != int.MinValue)
+						&&  (_LineY2 != int.MinValue))
+						{
+							if ((_LineX1 != int.MinValue)
+							&&  (_LineY1 != int.MinValue)
+							&&	(_LineX1 != _LineX2)
+							&&	(_LineY1 != _LineY2))
+							{
+								g.DrawRectangle(
+									pen,
+									Math.Min(_LineX1, _LineX2),
+									Math.Min(_LineY1, _LineY2),
+									Math.Abs(_LineX1 - _LineX2),
+									Math.Abs(_LineY1 - _LineY2));
+
+								this.statusBar.Text = Math.Round((Math.Abs(_LineX1 - _LineX2) * 1000 * ECGDraw.mm_Per_Inch) / (ECGDraw.DpiX * 25.0f), 0) + " ms, "
+													+ Math.Round((Math.Abs(_LineY1 - _LineY2) * 1000 * ECGDraw.mm_Per_Inch) / (ECGDraw.DpiY * 10.0f), 0) + " uV";
+							}
+							else
+							{
+								g.DrawLine(pen, _LineX2, 0, _LineX2, InnerECGPanel.Height-1);
+								g.DrawLine(pen, 0, _LineY2, InnerECGPanel.Width-1, _LineY2);
+
+								this.statusBar.Text = "";
+							}
+						}
+					}
+
+					pen.Dispose();
+				}
+			}
+
+			_PrevX = e.X;
+			_PrevY = e.Y;
+		}
+
+		private void InnerECGPanel_MouseLeave(object sender, EventArgs e)
+		{
+			if (_DrawBuffer == null)
+				return;
+
+			Graphics g = Graphics.FromHwndInternal(this.InnerECGPanel.Handle);
+
+			if ((_LineX1 != int.MinValue)
+			&&	(_LineX2 != int.MinValue))
+			{
+				if (_OffsetX < 0)
+					_OffsetX = 0;
+				else if (_OffsetX > (_DrawBuffer.Width - InnerECGPanel.Width))
+					_OffsetX = _DrawBuffer.Width - InnerECGPanel.Width;
+
+				if (_OffsetY < 0)
+					_OffsetY = 0;
+				else if (_OffsetY > (_DrawBuffer.Height - InnerECGPanel.Height))
+					_OffsetY = _DrawBuffer.Height - InnerECGPanel.Height;
+
+				g.DrawImage(_DrawBuffer, this.InnerECGPanel.DisplayRectangle, _OffsetX, _OffsetY, this.InnerECGPanel.Size.Width, this.InnerECGPanel.Size.Height, GraphicsUnit.Pixel);
+
+				this.statusBar.Text = "";
+
+				_LineX1 = _LineX2 = int.MinValue;
+				_LineY1 = _LineY2 = int.MinValue;
+			}
+		}
+
+		private void InnerECGPanel_DoubleClick(object sender, EventArgs e)
+		{
+			if (_RightMouseButton)
+			{
+				ZoomIn(_PrevX, _PrevY);
+			}
+		}
+
+		private void InnerECGPanel_MouseDown(object sender, MouseEventArgs e)
+		{
+			_RightMouseButton = (e.Button & MouseButtons.Right) == MouseButtons.Right;
+		}
+
+		private void menuZoomOut_Click(object sender, System.EventArgs e)
+		{
+			ZoomOut();
+		}
+
+		private void menuZoomIn_Click(object sender, System.EventArgs e)
+		{
+			ZoomIn(
+				InnerECGPanel.Width >> 1,
+				InnerECGPanel.Height >> 1);
+		}
+
+		private void ZoomOut()
+		{
+			if (_Zoom > 1)
+			{
+				menuZoomIn.Enabled = true;
+
+				_Zoom >>= 1;
+				_OffsetX = ((_OffsetX + (InnerECGPanel.Width >> 1)) >> 1) - (InnerECGPanel.Width >> 1);
+				_OffsetY = ((_OffsetY + (InnerECGPanel.Height >> 1)) >> 1) - (InnerECGPanel.Height >> 1);
+
+				if (_Zoom == 1)
+					menuZoomOut.Enabled = false;
+
+				DrawBuffer = null;
+				Refresh();
+			}
+		}
+
+		private void ZoomIn(int x, int y)
+		{
+			if (_Zoom < 4)
+			{
+				menuZoomOut.Enabled = true;
+
+				_Zoom <<= 1;
+				_OffsetX = ((_OffsetX + x) << 1) - (InnerECGPanel.Width >> 1);
+				_OffsetY = ((_OffsetY + y) << 1) - (InnerECGPanel.Height >> 1);
+
+				if (_Zoom == 4)
+					menuZoomIn.Enabled = false;
+
+				DrawBuffer = null;
+				Refresh();
+			}
+			else
+			{
+				_Zoom = 1;
+				menuZoomIn.Enabled = true;
+				menuZoomOut.Enabled = false;
+
+				_OffsetX = 0;
+				_OffsetY = 0;
+
+				DrawBuffer = null;
+				Refresh();
+			}
 		}
 	}
 }

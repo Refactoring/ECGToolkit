@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -810,6 +810,75 @@ namespace ECGConversion
 			}
 
 			return 1;
+		}
+		/// <summary>
+		/// Function to normalize a signal.
+		/// </summary>
+		/// <param name="src">the source signal</param>
+		/// <param name="sps">nr of samples per second of the source signal</param>
+		/// <returns>0 if successfull</returns>
+		public static int NormalizeSignal(short[] src, int sps)
+		{
+			return ((src != null) && (sps > 0)) ? ShiftSignal(src, MedianValue(src, sps)) : 1;
+		}
+		/// <summary>
+		/// Function to shift signal.
+		/// </summary>
+		/// <param name="src">the source signal</param>
+		/// <param name="median">value to shift signal</param>
+		/// <returns>0 if successfull</returns>
+		public static int ShiftSignal(short[] src, short shift)
+		{
+			if (src != null)
+			{
+				if (shift != 0)
+				{
+					for (int i=0;i < src.Length;i++)
+						src[i] -= shift;
+				}
+
+				return 0;
+			}
+
+			return 1;
+		}
+		/// <summary>
+		/// Get the median value of a signal.
+		/// </summary>
+		/// <param name="src">the source signal</param>
+		/// <param name="sps">nr of samples per second of the source signal</param>
+		/// <returns>the median value</returns>
+		private static short MedianValue(short[] src, int sps)
+		{
+			if (src != null)
+			{
+				if (sps > 8)
+					sps >>= 3;
+
+				short[] temp1 = new short[(src.Length / sps) + 1];
+
+				int j = 0;
+				for (int i=0;i < src.Length;i+=sps,j++)
+				{
+					short temp2 = src[i];
+
+					for (int k=0;k < j;k++)
+					{
+						if (temp2 < temp1[k])
+						{
+							short temp3 = temp2;
+							temp2 = temp1[k];
+							temp1[k] = temp3;
+						}
+					}
+
+					temp1[j] = temp2;
+				}
+
+				return temp1[temp1.Length >> 1];
+			}
+
+			return 0;
 		}
 		/// <summary>
 		/// Function to determine the "grootste gemene deler"
