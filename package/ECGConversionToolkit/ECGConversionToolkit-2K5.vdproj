@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_453A72A7A44702F33C50A650AA8C0E3A"
+        "OwnerKey" = "8:_47A5B14A53F543519848847FB6120479"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_47A5B14A53F543519848847FB6120479"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -111,12 +117,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E92869DA5A55B29A628CF3E6D8057B79"
-        "OwnerKey" = "8:_47A5B14A53F543519848847FB6120479"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F7BBBCCF631D4CE789F3BFCB658B24D3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -130,7 +130,7 @@
         "Entry"
         {
         "MsmKey" = "8:_FF0FFCA7AA0C6CEE592218D7967BA0EA"
-        "OwnerKey" = "8:_E92869DA5A55B29A628CF3E6D8057B79"
+        "OwnerKey" = "8:_453A72A7A44702F33C50A650AA8C0E3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -166,7 +166,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E92869DA5A55B29A628CF3E6D8057B79"
+        "OwnerKey" = "8:_453A72A7A44702F33C50A650AA8C0E3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -301,6 +301,37 @@
         }
         "File"
         {
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_453A72A7A44702F33C50A650AA8C0E3A"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:dicomcs, Version=0.2.2.0, Culture=neutral, PublicKeyToken=bc2de4c18607e924, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_453A72A7A44702F33C50A650AA8C0E3A"
+                    {
+                    "Name" = "8:dicomcs.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:dicomcs.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_13700417BA3F4467BB71FA2B4F798671"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_63E2F8A5F4584531BC37DC82B2EE5A0D"
             {
             "SourcePath" = "8:ECGToolkit.bat"
@@ -386,37 +417,6 @@
                     }
                 }
             "SourcePath" = "8:itextsharp.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_13700417BA3F4467BB71FA2B4F798671"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E92869DA5A55B29A628CF3E6D8057B79"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:dicomcs, Version=0.2.2.0, Culture=neutral, PublicKeyToken=bc2de4c18607e924, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_E92869DA5A55B29A628CF3E6D8057B79"
-                    {
-                    "Name" = "8:dicomcs.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:dicomcs.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_13700417BA3F4467BB71FA2B4F798671"
@@ -562,7 +562,7 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ECG Conversion Toolkit"
-        "ProductCode" = "8:{6C05A764-06DB-4481-94B5-BFCA53E208E6}"
+        "ProductCode" = "8:{C6016E68-42A5-445A-986A-B398A64002AA}"
         "PackageCode" = "8:{FB2236EB-28A8-471E-8761-A292D5A0DE37}"
         "UpgradeCode" = "8:{E5E8E14E-B14C-4492-B090-179287F2D05A}"
         "RestartWWWService" = "11:FALSE"
