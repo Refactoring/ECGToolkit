@@ -378,6 +378,10 @@ namespace ECGViewer
 			this.menuZoom = new System.Windows.Forms.MenuItem();
 			this.menuZoomOut = new System.Windows.Forms.MenuItem();
 			this.menuZoomIn = new System.Windows.Forms.MenuItem();
+			this.menuCaliper = new System.Windows.Forms.MenuItem();
+			this.menuCaliperOff = new System.Windows.Forms.MenuItem();
+			this.menuCaliperDuration = new System.Windows.Forms.MenuItem();
+			this.menuCaliperBoth = new System.Windows.Forms.MenuItem();
 			this.menuSave = new System.Windows.Forms.MenuItem();
 			this.menuSaveFile = new System.Windows.Forms.MenuItem();
 			this.menuSaveSystems = new System.Windows.Forms.MenuItem();
@@ -396,10 +400,6 @@ namespace ECGViewer
 			this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
-			this.menuCaliper = new System.Windows.Forms.MenuItem();
-			this.menuCaliperOff = new System.Windows.Forms.MenuItem();
-			this.menuCaliperDuration = new System.Windows.Forms.MenuItem();
-			this.menuCaliperBoth = new System.Windows.Forms.MenuItem();
 			this.ECGPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -423,6 +423,7 @@ namespace ECGViewer
 			// menuOpenFile
 			// 
 			this.menuOpenFile.Index = 0;
+			this.menuOpenFile.Shortcut = System.Windows.Forms.Shortcut.CtrlO;
 			this.menuOpenFile.Text = "File ...";
 			this.menuOpenFile.Click += new System.EventHandler(this.menuOpenFile_Click);
 			// 
@@ -441,10 +442,10 @@ namespace ECGViewer
 																					 this.menuGain,
 																					 this.menuGridType,
 																					 this.menuColor,
-																					 this.menuDisplayInfo,
-																					 this.menuAnnonymize,
+																					 this.menuCaliper,
 																					 this.menuZoom,
-																					 this.menuCaliper});
+																					 this.menuDisplayInfo,
+																					 this.menuAnnonymize});
 			this.menuView.Text = "View";
 			// 
 			// menuLeadFormat
@@ -464,6 +465,7 @@ namespace ECGViewer
 			this.menuLeadFormatRegular.Checked = true;
 			this.menuLeadFormatRegular.Index = 0;
 			this.menuLeadFormatRegular.RadioCheck = true;
+			this.menuLeadFormatRegular.Shortcut = System.Windows.Forms.Shortcut.Ctrl1;
 			this.menuLeadFormatRegular.Text = "Regular";
 			this.menuLeadFormatRegular.Click += new System.EventHandler(this.menuLeadFormatRegular_Click);
 			// 
@@ -471,6 +473,7 @@ namespace ECGViewer
 			// 
 			this.menuLeadFormatThreeXFour.Index = 1;
 			this.menuLeadFormatThreeXFour.RadioCheck = true;
+			this.menuLeadFormatThreeXFour.Shortcut = System.Windows.Forms.Shortcut.Ctrl2;
 			this.menuLeadFormatThreeXFour.Text = "3x4";
 			this.menuLeadFormatThreeXFour.Click += new System.EventHandler(this.menuLeadFormatFourXThree_Click);
 			// 
@@ -478,6 +481,7 @@ namespace ECGViewer
 			// 
 			this.menuLeadFormatThreeXFourPlusOne.Index = 2;
 			this.menuLeadFormatThreeXFourPlusOne.RadioCheck = true;
+			this.menuLeadFormatThreeXFourPlusOne.Shortcut = System.Windows.Forms.Shortcut.Ctrl3;
 			this.menuLeadFormatThreeXFourPlusOne.Text = "3x4+1";
 			this.menuLeadFormatThreeXFourPlusOne.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusOne_Click);
 			// 
@@ -485,6 +489,7 @@ namespace ECGViewer
 			// 
 			this.menuLeadFormatThreeXFourPlusThree.Index = 3;
 			this.menuLeadFormatThreeXFourPlusThree.RadioCheck = true;
+			this.menuLeadFormatThreeXFourPlusThree.Shortcut = System.Windows.Forms.Shortcut.Ctrl4;
 			this.menuLeadFormatThreeXFourPlusThree.Text = "3x4+3";
 			this.menuLeadFormatThreeXFourPlusThree.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusThree_Click);
 			// 
@@ -492,12 +497,14 @@ namespace ECGViewer
 			// 
 			this.menuLeadFormatSixXTwo.Index = 4;
 			this.menuLeadFormatSixXTwo.RadioCheck = true;
+			this.menuLeadFormatSixXTwo.Shortcut = System.Windows.Forms.Shortcut.Ctrl5;
 			this.menuLeadFormatSixXTwo.Text = "6x2";
 			this.menuLeadFormatSixXTwo.Click += new System.EventHandler(this.menuLeadFormatSixXTwo_Click);
 			// 
 			// menuLeadFormatMedian
 			// 
 			this.menuLeadFormatMedian.Index = 5;
+			this.menuLeadFormatMedian.Shortcut = System.Windows.Forms.Shortcut.CtrlM;
 			this.menuLeadFormatMedian.Text = "Average Complex";
 			this.menuLeadFormatMedian.Click += new System.EventHandler(this.menuLeadFormatMedian_Click);
 			// 
@@ -611,19 +618,21 @@ namespace ECGViewer
 			// menuDisplayInfo
 			// 
 			this.menuDisplayInfo.Checked = true;
-			this.menuDisplayInfo.Index = 4;
+			this.menuDisplayInfo.Index = 6;
+			this.menuDisplayInfo.Shortcut = System.Windows.Forms.Shortcut.CtrlI;
 			this.menuDisplayInfo.Text = "Display Info";
 			this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
 			// 
 			// menuAnnonymize
 			// 
-			this.menuAnnonymize.Index = 5;
+			this.menuAnnonymize.Index = 7;
+			this.menuAnnonymize.Shortcut = System.Windows.Forms.Shortcut.CtrlA;
 			this.menuAnnonymize.Text = "Annonymize";
 			this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
 			// 
 			// menuZoom
 			// 
-			this.menuZoom.Index = 6;
+			this.menuZoom.Index = 5;
 			this.menuZoom.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
 																					 this.menuZoomOut,
 																					 this.menuZoomIn});
@@ -643,6 +652,40 @@ namespace ECGViewer
 			this.menuZoomIn.Text = "Zoom In";
 			this.menuZoomIn.Click += new System.EventHandler(this.menuZoomIn_Click);
 			// 
+			// menuCaliper
+			// 
+			this.menuCaliper.Index = 4;
+			this.menuCaliper.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+																						this.menuCaliperOff,
+																						this.menuCaliperDuration,
+																						this.menuCaliperBoth});
+			this.menuCaliper.Text = "Caliper";
+			// 
+			// menuCaliperOff
+			// 
+			this.menuCaliperOff.Checked = true;
+			this.menuCaliperOff.Index = 0;
+			this.menuCaliperOff.RadioCheck = true;
+			this.menuCaliperOff.Shortcut = System.Windows.Forms.Shortcut.CtrlQ;
+			this.menuCaliperOff.Text = "Off";
+			this.menuCaliperOff.Click += new System.EventHandler(this.menuCaliperOff_Click);
+			// 
+			// menuCaliperDuration
+			// 
+			this.menuCaliperDuration.Index = 1;
+			this.menuCaliperDuration.RadioCheck = true;
+			this.menuCaliperDuration.Shortcut = System.Windows.Forms.Shortcut.CtrlW;
+			this.menuCaliperDuration.Text = "Duration";
+			this.menuCaliperDuration.Click += new System.EventHandler(this.menuCaliperDuration_Click);
+			// 
+			// menuCaliperBoth
+			// 
+			this.menuCaliperBoth.Index = 2;
+			this.menuCaliperBoth.RadioCheck = true;
+			this.menuCaliperBoth.Shortcut = System.Windows.Forms.Shortcut.CtrlE;
+			this.menuCaliperBoth.Text = "Duration + uV";
+			this.menuCaliperBoth.Click += new System.EventHandler(this.menuCaliperBoth_Click);
+			// 
 			// menuSave
 			// 
 			this.menuSave.Enabled = false;
@@ -655,6 +698,7 @@ namespace ECGViewer
 			// menuSaveFile
 			// 
 			this.menuSaveFile.Index = 0;
+			this.menuSaveFile.Shortcut = System.Windows.Forms.Shortcut.CtrlS;
 			this.menuSaveFile.Text = "File ...";
 			this.menuSaveFile.Click += new System.EventHandler(this.menuSaveFile_Click);
 			// 
@@ -668,6 +712,7 @@ namespace ECGViewer
 			// 
 			this.menuClose.Enabled = false;
 			this.menuClose.Index = 3;
+			this.menuClose.Shortcut = System.Windows.Forms.Shortcut.CtrlL;
 			this.menuClose.Text = "Close";
 			this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
 			// 
@@ -682,12 +727,14 @@ namespace ECGViewer
 			// menuAddPluginFile
 			// 
 			this.menuAddPluginFile.Index = 0;
+			this.menuAddPluginFile.Shortcut = System.Windows.Forms.Shortcut.CtrlP;
 			this.menuAddPluginFile.Text = "File ...";
 			this.menuAddPluginFile.Click += new System.EventHandler(this.menuAddPluginFile_Click);
 			// 
 			// menuAddPluginDir
 			// 
 			this.menuAddPluginDir.Index = 1;
+			this.menuAddPluginDir.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftP;
 			this.menuAddPluginDir.Text = "Dir ...";
 			this.menuAddPluginDir.Click += new System.EventHandler(this.menuAddPluginDir_Click);
 			// 
@@ -777,37 +824,6 @@ namespace ECGViewer
 			this.ECGTimeScrollbar.Size = new System.Drawing.Size(683, 16);
 			this.ECGTimeScrollbar.TabIndex = 5;
 			this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
-			// 
-			// menuCaliper
-			// 
-			this.menuCaliper.Index = 7;
-			this.menuCaliper.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																						this.menuCaliperOff,
-																						this.menuCaliperDuration,
-																						this.menuCaliperBoth});
-			this.menuCaliper.Text = "Caliper";
-			// 
-			// menuCaliperOff
-			// 
-			this.menuCaliperOff.Checked = true;
-			this.menuCaliperOff.Index = 0;
-			this.menuCaliperOff.RadioCheck = true;
-			this.menuCaliperOff.Text = "Off";
-			this.menuCaliperOff.Click += new System.EventHandler(this.menuCaliperOff_Click);
-			// 
-			// menuCaliperDuration
-			// 
-			this.menuCaliperDuration.Index = 1;
-			this.menuCaliperDuration.RadioCheck = true;
-			this.menuCaliperDuration.Text = "Duration";
-			this.menuCaliperDuration.Click += new System.EventHandler(this.menuCaliperDuration_Click);
-			// 
-			// menuCaliperBoth
-			// 
-			this.menuCaliperBoth.Index = 2;
-			this.menuCaliperBoth.RadioCheck = true;
-			this.menuCaliperBoth.Text = "Duration + uV";
-			this.menuCaliperBoth.Click += new System.EventHandler(this.menuCaliperBoth_Click);
 			// 
 			// ECGViewer
 			// 

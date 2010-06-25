@@ -99,7 +99,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B067201D497F11EC80902239EA6570B4"
+        "MsmKey" = "8:_A6D500C2229D84739CF10DE314EE008A"
         "OwnerKey" = "8:_2A0DE44A06904E808F50B5825DBADB93"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -196,7 +196,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_B067201D497F11EC80902239EA6570B4"
+        "OwnerKey" = "8:_A6D500C2229D84739CF10DE314EE008A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -345,7 +345,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ECGConversion, Version=2.2.3663.21600, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:ECGConversion, Version=2.2.3771.27753, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_9D3A511D8D58783F73FCECB9BFB2A73A"
@@ -372,14 +372,14 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B067201D497F11EC80902239EA6570B4"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A6D500C2229D84739CF10DE314EE008A"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:itextsharp, Version=4.1.2.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_B067201D497F11EC80902239EA6570B4"
+                    "_A6D500C2229D84739CF10DE314EE008A"
                     {
                     "Name" = "8:itextsharp.dll"
                     "Attributes" = "3:512"
@@ -562,14 +562,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ECG Conversion Toolkit"
-        "ProductCode" = "8:{76828BD6-6E8A-4607-B877-D21EDCE54137}"
-        "PackageCode" = "8:{71EB449F-1BBE-43BE-96D8-BE3BF6556978}"
+        "ProductCode" = "8:{6C05A764-06DB-4481-94B5-BFCA53E208E6}"
+        "PackageCode" = "8:{FB2236EB-28A8-471E-8761-A292D5A0DE37}"
         "UpgradeCode" = "8:{E5E8E14E-B14C-4492-B090-179287F2D05A}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.1.0"
+        "ProductVersion" = "8:2.2.0"
         "Manufacturer" = "8:Erasmus MC"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
