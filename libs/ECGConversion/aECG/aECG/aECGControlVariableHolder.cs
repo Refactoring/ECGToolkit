@@ -79,8 +79,8 @@ namespace ECGConversion.aECG
 					continue;
 
 				if ((string.Compare(reader.Name, Name) == 0)
-					&&	(reader.NodeType == XmlNodeType.EndElement)
-					&&	(reader.Depth == depth))
+				&&	(reader.NodeType == XmlNodeType.EndElement)
+				&&	(reader.Depth == depth))
 				{
 					return 0;
 				}

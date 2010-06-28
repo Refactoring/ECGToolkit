@@ -1041,7 +1041,11 @@ namespace ECGConversion.aECG
 						aECGControlVariable var1 = var0.ControlVariable;
 
 						if ((var1 != null)
-							&&	(var1.InnerVariables[0].Value.Unit == "Hz"))
+						&&	(var1.InnerVariables != null)
+						&&	(var1.InnerVariables.Length > 0)
+						&&	(var1.InnerVariables[0] != null)
+						&&	(var1.InnerVariables[0].Value != null)
+						&&	(var1.InnerVariables[0].Value.Unit == "Hz"))
 						{
 							try
 							{

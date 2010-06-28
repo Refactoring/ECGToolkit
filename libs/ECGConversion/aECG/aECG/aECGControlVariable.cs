@@ -48,11 +48,38 @@ namespace ECGConversion.aECG
 
 		public override int Read(System.Xml.XmlReader reader)
 		{
+			int level = 0;
+
 			while (reader.Read())
 			{
 				if ((reader.NodeType == XmlNodeType.Comment)
 				||  (reader.NodeType == XmlNodeType.Whitespace))
 					continue;
+
+				if (_InnerName != null)
+				{
+					if (level == 0)
+					{
+						if ((string.Compare(reader.Name, _InnerName) == 0)
+						&&  (reader.NodeType == XmlNodeType.Element))
+							level++;
+
+						if ((string.Compare(reader.Name, Name) == 0)
+						&&  (reader.NodeType == XmlNodeType.EndElement))
+							return 0;
+
+						continue;
+					}
+					else
+					{
+						if ((string.Compare(reader.Name, _InnerName) == 0)
+						&&  (reader.NodeType == XmlNodeType.EndElement))
+						{
+							level--;
+							continue;
+						}
+					}
+				}
 
 				if ((string.Compare(reader.Name, Name) == 0)
 				&&  (reader.NodeType == XmlNodeType.EndElement))
@@ -61,9 +88,9 @@ namespace ECGConversion.aECG
 				int ret = 0;
 
 				if ((InnerVariables != null)
-				&&	(string.Compare(reader.Name, _InnerName) == 0))
+				&&	(string.Compare(reader.Name, "component") == 0))
 				{
-					aECGControlVariable var = new aECGControlVariable(_InnerName);
+					aECGControlVariable var = new aECGControlVariable("component");
 
 					ret = var.Read(reader);
 
