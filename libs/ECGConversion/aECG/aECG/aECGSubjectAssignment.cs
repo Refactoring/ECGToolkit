@@ -50,10 +50,8 @@ namespace ECGConversion.aECG
 					if ((string.Compare(reader.Name, _InnerName) != 0)
 					|| (reader.NodeType != XmlNodeType.Element))
 						return 1;
-					else if (reader.IsEmptyElement)
-						sequence++;
 
-					sequence++;
+                    sequence += reader.IsEmptyElement ? 2 : 1;
 				}
 				else if (sequence == 1)
 				{

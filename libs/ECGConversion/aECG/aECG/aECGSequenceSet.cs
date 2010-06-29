@@ -52,11 +52,10 @@ namespace ECGConversion.aECG
 						return 0;
 
 					if ((string.Compare(reader.Name, _InnerName) != 0)
-					||	(reader.NodeType != XmlNodeType.Element)
-					||	(reader.IsEmptyElement))
+					||	(reader.NodeType != XmlNodeType.Element))
 						return 1;
 
-					sequence++;
+                    sequence += reader.IsEmptyElement ? 2 : 1;
 				}
 				else if (sequence == 1)
 				{
