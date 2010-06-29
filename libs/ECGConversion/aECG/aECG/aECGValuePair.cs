@@ -131,6 +131,10 @@ namespace ECGConversion.aECG
 				{
 					try
 					{
+						// code for special case files should not bother other situations
+						if (val.EndsWith("x"))
+							val = val.Replace("x", "");
+
 						_Time = (string.Compare(val, "0") == 0) ? DateTime.MinValue : aECGTime.ParseDate(val);
 					}
 					catch

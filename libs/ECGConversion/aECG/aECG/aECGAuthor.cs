@@ -62,7 +62,29 @@ namespace ECGConversion.aECG
 					if ((string.Compare(reader.Name, _InnerName) != 0)
 					||	(reader.NodeType != XmlNodeType.Element)
 					||	(reader.IsEmptyElement))
-						return 1;
+					{
+						if (string.Compare(_InnerName, "seriesAuthor") == 0)
+						{
+							if ((string.Compare(reader.Name, Name) == 0)					
+							&&  (reader.NodeType == XmlNodeType.EndElement))
+							{
+								_InnerName = null;
+
+								return 0;
+							}
+
+							int ret = aECGElement.ReadOne(this, reader);
+
+							if (ret != 0)
+								return (ret > 0) ? 2 + ret : ret;
+
+							continue;
+						}
+						else
+						{
+							return 1;
+						}
+					}
 
 					sequence++;
 				}

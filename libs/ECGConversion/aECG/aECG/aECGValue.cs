@@ -67,6 +67,8 @@ namespace ECGConversion.aECG
 			if (reader.IsEmptyElement)
 				return 1;
 
+			Type = reader.GetAttribute("xsi:type");
+
 			while (reader.Read())
 			{
                 if ((reader.NodeType == XmlNodeType.Comment)

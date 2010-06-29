@@ -1120,7 +1120,8 @@ namespace ECGConversion
 					&&	(n <= signals[i].RhythmEnd))
 					{
 						y1 = signals[i].Rhythm[n-1-signals[i].RhythmStart];
-						y2 = signals[i].Rhythm[n-signals[i].RhythmStart];
+						if ((n-signals[i].RhythmStart) < signals[i].Rhythm.Length)
+							y2 = signals[i].Rhythm[n-signals[i].RhythmStart];
 					}
 
 					if ((y1 != short.MinValue)

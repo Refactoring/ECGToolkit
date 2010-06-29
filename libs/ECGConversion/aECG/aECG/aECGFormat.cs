@@ -463,7 +463,6 @@ namespace ECGConversion.aECG
 		public override bool Works()
 		{
 			return Id.Works()
-				&& Code.Works()
 				&& EffectiveTime.Works()
 				&& Component.Works();
 		}
@@ -575,10 +574,20 @@ namespace ECGConversion.aECG
 							signals.MedianAVM);
 					}
 
-					LeadTypeVitalRefId lt = (LeadTypeVitalRefId) ECGConverter.EnumParse(
-						typeof(LeadTypeVitalRefId),
-						series.SequenceSet[1 + i].Code.Code,
-						true);
+					LeadTypeVitalRefId lt = (LeadTypeVitalRefId)LeadType.Unknown;
+					try
+					{
+						string code = series.SequenceSet[1 + i].Code.Code;
+
+						if (code.StartsWith("CDC_"))
+							code = "MDC" + code.Substring(3, code.Length - 3);
+
+						lt = (LeadTypeVitalRefId) ECGConverter.EnumParse(
+							typeof(LeadTypeVitalRefId),
+							code,
+							true);
+					}
+					catch {}
 
 					if ((signals.MedianSamplesPerSecond != 0)
 					&&	(series.SequenceSet[1 + i].Code.Code != series.DerivedSet[0].SequenceSet[1 + i].Code.Code))
@@ -813,16 +822,18 @@ namespace ECGConversion.aECG
 			{
 				try
 				{
-					DateTime temp = (DateTime) TimepointEvent.SubjectAssignment.Subject.Demographic.BirthTime.Value;
-
-					if (temp.Year > 1000)
+					if ((TimepointEvent != null)
+					&&	(TimepointEvent.SubjectAssignment.Subject.Demographic.BirthTime.Value is DateTime))
 					{
-						return new Date((ushort) temp.Year, (byte) temp.Month, (byte) temp.Day);
+						DateTime temp = (DateTime) TimepointEvent.SubjectAssignment.Subject.Demographic.BirthTime.Value;
+
+						if (temp.Year > 1000)
+						{
+							return new Date((ushort) temp.Year, (byte) temp.Month, (byte) temp.Day);
+						}
 					}
 				}
-				catch
-				{
-				}
+				catch {}
 				
 				return null;
 			}

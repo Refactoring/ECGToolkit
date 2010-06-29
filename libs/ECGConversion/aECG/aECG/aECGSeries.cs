@@ -89,8 +89,8 @@ namespace ECGConversion.aECG
 
 		public override bool Works()
 		{
-			return Id.Works()
-				&& Code.Works()
+			return /*Id.Works()
+				&& */Code.Works()
 				&& EffectiveTime.Works()
 				&& SequenceSet.Works()
 				&& ((DerivedSet == null)
