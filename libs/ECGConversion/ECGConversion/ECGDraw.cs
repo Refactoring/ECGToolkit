@@ -246,7 +246,7 @@ namespace ECGConversion
 
 					int length = (int) Math.Round((end - start) / (float)signals.RhythmSamplesPerSecond);
 
-					if (length <= 10)
+					if (length <= 12)
 					{
 						ret = ECGDrawType.Regular
 							| ECGDrawType.ThreeXFour

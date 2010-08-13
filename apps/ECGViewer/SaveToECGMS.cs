@@ -126,7 +126,6 @@ namespace ECGViewer
 			// 
 			// SaveToECGMS
 			// 
-			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
 			this.ClientSize = new System.Drawing.Size(288, 70);
 			this.ControlBox = false;
 			this.Controls.Add(this.buttonSetup);

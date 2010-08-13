@@ -154,7 +154,6 @@ namespace ECGViewer
 			// 
 			// OpenFromECGMS
 			// 
-			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
 			this.ClientSize = new System.Drawing.Size(626, 382);
 			this.ControlBox = false;
 			this.Controls.Add(this.labelPatientID);
