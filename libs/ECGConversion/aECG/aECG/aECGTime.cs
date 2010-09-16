@@ -34,7 +34,19 @@ namespace ECGConversion.aECG
 
 		public static DateTime ParseDate(string val)
 		{
-			return DateTime.ParseExact(val, _DateFormats, System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat, System.Globalization.DateTimeStyles.None);
+			if ((val != null)
+			&&	(val.Trim().Length != 0))
+			{
+				if (val.Length == 8)
+				{
+					if (val.EndsWith("0000"))
+						return new DateTime(int.Parse(val.Substring(0, 4)), 1, 1);
+				}
+
+				return DateTime.ParseExact(val, _DateFormats, System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat, System.Globalization.DateTimeStyles.None);
+			}
+
+			return DateTime.MinValue;
 		}
 
 		public static string WriteDate(DateTime dt)
