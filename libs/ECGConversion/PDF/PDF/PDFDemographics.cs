@@ -34,16 +34,41 @@ namespace ECGConversion.PDF
 		private string _SecondLastName;
 		private string _PrefixName;
 		private string _SuffixName;
+
 		private ushort _PatientAgeVal;
 		private AgeDefinition _PatientAgeDef;
+
+		private ushort _PatientHeightVal;
+		private HeightDefinition _PatientHeightDef;
+
+		private ushort _PatientWeightVal;
+		private WeightDefinition _PatientWeightDef;
+
 		private Date _PatientBirthDate;
 		private Sex _Gender;
 		private Race _PatientRace;
 		private ushort _BaselineFilter;
 		private ushort _LowpassFilter;
 		private byte _FilterBitmap;
+
 		private string _AcqInstitution;
 		private string _AcqDepartment;
+		private string _AnalyzingDepartment;
+		private string _AnalyzingInstitution;
+
+		private ushort _DiastolicBloodPressure = ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue;
+		private ushort _SystolicBloodPressure = ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue;
+
+		private string[] _ReferralIndication;
+		private string _ReferringPhysician;
+		private string _OverreadingPhysician;
+		private string _RoomDescription;
+		private string _SequenceNr;
+		private string _TechnicianDescription;
+
+		private string[] _FreeTextFields;
+		private Drug[] _Drugs;
+		private byte _StatCode = 0xff;
 
 		public PDFDemographics()
 		{
@@ -68,6 +93,13 @@ namespace ECGConversion.PDF
 
 			_PatientAgeVal = 0;
 			_PatientAgeDef = AgeDefinition.Unspecified;
+
+			_PatientHeightVal = 0;
+			_PatientHeightDef = HeightDefinition.Unspecified;
+
+			_PatientWeightVal = 0;
+			_PatientWeightDef = WeightDefinition.Unspecified;
+
 			_PatientBirthDate = null;
 			_Gender = Sex.Null;
 			_PatientRace = Race.Null;
@@ -78,6 +110,23 @@ namespace ECGConversion.PDF
 
 			_AcqInstitution = null;
 			_AcqDepartment = null;
+
+			 _AnalyzingDepartment = null;
+			_AnalyzingInstitution = null;
+
+			_DiastolicBloodPressure = ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue;
+			_SystolicBloodPressure = ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue;
+
+			_ReferralIndication = null;
+			_ReferringPhysician = null;
+			_OverreadingPhysician = null;
+			_RoomDescription = null;
+			_SequenceNr = null;
+			_TechnicianDescription = null;
+
+			_FreeTextFields = null;
+			_Drugs = null;
+			_StatCode = 0xff;
 		}
 
 		public string LastName
@@ -140,26 +189,34 @@ namespace ECGConversion.PDF
 
 		public int getPatientHeight(out ushort val, out HeightDefinition def)
 		{
-			val = 0;
-			def = HeightDefinition.Unspecified;
-			return 1;
+			val = _PatientHeightVal;
+			def = _PatientHeightDef;
+
+			return 0;
 		}
 
 		public int setPatientHeight(ushort val, HeightDefinition def)
 		{
-			return 1;
+			_PatientHeightVal = val;
+			_PatientHeightDef = def;
+
+			return 0;
 		}
 
 		public int getPatientWeight(out ushort val, out WeightDefinition def)
 		{
-			val = 0;
-			def = WeightDefinition.Unspecified;
-			return 1;
+			val = _PatientWeightVal;
+			def = _PatientWeightDef;
+
+			return 0;
 		}
 
 		public int setPatientWeight(ushort val, WeightDefinition def)
 		{
-			return 1;
+			_PatientWeightVal = val;
+			_PatientWeightDef = def;
+
+			return 0;
 		}
 
 		public Sex Gender
@@ -212,14 +269,14 @@ namespace ECGConversion.PDF
 
 		public string[] FreeTextFields
 		{
-			get {return null;}
-			set {}
+			get {return _FreeTextFields;}
+			set {_FreeTextFields = value;}
 		}
 
 		public string SequenceNr
 		{
-			get {return null;}
-			set {}
+			get {return _SequenceNr;}
+			set {_SequenceNr = value;}
 		}
 
 		public string AcqInstitution
@@ -230,8 +287,8 @@ namespace ECGConversion.PDF
 
 		public string AnalyzingInstitution
 		{
-			get {return null;}
-			set {}
+			get {return _AnalyzingInstitution;}
+			set {_AnalyzingInstitution = value;}
 		}
 
 		public string AcqDepartment
@@ -242,62 +299,62 @@ namespace ECGConversion.PDF
 
 		public string AnalyzingDepartment
 		{
-			get {return null;}
-			set {}
+			get {return _AnalyzingDepartment;}
+			set {_AnalyzingDepartment = value;}
 		}
 
 		public string ReferringPhysician
 		{
-			get {return null;}
-			set {}
+			get {return _ReferringPhysician;}
+			set {_ReferringPhysician = value;}
 		}
 
 		public string OverreadingPhysician
 		{
-			get {return null;}
-			set {}
+			get {return _OverreadingPhysician;}
+			set {_OverreadingPhysician = value;}
 		}
 
 		public string TechnicianDescription
 		{
-			get {return null;}
-			set {}
+			get {return _TechnicianDescription;}
+			set {_TechnicianDescription = value;}
 		}
 
 		public ushort SystolicBloodPressure
 		{
-			get {return 0;}
-			set {}
+			get {return _SystolicBloodPressure;}
+			set {_SystolicBloodPressure = value;}
 		}
 
 		public ushort DiastolicBloodPressure
 		{
-			get {return 0;}
-			set {}
+			get {return _DiastolicBloodPressure;}
+			set {_DiastolicBloodPressure = value;}
 		}
 
 		public Drug[] Drugs
 		{
-			get {return null;}
-			set {}
+			get {return _Drugs;}
+			set {_Drugs = value;}
 		}
 
 		public string[] ReferralIndication
 		{
-			get {return null;}
-			set {}
+			get {return _ReferralIndication;}
+			set {_ReferralIndication = value;}
 		}
 
 		public string RoomDescription
 		{
-			get {return null;}
-			set {}
+			get {return _RoomDescription;}
+			set {_RoomDescription = value;}
 		}
 
 		public byte StatCode
 		{
-			get {return 0xff;}
-			set {}
+			get {return _StatCode;}
+			set {_StatCode = value;}
 		}
 
 		#endregion

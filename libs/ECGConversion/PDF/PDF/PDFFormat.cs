@@ -837,26 +837,30 @@ namespace ECGConversion.PDF
 
 				string temp2 = _Diagnostic.statement[_Diagnostic.statement.Length-1];
 
-				if ((temp2 != null)
-				&&	!temp2.StartsWith("Confirmed by")
-				&&	!temp2.StartsWith("Interpreted by")
-				&&	!temp2.StartsWith("Reviewed by"))
+				if (temp2 != null)
 				{
-					if ((_Demographics.OverreadingPhysician != null)
-					&&	(_Demographics.OverreadingPhysician.Length != 0))
+					temp2 = temp2.ToLower();
+
+					if (!temp2.StartsWith("confirmed by")
+					&&	!temp2.StartsWith("interpreted by")
+					&&	!temp2.StartsWith("reviewed by"))
 					{
-						if (_Diagnostic.confirmed)
-							sb.Append("Confirmed by ");
-						else if (_Diagnostic.interpreted)
-							sb.Append("Interpreted by ");
+						if ((_Demographics.OverreadingPhysician != null)
+							&&	(_Demographics.OverreadingPhysician.Length != 0))
+						{
+							if (_Diagnostic.confirmed)
+								sb.Append("\nConfirmed by ");
+							else if (_Diagnostic.interpreted)
+								sb.Append("\nInterpreted by ");
+							else
+								sb.Append("\nReviewed by ");
+
+							sb.Append(_Demographics.OverreadingPhysician);
+
+						}
 						else
-							sb.Append("Reviewed by ");
-
-						sb.Append(_Demographics.OverreadingPhysician);
-
+							sb.Append("\nUNCONFIRMED AUTOMATED INTERPRETATION");
 					}
-					else
-						sb.Append("UNCONFIRMED AUTOMATED INTERPRETATION");
 				}
 
 				DrawText(cb, point, sb, fLineHeight, headerRect.Right - point.X);
