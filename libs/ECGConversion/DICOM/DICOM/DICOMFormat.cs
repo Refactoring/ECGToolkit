@@ -1088,7 +1088,6 @@ namespace ECGConversion.DICOM
 			}
 			set
 			{
-				
 				string uid = _UIDPrefix + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + "." + value;
 
 				FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
@@ -1098,6 +1097,8 @@ namespace ECGConversion.DICOM
 				_DICOMData.PutUI(Tags.SOPInstanceUID, uid + ".1");
 				_DICOMData.PutUI(Tags.StudyInstanceUID, uid);
 				_DICOMData.PutUI(Tags.SeriesInstanceUID, uid + ".2");
+
+				_DICOMData.PutST(Tags.AccessionNumber, value);
 			}
 		}
 		public string AcqInstitution
