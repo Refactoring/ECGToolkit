@@ -173,11 +173,14 @@ namespace ECGConversion.OmronECG
 						offset += size;
 					}
 
-					SignalData = new Byte[NrOfSamples + (NrOfSamples >> 1)];
-					for (int i=0;i < SignalData.Length;i++)
-						SignalData[i] = buffer[offset++];
+					if ((offset + NrOfSamples + (NrOfSamples >> 1)) <= buffer.Length)
+					{
+						SignalData = new Byte[NrOfSamples + (NrOfSamples >> 1)];
+						for (int i=0;i < SignalData.Length;i++)
+							SignalData[i] = buffer[offset++];
 					
-					return 0;
+						return 0;
+					}
 				}
 			}
 
@@ -264,15 +267,17 @@ namespace ECGConversion.OmronECG
 				byte[] buffer = new byte[HeaderSize];
 				BytesTool.readStream(input, buffer, 0, buffer.Length);
 
+				int offset2 = 0;
+
 				// read in prefix part one.
 				int size = PrefixOne.Length;
-				String prefixOne = BytesTool.readString(buffer, offset, size);
-				offset += size;
+				String prefixOne = BytesTool.readString(buffer, offset2, size);
+				offset2 += size;
 
 				// read in prefix part two.
 				size = Marshal.SizeOf(PrefixTwo);
-				Int16 prefixTwo = (Int16)BytesTool.readBytes(buffer, offset, size, LittleEndian);
-				offset += size;
+				Int16 prefixTwo = (Int16)BytesTool.readBytes(buffer, offset2, size, LittleEndian);
+				offset2 += size;
 
 				if ((string.Compare(prefixOne, PrefixOne, false) == 0)
 				&&	(prefixTwo == PrefixTwo))
@@ -320,7 +325,7 @@ namespace ECGConversion.OmronECG
 				offset += size;
 
 				if ((string.Compare(prefixOne, PrefixOne, false) == 0)
-					&&	(prefixTwo == PrefixTwo))
+				&&	(prefixTwo == PrefixTwo))
 				{
 					Int32 length = (Int32) BytesTool.readBytes(buffer, 0x0C, Marshal.SizeOf(NrOfSamples), LittleEndian);
 
@@ -329,7 +334,7 @@ namespace ECGConversion.OmronECG
 						// 12 bits per sample
 						length = length + (length >> 1);
 
-						return (offset + HeaderSize + length) <= buffer.Length;
+						return (offset + (HeaderSize - 6) + length) <= buffer.Length;
 					}
 				}
 			}
