@@ -15,12 +15,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDF", "PDF\PDF.csproj", "{1
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmronECG", "OmronECG\OmronECG.csproj", "{50DE02D7-5003-45CF-84FD-05A5966C794A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{663357A3-FC3A-4E55-8CEB-711D81CF88DB}.Debug.ActiveCfg = Debug|.NET
@@ -39,6 +41,10 @@ Global
 		{1E460D78-82AC-4C77-BBA6-823E52264573}.Debug.Build.0 = Debug|.NET
 		{1E460D78-82AC-4C77-BBA6-823E52264573}.Release.ActiveCfg = Release|.NET
 		{1E460D78-82AC-4C77-BBA6-823E52264573}.Release.Build.0 = Release|.NET
+		{50DE02D7-5003-45CF-84FD-05A5966C794A}.Debug.ActiveCfg = Debug|.NET
+		{50DE02D7-5003-45CF-84FD-05A5966C794A}.Debug.Build.0 = Debug|.NET
+		{50DE02D7-5003-45CF-84FD-05A5966C794A}.Release.ActiveCfg = Release|.NET
+		{50DE02D7-5003-45CF-84FD-05A5966C794A}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

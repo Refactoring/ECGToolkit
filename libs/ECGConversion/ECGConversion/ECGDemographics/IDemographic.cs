@@ -32,38 +32,26 @@ namespace ECGConversion.ECGDemographics
 		/// <summary>
 		/// Function to get the last name of the patient.
 		/// </summary>
-		/// <param name="name">last name of patient</param>
-		/// <returns>0 on success</returns>
 		string LastName {get;set;}
 		/// <summary>
 		/// Function to get the first name of the patient.
 		/// </summary>
-		/// <param name="name">first name of patient</param>
-		/// <returns>0 on success</returns>
 		string FirstName {get;set;}
 		/// <summary>
 		/// Function to get the id of the patient.
 		/// </summary>
-		/// <param name="id">id of the patient</param>
-		/// <returns>0 on success</returns>
 		string PatientID {get;set;}
 		/// <summary>
 		/// Function to get the second last name of the patient.
 		/// </summary>
-		/// <param name="name">second last name of patient</param>
-		/// <returns>0 on success</returns>
 		string SecondLastName {get;set;}
 		/// <summary>
 		/// Function to get the prefix of the patient name.
 		/// </summary>
-		/// <param name="name">prefix of patient</param>
-		/// <returns>0 on success</returns>
 		string PrefixName {get;set;}
 		/// <summary>
 		/// Function to get the suffix of the patient name.
 		/// </summary>
-		/// <param name="name">suffix of patient</param>
-		/// <returns>0 on success</returns>
 		string SuffixName {get;set;}
 		/// <summary>
 		/// Function to get the age of the patient.
@@ -81,8 +69,6 @@ namespace ECGConversion.ECGDemographics
 		/// <summary>
 		/// Function to get the date of birth of patient.
 		/// </summary>
-		/// <param name="date">date of birth of patient</param>
-		/// <returns>0 on success</returns>
 		Date PatientBirthDate {get;set;}
 		/// <summary>
 		/// Function to get the height of the patient.
@@ -115,44 +101,30 @@ namespace ECGConversion.ECGDemographics
 		/// <summary>
 		/// Function to get sex of patient
 		/// </summary>
-		/// <param name="sex">the sex of the patient</param>
-		/// <returns>0 on success</returns>
 		Sex Gender  {get;set;}
 		/// <summary>
 		/// Function to get race of patient.
 		/// </summary>
-		/// <param name="race">the race of the patient</param>
-		/// <returns>0 on success</returns>
 		Race PatientRace {get;set;}
 		/// <summary>
 		/// Function to get the acquiring machine id.
 		/// </summary>
-		/// <param name="id">id of the acquiring machine.</param>
-		/// <returns>0 on success</returns>
 		AcquiringDeviceID AcqMachineID  {get;set;}
 		/// <summary>
 		/// Function to get the analyzing machine id.
 		/// </summary>
-		/// <param name="id">id of acquiring machine</param>
-		/// <returns>0 on success</returns>
 		AcquiringDeviceID AnalyzingMachineID {get;set;}
 		/// <summary>
 		/// Function to get the time of acquisition.
 		/// </summary>
-		/// <param name="time">time of acquisition</param>
-		/// <returns>0 on success</returns>
 		DateTime TimeAcquisition {get;set;}
 		/// <summary>
 		/// Function to get the high pass baseline filter.
 		/// </summary>
-		/// <param name="val">cut off frequency in (1/100) Hertz</param>
-		/// <returns>0 on success</returns>
 		ushort BaselineFilter {get;set;}
 		/// <summary>
 		/// Function to get the low pass filter.
 		/// </summary>
-		/// <param name="val">cut off frequency in Hertz</param>
-		/// <returns>0 on success</returns>
 		ushort LowpassFilter {get;set;}
 		/// <summary>
 		/// Function to get the filter bitmap.
@@ -201,13 +173,10 @@ namespace ECGConversion.ECGDemographics
 		/// <summary>
 		/// Function to get the diastolic blood pressure of the patient.
 		/// </summary>
-		/// <param name="val">diastolic blood pressure</param>
-		/// <returns>0 on success</returns>
 		ushort DiastolicBloodPressure {get;set;}
 		/// <summary>
 		/// Function to get the drugs given to patient.
 		/// </summary>
-		/// <param name="drugs">array of drugs</param>
 		Drug[] Drugs {get;set;}	// If used at all it probably needs to be implemented better
 		/// <summary>
 		/// Function to get referral indication.
@@ -215,7 +184,7 @@ namespace ECGConversion.ECGDemographics
 		string[] ReferralIndication {get;set;}
 		/// <summary>
 		/// Function to get room description.
-		/// </summary>s>
+		/// </summary>
 		string RoomDescription {get;set;}
 		/// <summary>
 		/// Function to get stat code.
