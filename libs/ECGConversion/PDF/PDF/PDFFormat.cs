@@ -19,6 +19,7 @@ Written by Maarten JB van Ettinger.
 using System;
 using System.Collections;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -123,13 +124,14 @@ namespace ECGConversion.PDF
 		{
 			get
 			{
-				iTextSharp.text.Rectangle ret = PageSize.A4;
+				iTextSharp.text.Rectangle ret = new RectangleReadOnly(595,842); // new iTextSharp.text.Rectangle(8.5, 11.0);
 
 				switch (_PaperType)
 				{
 					case SupportedPaper.LETTER:
 					case SupportedPaper.LETTER_Portrait:
-						ret = PageSize.LETTER;
+//						ret = PageSize.LETTER;
+						ret = new RectangleReadOnly(612,792);
 						break;
 					default:
 						break;
@@ -208,12 +210,138 @@ namespace ECGConversion.PDF
 				return temp;
 			}
 		}
+		
+		internal class FreeTextSpec
+		{
+			private FreeTextSpec(float x, float y, float fontSize, string text)
+			{
+				_Point = new PointF(x, y);
+				_FontSize = fontSize;				
+				_Text = text;
+			}
+			
+			internal static FreeTextSpec[] ParseSyntax(string config, SupportedPaper sp)
+			{
+				if (config != null)
+				{
+					// keep track of all provided free text segments.
+					ArrayList temp = new ArrayList();
+					
+					// walk through all provided segments
+					foreach (string segment in config.Split('|'))
+					{
+						if (segment.Length > 0)
+						{			
+							// index of the start of the text field
+							int index = segment.IndexOf(':');
+						
+							// check that the ':' is found! 
+							if (index > 0)
+							{
+								// split the begin of a free textfield description
+								string[] spec = segment.Substring(0, index).Split(' ', ',');
+								// get the free text that must be displayed
+								string text = segment.Substring(index+1);
+								
+								// values that are provided to specify the free text to be dispayed.
+								int fontSize = 8;
+								double x = 0, y = 0;
+								
+								// if 3 values are provided
+								if (spec.Length == 3)
+								{
+									// parse the font size
+									fontSize = int.Parse(spec[0], CultureInfo.InvariantCulture.NumberFormat);
+									
+									// parse x and y coördinate
+									x = double.Parse(spec[1], CultureInfo.InvariantCulture.NumberFormat);
+									y = double.Parse(spec[2], CultureInfo.InvariantCulture.NumberFormat);
+								}
+								else if (spec.Length == 2)
+								{
+									// parse x and y coördinate
+									x = double.Parse(spec[0], CultureInfo.InvariantCulture.NumberFormat);
+									y = double.Parse(spec[1], CultureInfo.InvariantCulture.NumberFormat);
+								}
+								
+								// check whether the values make any sense
+								if ((x > 0f)
+								&&	(y > 0f)
+								&&	(text != null)
+								&&	(text.Length > 0))
+								{
+									if ((sp == SupportedPaper.LETTER)
+									||	(sp == SupportedPaper.LETTER_Portrait))
+									{
+										x = x / PDFTool.mm_Per_Inch;
+										y = y / PDFTool.mm_Per_Inch;
+									}
+									
+									temp.Add(new FreeTextSpec((float)x, (float)y, fontSize, text));
+								}
+								else
+								{
+									throw new Exception("Syntax of free text field is bad!");
+								}
+							}
+							else
+							{
+								throw new Exception("Syntax of free text field is bad!");
+							}
+						}
+					}
+					
+					// check that there is any free text provided.
+					if ((temp != null)
+					&&	(temp.Count > 0))
+					{
+						FreeTextSpec[] ret = new FreeTextSpec[temp.Count];
+						
+						for (int i=0;i < ret.Length;i++)
+						{
+							ret[i] = (FreeTextSpec) temp[i];
+						}
+						
+						return ret;
+					}
+				}
+				
+				return null;
+			}
+			
+			private PointF _Point;
+			private float _FontSize;
+			private string _Text;
+			
+			public PointF Point
+			{
+				get {return _Point;}
+			}
+			
+			public float FontSize
+			{
+				get {return _FontSize;}
+			}
+			
+			public string Text
+			{
+				get {return _Text;}
+			}
+		}
+		
+		internal FreeTextSpec[] _FreeText
+		{
+			get
+			{
+				return FreeTextSpec.ParseSyntax(_Config["Free Text"], _PaperType);
+			}
+		}
 
 		public PDFFormat()
 		{
 			string[]
 				must = new string[]{"Lead Format", "Paper Type", "Gain", "Speed", "Grid"},
-				poss = new string[]{"Document Title", "Document Creator", "Document Author", "Header Image"};
+				poss = new string[]{"Document Title", "Document Creator", "Document Author", "Header Image", "Free Text"};
 
 			_Config = new ECGConfig(must, poss, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			
@@ -229,12 +357,16 @@ namespace ECGConversion.PDF
 		private bool _ConfigurationWorks()
 		{
 			try
-			{
+			{	
 				ECGDraw.ECGDrawType dt = (ECGDraw.ECGDrawType) ECGConverter.EnumParse(typeof(ECGDraw.ECGDrawType), _Config["Lead Format"], true);
 				float.Parse(_Config["Gain"], System.Globalization.CultureInfo.CurrentUICulture);
 				SupportedPaper sp = (SupportedPaper) ECGConverter.EnumParse(typeof(SupportedPaper), _Config["Paper Type"], true);
+				
+				FreeTextSpec[] fts = _FreeText;
 
-				return ((dt != ECGDraw.ECGDrawType.Regular)
+				return (((fts == null)
+				    ||	 (fts.Length > 0))
+				    &&  (dt != ECGDraw.ECGDrawType.Regular)
 					&&	((sp == SupportedPaper.A4_Portrait)
 					||	 (sp == SupportedPaper.LETTER_Portrait))) ? false : true;
 			}
@@ -354,6 +486,7 @@ namespace ECGConversion.PDF
 							cb.SetLineWidth(0.5f);
 							cb.SetRGBColorStroke(0, 0, 0);
 
+							cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
 							PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
 
 							switch (_DrawType)
@@ -537,6 +670,7 @@ namespace ECGConversion.PDF
 							cb.SetLineWidth(0.5f);
 							cb.SetRGBColorStroke(0, 0, 0);
 
+							cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
 							PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
 
 							for (int i=0;i < sigs.NrLeads;i++)
@@ -621,6 +755,7 @@ namespace ECGConversion.PDF
 								cb.SetLineWidth(0.5f);
 								cb.SetRGBColorStroke(0, 0, 0);
 
+								cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
 								PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), _DrawSpeed, _Gain);
 
 								int temp = 0;
@@ -724,6 +859,8 @@ namespace ECGConversion.PDF
 				}
 				catch {}
 			}
+
+			cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
 
 			StringBuilder sb = new StringBuilder();
 
@@ -846,7 +983,7 @@ namespace ECGConversion.PDF
 					&&	!temp2.StartsWith("reviewed by"))
 					{
 						if ((_Demographics.OverreadingPhysician != null)
-							&&	(_Demographics.OverreadingPhysician.Length != 0))
+						&&	(_Demographics.OverreadingPhysician.Length != 0))
 						{
 							if (_Diagnostic.confirmed)
 								sb.Append("\nConfirmed by ");
@@ -864,6 +1001,18 @@ namespace ECGConversion.PDF
 				}
 
 				DrawText(cb, point, sb, fLineHeight, headerRect.Right - point.X);
+			}
+
+			FreeTextSpec[] fts = _FreeText;
+
+			if (fts != null)
+			{
+				foreach (FreeTextSpec ft in fts)
+				{
+					cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), ft.FontSize);
+
+					DrawText(cb, ft.Point, new StringBuilder(ft.Text), (fLineHeight * ft.FontSize) / 8.0f, headerRect.Width);
+				}
 			}
 		}
 		private static void PrintValue(StringBuilder sb, int val, int len)
@@ -891,7 +1040,7 @@ namespace ECGConversion.PDF
 
 				ArrayList allLines = null;
 
-				if ((cb.GetEffectiveStringWidth("i", false) == cb.GetEffectiveStringWidth("w", false))
+				if ((Math.Abs(cb.GetEffectiveStringWidth("i", false) - cb.GetEffectiveStringWidth("w", false)) < 0.01f )
 				&&	(fMaxWidth > 0.1f))
 				{
 					float c = cb.GetEffectiveStringWidth("i", false);
@@ -920,7 +1069,7 @@ namespace ECGConversion.PDF
 									int i=maxLineSize-1;
 
 									for (;i > 0;i--)
-										if (line[i] == ' ')
+										if (sb[i] == ' ')
 										{
 											break;
 										}
@@ -942,7 +1091,6 @@ namespace ECGConversion.PDF
 						{
 							allLines.Add(line);
 						}
-
 					}
 				}
 				else

@@ -39,22 +39,97 @@ namespace ECGConversion.ECGGlobalMeasurements
 		public ushort Pdur
 		{
 			get {return (ushort) ((Poffset != NoValue) && (Ponset != NoValue) && (Ponset < Poffset) ? (Poffset - Ponset) : NoValue);}
+			set
+			{
+				if ((value > 0)
+				&&	(value != NoValue))
+				{
+					Ponset = 100;
+					Poffset = (ushort) (value + Ponset);
+				}
+				else
+				{
+					Ponset = NoValue;
+					Poffset = NoValue;
+				}
+			}
 		}
 		public ushort PRint
 		{
 			get {return (ushort) ((QRSonset != NoValue) && (Ponset != NoValue) && (Pdur != NoValue) ? (QRSonset - Ponset) : NoValue);}
+			set
+			{
+				if ((value > 0)
+				&&	(value != NoValue)
+				&&	(Pdur != NoValue))
+				{
+					QRSonset = (ushort) (value + Ponset);
+				}
+			}
 		}
 		public ushort QRSdur
 		{
 			get {return (ushort) ((QRSoffset != NoValue) && (QRSonset != NoValue) ? (QRSoffset - QRSonset) : NoValue);}
+			set
+			{
+				if ((value != NoValue)
+				&&	(value != 0))
+				{
+					if ((QRSonset == NoValue)
+					||	(QRSonset == 0))
+					{
+						Ponset = NoValue;
+						Poffset = NoValue;
+
+						QRSonset = 400;
+					}
+
+					QRSoffset = (ushort) (value + QRSonset);
+				}
+			}
 		}
 		public ushort Tdur
 		{
 			get {return (ushort) ((Toffset != NoValue) && (Ponset != NoValue) ? (Toffset - QRSoffset) : NoValue);}
+/*			set
+			{
+				if ((value != NoValue)
+				&&	(value != 0))
+				{
+					if ((Toffset != NoValue)
+					&&	(Toffset != 0))
+					{
+						Tonset = Toffset - value;
+					}
+					else
+					{
+						throw new Exception("You should set QTdur(ation) or Toffset before setting Tdur(ation)! ");
+					}
+				}
+				else
+				{
+					Tonset = NoValue;
+					Toffset = NoValue;
+				}
+			}*/
 		}
 		public ushort QTdur
 		{
 			get {return (ushort) ((Toffset != NoValue) && (QRSonset != NoValue) ? (Toffset - QRSonset) : NoValue);}
+			set
+			{
+				if ((value != NoValue)
+				&&	(value != 0)
+				&&	(QRSonset != NoValue)
+				&&	(QRSonset != 0))
+				{
+					Toffset = (ushort) (QRSonset + value);
+				}
+				else
+				{
+					Toffset = NoValue;
+				}
+			}
 		}
 		public ushort calcQTc(ushort AvgRR, ushort HR, GlobalMeasurements.QTcCalcType calcType)
 		{

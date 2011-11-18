@@ -68,6 +68,16 @@ namespace ECGConversion.ECGGlobalMeasurements
 
 				return GlobalMeasurement.NoValue;
 			}
+			set
+			{
+				if (measurment == null)
+				{
+					measurment = new GlobalMeasurement[1];
+					measurment[0] = new GlobalMeasurement();
+				}
+
+				measurment[0].Pdur = value;
+			}
 		}
 		public ushort PRint
 		{
@@ -79,6 +89,16 @@ namespace ECGConversion.ECGGlobalMeasurements
 					return measurment[0].PRint;
 
 				return GlobalMeasurement.NoValue;
+			}
+			set
+			{
+				if (measurment == null)
+				{
+					measurment = new GlobalMeasurement[1];
+					measurment[0] = new GlobalMeasurement();
+				}
+
+				measurment[0].PRint = value;
 			}
 		}
 		public ushort QRSdur
@@ -92,6 +112,16 @@ namespace ECGConversion.ECGGlobalMeasurements
 
 				return GlobalMeasurement.NoValue;
 			}
+			set
+			{
+				if (measurment == null)
+				{
+					measurment = new GlobalMeasurement[1];
+					measurment[0] = new GlobalMeasurement();
+				}
+
+				measurment[0].QRSdur = value;
+			}
 		}
 		public ushort QTdur
 		{
@@ -103,6 +133,16 @@ namespace ECGConversion.ECGGlobalMeasurements
 					return measurment[0].QTdur;
 
 				return GlobalMeasurement.NoValue;
+			}
+			set
+			{
+				if (measurment == null)
+				{
+					measurment = new GlobalMeasurement[1];
+					measurment[0] = new GlobalMeasurement();
+				}
+
+				measurment[0].QTdur = value;
 			}
 		}
 		public ushort QTc
