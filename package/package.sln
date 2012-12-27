@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MUSEXML", "..\libs\ECGConve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmronECG", "..\libs\ECGConversion\OmronECG\OmronECG.csproj", "{59C6F998-1BA1-44A1-9999-C8A5BB718F15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISHNE", "..\libs\ECGConversion\ISHNE\ISHNE.csproj", "{6DD429F1-1B48-475B-AC86-853395D5D862}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Default|Any CPU = Default|Any CPU
@@ -42,6 +44,12 @@ Global
 		{59C6F998-1BA1-44A1-9999-C8A5BB718F15}.Default|Any CPU.Build.0 = Debug|Any CPU
 		{59C6F998-1BA1-44A1-9999-C8A5BB718F15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59C6F998-1BA1-44A1-9999-C8A5BB718F15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DD429F1-1B48-475B-AC86-853395D5D862}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DD429F1-1B48-475B-AC86-853395D5D862}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DD429F1-1B48-475B-AC86-853395D5D862}.Default|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DD429F1-1B48-475B-AC86-853395D5D862}.Default|Any CPU.Build.0 = Debug|Any CPU
+		{6DD429F1-1B48-475B-AC86-853395D5D862}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DD429F1-1B48-475B-AC86-853395D5D862}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7DD5A8F9-185B-4463-8684-B7EC99700774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7DD5A8F9-185B-4463-8684-B7EC99700774}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DD5A8F9-185B-4463-8684-B7EC99700774}.Default|Any CPU.ActiveCfg = Debug|Any CPU
