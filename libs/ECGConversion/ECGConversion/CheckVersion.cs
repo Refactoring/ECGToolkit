@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -218,11 +219,13 @@ namespace ECGConversion
 
 			int version = GetAssemblyVersion();
 
-            WebRequest wReq = HttpWebRequest.Create(CheckUrl);
-			WebResponse wRes = wReq.GetResponse();
+			WebRequest wReq = null;
+			WebResponse wRes = null;
 
 			try
 			{
+				wReq = HttpWebRequest.Create(CheckUrl);
+				wRes = wReq.GetResponse();
 
 				if (wRes is HttpWebResponse)
 				{
@@ -271,7 +274,8 @@ namespace ECGConversion
 			catch {}
 			finally
 			{
-				wRes.Close();
+				if (wRes != null)
+					wRes.Close();
 			}
 		}
 

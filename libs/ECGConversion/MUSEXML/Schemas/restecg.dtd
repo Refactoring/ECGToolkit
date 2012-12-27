@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ENTITY % I2DTD SYSTEM "I2.dtd">
+%I2DTD;
+
+<!ENTITY % field SYSTEM "restecgfield.dtd">
+%field;
+
+<!ELEMENT RestingECG (
+MuseInfo?,
+PatientDemographics,
+TestDemographics,
+Order?,
+RestingECGMeasurements?,
+OriginalRestingECGMeasurements?,
+Diagnosis?,
+OriginalDiagnosis?,
+ExtraQuestions?,
+ACITIPIAnalysis?,
+MeasurementMatrix?,
+IntervalMeasurements?,
+QRSTimesTypes?,
+AmplitudeMeasurements?,
+(Waveform|Image)*,
+PharmaData?)>
+
+<!ELEMENT RestingECGMeasurements (SystolicBP?, DiastolicBP?, VentricularRate?, AtrialRate?, PRInterval?, QRSDuration?, QTInterval?, QTCorrected?, PAxis?, RAxis?, TAxis?, QRSCount?, QOnset?, QOffset?, POnset?, POffset?, TOffset?, ECGSampleBase, ECGSampleExponent, QTcFrederica?)>
+<!ELEMENT OriginalRestingECGMeasurements (SystolicBP?, DiastolicBP?, VentricularRate?, AtrialRate?, PRInterval?, QRSDuration?, QTInterval?, QTCorrected?, PAxis?, RAxis?, TAxis?, QRSCount?, QOnset?, QOffset?, POnset?, POffset?, TOffset?, ECGSampleBase, ECGSampleExponent, QTcFrederica?)>
+<!ELEMENT SystolicBP (#PCDATA)>
+<!ELEMENT DiastolicBP (#PCDATA)>
+<!ELEMENT VentricularRate (#PCDATA)>
+<!ELEMENT AtrialRate (#PCDATA)>
+<!ELEMENT PRInterval (#PCDATA)>
+<!ELEMENT QRSDuration (#PCDATA)>
+<!ELEMENT QTInterval (#PCDATA)>
+<!ELEMENT QTCorrected (#PCDATA)>
+<!ELEMENT PAxis (#PCDATA)>
+<!ELEMENT RAxis (#PCDATA)>
+<!ELEMENT TAxis (#PCDATA)>
+<!ELEMENT QRSCount (#PCDATA)>
+<!ELEMENT QOnset (#PCDATA)>
+<!ELEMENT QOffset (#PCDATA)>
+<!ELEMENT POnset (#PCDATA)>
+<!ELEMENT POffset (#PCDATA)>
+<!ELEMENT TOffset (#PCDATA)>
+<!ELEMENT ECGSampleBase (#PCDATA)>
+<!ELEMENT ECGSampleExponent (#PCDATA)>
+<!ELEMENT QTcFrederica (#PCDATA)>
+
+<!ELEMENT MeasurementMatrix (#PCDATA)>
+
+<!ELEMENT ACITIPIAnalysis (ACITIPIAlgorithmVersion, TwelveSLVersion, TIPIScore, TIPIChestPain?, TIPIGender?, TIPIAgeRange?, TIPIStatementCodes?)>
+<!ELEMENT TIPIStatementCodes (TIPIStatement*)>
+<!ELEMENT ACITIPIAlgorithmVersion (#PCDATA)>
+<!ELEMENT TwelveSLVersion (#PCDATA)>
+<!ELEMENT TIPIScore (#PCDATA)>
+<!ELEMENT TIPIChestPain (#PCDATA)>
+<!ELEMENT TIPIGender (#PCDATA)>
+<!ELEMENT TIPIAgeRange (#PCDATA)>
+<!ELEMENT TIPIStatement (#PCDATA)>
+
+<!ELEMENT IntervalMeasurements (
+IntervalMeasurementTimeResolution, 
+IntervalMeasurementAmplitudeResolution,
+IntervalMeasurementFilter,
+IntervalMeasurementMode,
+IntervalMeasurementMethodType,
+   ((LeadIntervalCalculationMethod,
+     BeatIntervalCalculationMethod?) |  
+       (LeadPOnsetCalculationMethod,
+        LeadPOffsetCalculationMethod,
+        LeadQOnsetCalculationMethod,
+        LeadQOffsetCalculationMethod,
+        LeadTOffsetCalculationMethod, 
+          (BeatPOnsetCalculationMethod,
+           BeatPOffsetCalculationMethod,
+           BeatQOnsetCalculationMethod,
+           BeatQOffsetCalculationMethod,
+           BeatTOffsetCalculationMethod
+          )?
+       )
+    )?,
+    MeasuredInterval*
+   )
+>
+  
+<!ELEMENT MeasuredInterval (IntervalMeasurementLeadID, (IntervalMeasurementBeatNumber, IntervalMeasurementBeatOffset)?, IntervalMeasurementPOnset?, IntervalMeasurementPOffset?, IntervalMeasurementQOnset, IntervalMeasurementQOffset, IntervalMeasurementTOffset, IntervalMeasurementRRInterval?)>
+
+<!ELEMENT IntervalMeasurementTimeResolution (#PCDATA)>
+<!ELEMENT IntervalMeasurementAmplitudeResolution (#PCDATA)>
+<!ELEMENT IntervalMeasurementFilter (#PCDATA)>
+<!ELEMENT IntervalMeasurementMode (#PCDATA)>
+<!ELEMENT IntervalMeasurementMethodType (#PCDATA)>
+<!ELEMENT LeadIntervalCalculationMethod (#PCDATA)>
+<!ELEMENT BeatIntervalCalculationMethod (#PCDATA)>
+<!ELEMENT LeadPOnsetCalculationMethod (#PCDATA)>
+<!ELEMENT LeadPOffsetCalculationMethod (#PCDATA)>
+<!ELEMENT LeadQOnsetCalculationMethod (#PCDATA)>
+<!ELEMENT LeadQOffsetCalculationMethod (#PCDATA)>
+<!ELEMENT LeadTOffsetCalculationMethod (#PCDATA)>
+<!ELEMENT BeatPOnsetCalculationMethod (#PCDATA)>
+<!ELEMENT BeatPOffsetCalculationMethod (#PCDATA)>
+<!ELEMENT BeatQOnsetCalculationMethod (#PCDATA)>
+<!ELEMENT BeatQOffsetCalculationMethod (#PCDATA)>
+<!ELEMENT BeatTOffsetCalculationMethod (#PCDATA)>
+<!ELEMENT IntervalMeasurementLeadID (#PCDATA)>
+<!ELEMENT IntervalMeasurementBeatNumber (#PCDATA)>
+<!ELEMENT IntervalMeasurementBeatOffset (#PCDATA)>
+<!ELEMENT IntervalMeasurementPOnset (#PCDATA)>
+<!ELEMENT IntervalMeasurementPOffset (#PCDATA)>
+<!ELEMENT IntervalMeasurementQOnset (#PCDATA)>
+<!ELEMENT IntervalMeasurementQOffset (#PCDATA)>
+<!ELEMENT IntervalMeasurementTOffset (#PCDATA)>
+<!ELEMENT IntervalMeasurementRRInterval (#PCDATA)>
+
+<!ELEMENT QRSTimesTypes (QRS*, GlobalRR?, QTRGGR?)>
+<!ELEMENT QRS (Number, Type, Time)>
+<!ELEMENT GlobalRR (#PCDATA)>
+<!ELEMENT QTRGGR (#PCDATA)>
+<!ELEMENT Number (#PCDATA)>
+<!ELEMENT Type (#PCDATA)>
+<!ELEMENT Time (#PCDATA)>
+
+<!ELEMENT PharmaData (
+PharmaInvestigatorID?,
+PharmaDoseType?,
+PharmaRRinterval?,
+PharmaVisitNumber?,
+PharmaVisitType?,
+PharmaUniqueECGID?,
+PharmaPPinterval?,
+PharmaExtendedCartID?,
+PharmaCartID?,
+PharmaProjectCode?,
+PharmaQuestion1?,
+PharmaAnswer1?,
+PharmaQuestion2?,
+PharmaAnswer2?,
+PharmaQuestion3?,
+PharmaAnswer3?,
+PharmaQuestion4?,
+PharmaAnswer4?,
+PharmaQuestion5?,
+PharmaAnswer5?)>
+
+<!ELEMENT PharmaInvestigatorID (#PCDATA)>
+<!ELEMENT PharmaDoseType (#PCDATA)>
+<!ELEMENT PharmaRRinterval (#PCDATA)>
+<!ELEMENT PharmaVisitNumber (#PCDATA)>
+<!ELEMENT PharmaVisitType (#PCDATA)>
+<!ELEMENT PharmaUniqueECGID (#PCDATA)>
+<!ELEMENT PharmaPPinterval (#PCDATA)>
+<!ELEMENT PharmaExtendedCartID (#PCDATA)>
+<!ELEMENT PharmaCartID (#PCDATA)>
+<!ELEMENT PharmaProjectCode (#PCDATA)>
+<!ELEMENT PharmaQuestion1 (#PCDATA)>
+<!ELEMENT PharmaAnswer1 (#PCDATA)>
+<!ELEMENT PharmaQuestion2 (#PCDATA)>
+<!ELEMENT PharmaAnswer2 (#PCDATA)>
+<!ELEMENT PharmaQuestion3 (#PCDATA)>
+<!ELEMENT PharmaAnswer3 (#PCDATA)>
+<!ELEMENT PharmaQuestion4 (#PCDATA)>
+<!ELEMENT PharmaAnswer4 (#PCDATA)>
+<!ELEMENT PharmaQuestion5 (#PCDATA)>
+<!ELEMENT PharmaAnswer5 (#PCDATA)>
+
+
+
+<!ELEMENT AmplitudeMeasurements (AmplitudeMeasurementMode, MeasuredAmplitude*)>
+
+<!ELEMENT MeasuredAmplitude (
+AmplitudeMeasurementLeadID,
+AmplitudeMeasurementWaveID,
+AmplitudeMeasurementBeatID?,
+AmplitudeMeasurementPeak,
+AmplitudeMeasurementStart,
+AmplitudeMeasurementDuration,
+AmplitudeMeasurementArea)>
+
+<!ELEMENT AmplitudeMeasurementMode (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementLeadID (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementWaveID (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementBeatID (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementPeak (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementStart (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementDuration (#PCDATA)>
+<!ELEMENT AmplitudeMeasurementArea (#PCDATA)>

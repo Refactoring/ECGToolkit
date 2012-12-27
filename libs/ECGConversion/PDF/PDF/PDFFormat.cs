@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -135,6 +136,30 @@ namespace ECGConversion.PDF
 						break;
 					default:
 						break;
+				}
+
+				return ret;
+			}
+		}
+
+		private LeadType[] _ExtraLeads
+		{
+			get
+			{
+				LeadType[] ret = null;
+
+				string cfg = _Config["Extra Leads"];
+
+				if (cfg != null)
+				{
+					string[] cfgs = cfg.Split(',', ';');
+
+					ret = new LeadType[cfgs.Length];
+
+					for (int i=0;i < cfgs.Length;i++)
+					{
+						ret[i] = (LeadType) ECGConverter.EnumParse(typeof(LeadType), cfgs[i], true);
+					}
 				}
 
 				return ret;
@@ -337,11 +362,20 @@ namespace ECGConversion.PDF
 			}
 		}
 
+/*		private bool _UseBufferedStream
+		{
+			get
+			{
+				return (_Config["Use Buffered Stream"] != null)
+					&& (String.Compare(_Config["Use Buffered Stream"], "true", true) == 0);
+			}
+		}*/
+
 		public PDFFormat()
 		{
 			string[]
 				must = new string[]{"Lead Format", "Paper Type", "Gain", "Speed", "Grid"},
-				poss = new string[]{"Document Title", "Document Creator", "Document Author", "Header Image", "Free Text"};
+				poss = new string[]{"Extra Leads", "Document Title", "Document Creator", "Document Author", "Header Image", "Free Text"/*, "Use Buffered Stream"*/};
 
 			_Config = new ECGConfig(must, poss, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			
@@ -350,9 +384,18 @@ namespace ECGConversion.PDF
 			_Config["Gain"] = "10";
 			_Config["Speed"] = "25";
 			_Config["Grid"] = "true";
+//			_Config["Use Buffered Stream"] = "false";
 
 			Empty();
 		}
+
+/*		public override bool SupportsBufferedStream
+		{
+			get
+			{
+				return _UseBufferedStream;
+			}
+		}*/
 
 		private bool _ConfigurationWorks()
 		{
@@ -364,11 +407,20 @@ namespace ECGConversion.PDF
 				
 				FreeTextSpec[] fts = _FreeText;
 
-				return (((fts == null)
+				if ((_DrawType == ECGDraw.ECGDrawType.ThreeXFourPlusOne)
+				&&	(_ExtraLeads != null)
+				&&	(_ExtraLeads.Length != 1))
+					return false;
+				else if ((_DrawType == ECGDraw.ECGDrawType.ThreeXFourPlusThree)
+					&&	 (_ExtraLeads != null)
+					&&	 (_ExtraLeads.Length != 3))
+					return false;
+
+				return!(((fts == null)
 				    ||	 (fts.Length > 0))
 				    &&  (dt != ECGDraw.ECGDrawType.Regular)
 					&&	((sp == SupportedPaper.A4_Portrait)
-					||	 (sp == SupportedPaper.LETTER_Portrait))) ? false : true;
+					||	 (sp == SupportedPaper.LETTER_Portrait)));
 			}
 			catch {}
 
@@ -418,11 +470,48 @@ namespace ECGConversion.PDF
 			&&	Works())
 			{
 				Signals sigs = _Signals.CalculateTwelveLeads();
+/*				BufferedSignals bs = null;
+				int nrSecs = 7,
+					rhythmPos = 0;*/
 
-				bool bTwelveLeadECG =  sigs != null;
+				int[] extra = FindExtraLeads(sigs, _ExtraLeads);
+
+				bool bTwelveLeadECG = sigs != null;
 
 				if (sigs == null)
 					sigs = _Signals;
+
+/*				if (_UseBufferedStream)
+					bs = sigs.AsBufferedSignals;
+
+				if (bs != null)
+				{
+					if (bTwelveLeadECG)
+					{
+						nrSecs = 10;
+
+						if ((_DrawType == ECGDraw.ECGDrawType.Regular)
+						&&	((_PaperType == SupportedPaper.A4_Portrait)
+						||	 (_PaperType == SupportedPaper.LETTER_Portrait)))
+							nrSecs = 8;
+					}
+
+					if (_DrawType == ECGDraw.ECGDrawType.Median)
+					{
+						if (bs.TemplateNrMedian > 0)
+						{
+							if (!bs.LoadTemplate(0))
+								return 4;
+						}
+					}
+					else
+					{
+						rhythmPos = bs.RealRhythmStart;
+
+						if (!bs.LoadSignal(rhythmPos, rhythmPos + (nrSecs * sigs.NrLeads)))
+							return 4;
+					}
+				}*/
 
 				if ((_DrawType & ECGDraw.PossibleDrawTypes(sigs)) != 0)
 				{
@@ -554,7 +643,7 @@ namespace ECGConversion.PDF
 										point4.Y += 40.0f;
 									}
 
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, 1, 0, 10.0f, true);
+									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
 								}
 								break;
 								case ECGDraw.ECGDrawType.ThreeXFourPlusThree:
@@ -581,11 +670,11 @@ namespace ECGConversion.PDF
 										point4.Y += 27.5f;
 									}
 
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, 1, 0, 10.0f, true);
+									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
 									point.Y += 25.0f;
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, 7, 0, 10.0f, true);
+									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[1] : 7, 0, 10.0f, true);
 									point.Y += 27.5f;
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, 10, 0, 10.0f, true);
+									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[2] : 10, 0, 10.0f, true);
 								}
 								break;
 								case ECGDraw.ECGDrawType.SixXTwo:
@@ -692,9 +781,10 @@ namespace ECGConversion.PDF
 
 							sigs.CalculateStartAndEnd(out start, out end);
 
-							if (start > 0)
-								end -= start;
-							start = 0; end--;
+//							if (start > 0)
+//								end -= start;
+//							start = 0;
+							end--;
 
 							RectangleF gridRect = new RectangleF(0, 0, width, height);
 
@@ -837,6 +927,31 @@ namespace ECGConversion.PDF
 		public override int getFileSize()
 		{
 			return -1;
+		}
+		private static int[] FindExtraLeads(Signals sigs, LeadType[] lta)
+		{
+			int[] ret = null;
+
+			if ((sigs != null)
+			&&	(lta != null))
+			{
+				ret = new int[lta.Length];
+
+				for (int i=0;i < lta.Length;i++)
+				{
+					ret[i] = int.MaxValue;
+					for (int j=0;j < sigs.NrLeads;j++)
+					{
+						if (lta[i] == sigs[j].Type)
+						{
+							ret[i] = j;
+							break;
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 		private void DrawPageHeader(PdfContentByte cb, RectangleF headerRect, float fLineHeight)
 		{

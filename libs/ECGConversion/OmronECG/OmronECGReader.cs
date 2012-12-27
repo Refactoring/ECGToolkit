@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2011, M.J.B. van Ettinger Jr., The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Written by Maarten van Ettinger.
+Written by Maarten JB van Ettinger.
 
 ****************************************************************************/
 using System;

@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +42,16 @@ namespace ECGConversion.ECGSignals
 
 				_Lead = new Signal[value];
 			}
+		}
+
+		public virtual bool IsBuffered
+		{
+			get {return false;}
+		}
+
+		public virtual BufferedSignals AsBufferedSignals
+		{
+			get {return null;}
 		}
 
 		// Rhythm Info.
@@ -222,7 +233,7 @@ namespace ECGConversion.ECGSignals
 		/// Function to clone a signals object.
 		/// </summary>
 		/// <returns>cloned signals object</returns>
-		public Signals Clone()
+		public virtual Signals Clone()
 		{
 			Signals sigs = new Signals();
 
@@ -376,7 +387,7 @@ namespace ECGConversion.ECGSignals
 												  LeadType.V1, LeadType.V2, LeadType.V3,
 												  LeadType.V4, LeadType.V5, LeadType.V6};
 
-				int nrSim = NrSimultaneosly();
+				int nrSim = NrSimultaneosly();			
 
 				if (nrSim != _Lead.Length)
 					return false;
@@ -531,7 +542,9 @@ namespace ECGConversion.ECGSignals
 				{
 					short[][] calcLeads;
 
-					if (ECGTool.CalculateLeads(tempRhythm, tempRhythm[0].Length, out calcLeads) == 0)
+					if ((tempRhythm != null)
+					&&	(tempRhythm[0] != null)
+					&&	ECGTool.CalculateLeads(tempRhythm, tempRhythm[0].Length, out calcLeads) == 0)
 					{
 						for (int i=0;i < calcLeads.Length;i++)
 						{
@@ -561,23 +574,7 @@ namespace ECGConversion.ECGSignals
 
 			if (leads != null)
 			{
-				Signals sigs = new Signals();
-
-				sigs.RhythmAVM = this.RhythmAVM;
-				sigs.RhythmSamplesPerSecond = this.RhythmSamplesPerSecond;
-
-				sigs.MedianAVM = this.MedianAVM;
-				sigs.MedianLength = this.MedianLength;
-				sigs.MedianSamplesPerSecond = this.MedianSamplesPerSecond;
-				sigs.MedianFiducialPoint = this.MedianFiducialPoint;
-
-				if (this.QRSZone != null)
-				{
-					sigs.QRSZone = new QRSZone[this.QRSZone.Length];
-
-					for (int i=0;i < sigs.QRSZone.Length;i++)
-						sigs.QRSZone[i] = this.QRSZone[i].Clone();
-				}
+				Signals sigs = this.Clone();
 
 				sigs.NrLeads = (byte) leads.Length;
 

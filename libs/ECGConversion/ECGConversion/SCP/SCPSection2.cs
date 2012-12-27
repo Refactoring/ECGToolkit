@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -215,9 +216,14 @@ namespace ECGConversion.SCP
 				while (((currentBit >> 3) < nrbytes)
 					&& ((currentTime) < length))
 				{
-					int count = 0;
+					int count = currentBit;
+					int cmax = currentBit + max;
 					// Read in bits till 0 bit or defined maximum.
-					for (;(count < max) && ((currentBit >> 3) < nrbytes) && (((buffer[currentBit >> 3] >> (0x7 - (currentBit & 0x7))) & 0x1) != 0);count++, currentBit++);
+					for (;(currentBit < cmax) && ((currentBit >> 3) < nrbytes) && (((buffer[currentBit >> 3] >> (0x7 - (currentBit & 0x7))) & 0x1) != 0);currentBit++);
+
+					// determine number of bits
+					count = currentBit - count;
+
 					// Increase current bit one more time
 					if (count != max)
 					{
@@ -566,8 +572,6 @@ namespace ECGConversion.SCP
 					}
 					else
 					{
-                        //System.Diagnostics.Debug.WriteLine("esle!");
-                        
                         // Code doesn't fit in normal table do special.
 						// First add nine 1 bits.
 						for (int loper=0;loper < 9;loper++)
@@ -603,6 +607,11 @@ namespace ECGConversion.SCP
 				{
 					buffer[(currentBit >> 3)] <<= (0x8 - (currentBit & 0x7));
 					currentBit += (0x8 - (currentBit & 0x7));
+				}
+				else
+				{
+					// seems to solve a small encoding bug.
+					currentBit += 8;
 				}
 
 				// Allocate a fitting buffer
@@ -730,6 +739,11 @@ namespace ECGConversion.SCP
 				{
 					buffer[(currentBit >> 3)] <<= (0x8 - (currentBit & 0x7));
 					currentBit += (0x8 - (currentBit & 0x7));
+				}
+				else
+				{
+					// seems to solve a small encoding bug.
+					currentBit += 8;
 				}
 
 				// Allocate a fitting buffer

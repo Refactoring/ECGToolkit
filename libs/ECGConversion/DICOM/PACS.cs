@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +19,6 @@ Written by Maarten JB van Ettinger.
 ****************************************************************************/
 using System;
 using System.Collections;
-using System.Data.SqlClient;
 using System.Text;
 
 using org.dicomcs.data;

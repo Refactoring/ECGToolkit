@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGPrint", "ECGPrint\ECGPrint.csproj", "{D6BA6917-543C-4198-AA19-54BE3C363EDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion", "..\libs\ECGConversion\ECGConversion\ECGConversion.csproj", "{F969B245-DCD2-4AF6-AE74-E95F778D2339}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGStoreSCU", "ECGStoreSCU\ECGStoreSCU.csproj", "{F9090239-231D-4E16-87F0-6527520A8F02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGTool", "ECGTool\ECGTool.csproj", "{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGViewer", "ECGViewer\ECGViewer.csproj", "{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Any CPU = Default|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}.Default|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}.Default|Any CPU.Build.0 = Debug|Any CPU
+		{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CDF14D1-4BFF-4E3E-A93F-8011A8940CD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}.Default|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}.Default|Any CPU.Build.0 = Debug|Any CPU
+		{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEB2CACC-7698-4A3D-AA24-B77AEBA0E024}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6BA6917-543C-4198-AA19-54BE3C363EDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6BA6917-543C-4198-AA19-54BE3C363EDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6BA6917-543C-4198-AA19-54BE3C363EDD}.Default|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6BA6917-543C-4198-AA19-54BE3C363EDD}.Default|Any CPU.Build.0 = Debug|Any CPU
+		{D6BA6917-543C-4198-AA19-54BE3C363EDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6BA6917-543C-4198-AA19-54BE3C363EDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9090239-231D-4E16-87F0-6527520A8F02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9090239-231D-4E16-87F0-6527520A8F02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9090239-231D-4E16-87F0-6527520A8F02}.Default|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9090239-231D-4E16-87F0-6527520A8F02}.Default|Any CPU.Build.0 = Debug|Any CPU
+		{F9090239-231D-4E16-87F0-6527520A8F02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9090239-231D-4E16-87F0-6527520A8F02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Default|Any CPU.ActiveCfg = Debug|Any CPU
+		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Default|Any CPU.Build.0 = Debug|Any CPU
+		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = ECGPrint\ECGPrint.csproj
+		version = 2.2
+	EndGlobalSection
+EndGlobal

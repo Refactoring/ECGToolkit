@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,7 +153,14 @@ namespace ECGConversion.SCP
 			{
 				stat = new Statements();
 				stat.confirmed = (_Confirmed == 1);
-				stat.time = new DateTime(_Date.Year, _Date.Month, _Date.Day, _Time.Hour, _Time.Min, _Time.Sec);
+				
+				if ((_Date.Year != 0)
+				&&	(_Date.Month != 0)
+				&&	(_Date.Day != 0))
+					stat.time = new DateTime(_Date.Year, _Date.Month, _Date.Day, _Time.Hour, _Time.Min, _Time.Sec);
+				else
+					stat.time = DateTime.MinValue;
+				
 				stat.statement = new string[_NrStatements];
 				for (int loper=0;loper < _NrStatements;loper++)
 				{
@@ -177,8 +185,18 @@ namespace ECGConversion.SCP
 			{
 				Empty();
 				_Confirmed = (byte) (stat.confirmed ? 1 : 0);
-				_Date = new SCPDate(stat.time.Year, stat.time.Month, stat.time.Day);
-				_Time = new SCPTime(stat.time.Hour, stat.time.Minute, stat.time.Second);
+				
+				if (stat.time == DateTime.MinValue)
+				{
+					_Date = new SCPDate();
+					_Time = new SCPTime();
+				}
+				else
+				{
+					_Date = new SCPDate(stat.time.Year, stat.time.Month, stat.time.Day);
+					_Time = new SCPTime(stat.time.Hour, stat.time.Minute, stat.time.Second);
+				}
+				
 				_NrStatements = (byte) stat.statement.Length;
 				_Statements = new SCPStatement[_NrStatements];
 				for (int loper=0;loper < _NrStatements;loper++)

@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +26,10 @@ namespace ECGConversion
 	/// </summary>
 	public class ECGTool
 	{
+		// const limit for the holter resample algorithm
+		public const int MAX_HOLTER_SPS = 25;
+		public const int MIN_HOLTER_SPS = 10;
+
 		/// <summary>
 		///  Interval to use for Resampling with polynomial in msec.
 		/// </summary>
@@ -840,6 +845,98 @@ namespace ECGConversion
 				return 0;
 			}
 
+			return 1;
+		}
+		/// <summary>
+		/// Function to resample one lead of a signal to holter overview signal.
+		/// </summary>
+		/// <param name="src">lead of signal to resample</param>
+		/// <param name="srcFreq">sample rate of signal</param>
+		/// <param name="dstFreq">destination sample rate</param>
+		/// <param name="dst">resampled signals</param>
+		/// <returns>0 on success</returns>
+		public static int MakeHolterSignal(short[] src, int srcFreq, int dstFreq, out short[] dst)
+		{
+			return MakeHolterSignal(src, 0, src.Length, srcFreq, dstFreq, out dst);
+		}
+		/// <summary>
+		/// Function to resample one lead of a signal to holter overview signal.
+		/// </summary>
+		/// <param name="src">lead of signal to resample</param>
+		/// <param name="startsample">samplenr to start resampleing</param>
+		/// <param name="srcFreq">sample rate of signal</param>
+		/// <param name="dstFreq">destination sample rate</param>
+		/// <param name="dst">resampled signals</param>
+		/// <returns>0 on success</returns>
+		public static int MakeHolterSignal(short[] src, int startsample, int srcFreq, int dstFreq, out short[] dst)
+		{
+			return MakeHolterSignal(src, startsample, src.Length - startsample, srcFreq, dstFreq, out dst);
+		}
+		/// <summary>
+		/// Function to resample one lead of a signal to holter overview signal.
+		/// </summary>
+		/// <param name="src">lead of signal to resample</param>
+		/// <param name="startsample">samplenr to start resampleing</param>
+		/// <param name="nrsamples">nr of samples in source</param>
+		/// <param name="srcFreq">sample rate of signal</param>
+		/// <param name="dstFreq">destination sample rate</param>
+		/// <param name="dst">resampled signals</param>
+		/// <returns>0 on success</returns>
+		public static int MakeHolterSignal(short[] src, int startsample, int nrsamples, int srcFreq, int dstFreq, out short[] dst)
+		{
+			dst = null;
+			
+			if ((src != null)
+			    &&  (srcFreq > MAX_HOLTER_SPS)
+			    &&  (dstFreq >= MIN_HOLTER_SPS)
+			    &&	(dstFreq <= MAX_HOLTER_SPS)
+			    &&	(startsample >= 0)
+			    &&	(nrsamples > 0)
+			    &&  ((startsample + nrsamples) <= src.Length))
+			{
+				int dstSize = (nrsamples * dstFreq) / srcFreq;
+				
+				dst = new short[dstSize];
+				
+				short
+					min = short.MaxValue,
+					max = short.MinValue,
+					prev = 0;
+				
+				int prev_j = 0;
+				
+				for (int i=0;(i < nrsamples)&&(prev_j < dstSize);i++)
+				{
+					int j = (i * dstFreq) / srcFreq;
+					
+					short val = src[startsample + i];
+					
+					if (j == prev_j)
+					{
+						if (val < min)
+							min = val;
+						
+						if (val > max)
+							max = val;
+					}
+					else
+					{
+						prev = dst[prev_j] = (Math.Abs(prev - min) > Math.Abs(prev - max))? min : max;
+						
+						prev_j = j;
+						
+						min = max = val;
+					}
+				}
+				
+				if (prev_j < dstSize)
+				{
+					prev = dst[prev_j] = (Math.Abs(min - prev) > Math.Abs(max - prev))? min : max;
+				}
+				
+				return 0;
+			}
+			
 			return 1;
 		}
 		/// <summary>

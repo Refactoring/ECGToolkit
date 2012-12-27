@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -497,8 +498,8 @@ namespace ECGConversion
 			int ret = 0;
 
 			float
-				fPixel_Per_ms = fmm_Per_s * DpiX * Inch_Per_mm * 0.001f,
-				fPixel_Per_s = fmm_Per_s * DpiX * Inch_Per_mm, 
+				fPixel_Per_s = (float)Math.Round(fmm_Per_s * DpiX * Inch_Per_mm), 
+				fPixel_Per_ms = fPixel_Per_s * 0.001f,
 				fPixel_Per_uV = fmm_Per_mV * DpiY * Inch_Per_mm * 0.001f,
 				fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV,
 				fGridX = (DpiX * Inch_Per_mm) * _mm_Per_GridLine,
@@ -508,6 +509,29 @@ namespace ECGConversion
 				nMinY = 0,
 				nMaxX = 52,
 				nMaxY = 32;
+
+			if (signals.IsBuffered)
+			{
+				BufferedSignals bs = signals.AsBufferedSignals;
+
+				int nrSamplesToLoad = 10 * bs.RealRhythmSamplesPerSecond,
+					value = bs.RealRhythmStart + nTime;
+
+				if (dt == ECGDrawType.Regular)
+				{
+#if WINCE
+					RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+					RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
+
+					nrSamplesToLoad = (int) ((Bounds.Width * bs.RealRhythmSamplesPerSecond) / fPixel_Per_s);
+				}
+				
+				bs.LoadSignal(value, value + nrSamplesToLoad);
+				
+				nTime -= value;
+			}
 
 			ECGDrawSection[] drawSections = null;
 

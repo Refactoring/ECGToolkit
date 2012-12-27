@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -2047,8 +2048,8 @@ namespace ECGConversion.DICOM
 					for (int n=0;n < nrLeads;n++)
 					{
 						if ((sigs[n].RhythmStart == start)
-							&&	(sigs[n].RhythmEnd == end)
-							&&	(sigs[n].Rhythm.Length == len))
+						&&	(sigs[n].RhythmEnd == end)
+						&&	(sigs[n].Rhythm.Length == len))
 						{
 							temp[n] = sigs[n].Rhythm;
 						}

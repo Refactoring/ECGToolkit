@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -142,15 +143,30 @@ namespace ECGViewer
 							if (sig != null)
 								_CurrentSignal = sig;
 
-							int start, end;
+							if (_CurrentSignal.IsBuffered)
+							{
+								BufferedSignals bs = _CurrentSignal.AsBufferedSignals;
 
-							_CurrentSignal.CalculateStartAndEnd(out start, out end);
+								bs.LoadSignal(bs.RealRhythmStart, bs.RealRhythmStart + 60 * bs.RhythmSamplesPerSecond);
 
-							ECGTimeScrollbar.Minimum = 0;
-							ECGTimeScrollbar.Maximum = end - start;
-							ECGTimeScrollbar.Value = 0;
-							ECGTimeScrollbar.SmallChange = _CurrentSignal.RhythmSamplesPerSecond;
-							ECGTimeScrollbar.LargeChange = _CurrentSignal.RhythmSamplesPerSecond;
+								ECGTimeScrollbar.Minimum = 0;
+								ECGTimeScrollbar.Maximum = bs.RealRhythmEnd - bs.RealRhythmStart;
+								ECGTimeScrollbar.Value = 0;
+								ECGTimeScrollbar.SmallChange = _CurrentSignal.RhythmSamplesPerSecond;
+								ECGTimeScrollbar.LargeChange = _CurrentSignal.RhythmSamplesPerSecond;
+							}
+							else
+							{
+								int start, end;
+
+								_CurrentSignal.CalculateStartAndEnd(out start, out end);
+
+								ECGTimeScrollbar.Minimum = 0;
+								ECGTimeScrollbar.Maximum = end - start;
+								ECGTimeScrollbar.Value = 0;
+								ECGTimeScrollbar.SmallChange = _CurrentSignal.RhythmSamplesPerSecond;
+								ECGTimeScrollbar.LargeChange = _CurrentSignal.RhythmSamplesPerSecond;
+							}
 						}
 
 						ECGDraw.ECGDrawType dt = ECGDraw.PossibleDrawTypes(_CurrentSignal);
@@ -917,7 +933,7 @@ namespace ECGViewer
 				&&	(_CurrentSignal != null)
 				&&	(_DrawType != ECGDraw.ECGDrawType.Median))
 				{
-					ECGTimeScrollbar.Value = (oldPos * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
+					ECGTimeScrollbar.Value = _CurrentSignal.IsBuffered ? oldPos : (oldPos * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
 				}
 
 				if (ECGTimeScrollbar.Enabled)
@@ -1301,37 +1317,40 @@ namespace ECGViewer
 
 					int
 						oldSPS = _CurrentSignal.RhythmSamplesPerSecond,
-						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), _CurrentSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain, false);
+						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), _CurrentSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain, true);
 
 					if (ret < 0)
 					{
 						Graphics g = Graphics.FromImage(_DrawBuffer);
 						g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-						ret = ECGDraw.DrawECG(g, _CurrentSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain, true);
+						ret = ECGDraw.DrawECG(g, _CurrentSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain, false);
 					}
 
 					if (_DrawType != ECGDraw.ECGDrawType.Median)
 					{
 						if (oldSPS != _CurrentSignal.RhythmSamplesPerSecond)
 						{
-							ECGTimeScrollbar.Minimum = 0;
-							ECGTimeScrollbar.SmallChange = _CurrentSignal.RhythmSamplesPerSecond;
-							ECGTimeScrollbar.LargeChange = (ECGTimeScrollbar.LargeChange * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
-							ECGTimeScrollbar.Value= (ECGTimeScrollbar.Value * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
-							ECGTimeScrollbar.Maximum = (ECGTimeScrollbar.Maximum * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
-						}
+							if (!_CurrentSignal.IsBuffered)
+							{
+								ECGTimeScrollbar.Minimum = 0;
+								ECGTimeScrollbar.SmallChange = _CurrentSignal.RhythmSamplesPerSecond;
+								ECGTimeScrollbar.LargeChange = (ECGTimeScrollbar.LargeChange * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
+								ECGTimeScrollbar.Value = (ECGTimeScrollbar.Value * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
+								ECGTimeScrollbar.Maximum = (ECGTimeScrollbar.Maximum * _CurrentSignal.RhythmSamplesPerSecond) / oldSPS;
+							}
 					
-						if ((ret >= 0)
-						&&	((ret - ECGTimeScrollbar.Value) < ECGTimeScrollbar.Maximum))
-						{
-							ECGTimeScrollbar.Enabled = true;
-							ECGTimeScrollbar.LargeChange =  Math.Max(ECGTimeScrollbar.LargeChange, ret - ECGTimeScrollbar.Value);
-						}
-						else
-						{
-							ECGTimeScrollbar.LargeChange = ECGTimeScrollbar.Maximum;
-							ECGTimeScrollbar.Enabled = false;
+							if ((ret >= 0)
+							&&	((ret - ECGTimeScrollbar.Value) < ECGTimeScrollbar.Maximum))
+							{
+								ECGTimeScrollbar.Enabled = true;
+								ECGTimeScrollbar.LargeChange =  Math.Max(ECGTimeScrollbar.LargeChange, ret - ECGTimeScrollbar.Value);
+							}
+							else
+							{
+								ECGTimeScrollbar.LargeChange = ECGTimeScrollbar.Maximum;
+								ECGTimeScrollbar.Enabled = false;
+							}
 						}
 					}
 					else

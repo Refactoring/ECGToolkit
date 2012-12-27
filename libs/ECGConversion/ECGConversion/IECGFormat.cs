@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,6 +58,28 @@ namespace ECGConversion
 		{
 			return Config == null
 				|| Config.ConfigurationWorks();
+		}
+
+		/// <summary>
+		/// Determine whether the stream provided to this ECGFormat can be closed after calling read.
+		/// </summary>
+		/// <value>
+		/// True if the stream can be closed imediatly after read.
+		/// </value>
+		public virtual bool CanCloseStream
+		{
+			get {return true;}
+		}
+
+		/// <summary>
+		/// Determine whether this ECGFormat can control the BuffereStream object.
+		/// </summary>
+		/// <value>
+		/// True if this ECGFormat supports the BufferedStream.
+		/// </value>
+		public virtual bool SupportsBufferedStream
+		{
+			get {return false;}
 		}
 
 		/// <summary>

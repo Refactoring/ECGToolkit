@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2011, M.J.B. van Ettinger Jr., The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Written by Maarten van Ettinger.
+Written by Maarten JB van Ettinger.
 
 ****************************************************************************/
 using System;
@@ -34,6 +35,46 @@ namespace ECGConversion.OmronECG
 	{
 		public const Int32 HeaderSize = 0x3C;
 		public static Boolean LittleEndian = true;
+
+		public OmronECGFormat()
+		{
+			_Config = new ECGConfig(new string[]{"Patient ID", "Patient Lastname", "Patient 2nd Lastname", "Patient Firstname"}, 2, null);
+
+			_Config["Patient ID"] = "NoPatientID";
+			_Config["Patient Lastname"] = "NoLastname";
+		}
+
+		private string _PatientID
+		{
+			get
+			{
+				return _Config["Patient ID"];
+			}
+		}
+
+		private string _PatientLastname
+		{
+			get
+			{
+				return _Config["Patient Lastname"];
+			}
+		}
+
+		private string _PatientFirstname
+		{
+			get
+			{
+				return _Config["Patient Firstname"];
+			}
+		}
+
+		private string _PatientSecondLastname
+		{
+			get
+			{
+				return _Config["Patient 2nd Lastname"];
+			}
+		}
 
 		/// <summary>
 		/// 0x00: First four bytes of file
@@ -398,25 +439,25 @@ namespace ECGConversion.OmronECG
 		
 		public string LastName
 		{
-			get {return "NoLastName";}
+			get {return _PatientLastname;}
 			set {}
 		}
 		
 		public string FirstName
 		{
-			get {return null;}
+			get {return _PatientFirstname;}
 			set {}
 		}
 		
 		public string PatientID
 		{
-			get {return "NoPatientID";}
+			get {return _PatientID;}
 			set {}
 		}
 		
 		public string SecondLastName
 		{
-			get {return null;}
+			get {return _PatientSecondLastname;}
 			set {}
 		}
 		

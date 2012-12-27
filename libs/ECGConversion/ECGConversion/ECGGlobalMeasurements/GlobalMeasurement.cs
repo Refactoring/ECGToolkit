@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,12 +57,11 @@ namespace ECGConversion.ECGGlobalMeasurements
 		}
 		public ushort PRint
 		{
-			get {return (ushort) ((QRSonset != NoValue) && (Ponset != NoValue) && (Pdur != NoValue) ? (QRSonset - Ponset) : NoValue);}
+			get {return (ushort) ((QRSonset != NoValue) && (Ponset != NoValue) ? (QRSonset - Ponset) : NoValue);}
 			set
 			{
 				if ((value > 0)
-				&&	(value != NoValue)
-				&&	(Pdur != NoValue))
+				&&	(value != NoValue))
 				{
 					QRSonset = (ushort) (value + Ponset);
 				}

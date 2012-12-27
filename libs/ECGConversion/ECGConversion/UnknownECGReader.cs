@@ -1,5 +1,6 @@
 /***************************************************************************
-Copyright (c) 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,7 +43,12 @@ namespace ECGConversion
 				{
 					Stream input = new FileStream(file, FileMode.Open, FileAccess.Read);
 					ret = Read(input, offset, cfg);
-					input.Close();
+
+					if ((ret == null)
+					||	ret.CanCloseStream)
+					{
+						input.Close();
+					}
 				}
 				catch
 				{
@@ -57,8 +63,10 @@ namespace ECGConversion
 			LastError = 0;
 
 			if ((input != null)
-			&&	input.CanRead)
+			&&	input.CanRead
+			&&	input.CanSeek)
 			{
+				long pos = input.Position;
 				int i = 0;
 
 				ECGConverter converter = ECGConverter.Instance;
@@ -79,6 +87,8 @@ namespace ECGConversion
 									break;
 								}
 							}
+
+							input.Position = pos;
 						}
 						catch {}
 

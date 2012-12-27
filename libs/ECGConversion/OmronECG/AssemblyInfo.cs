@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2011, M.J.B. van Ettinger Jr., The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Written by Maarten van Ettinger.
+Written by Maarten JB van Ettinger.
 
 ****************************************************************************/
 using System.Reflection;
@@ -26,9 +27,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("ECGConversion Omron ECG plug-in TEST")]
 [assembly: AssemblyDescription("Omron ECG plug-in for the framework ECG Conversion TEST")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("M.J.B. van Ettinger Jr., The Netherlands")]
+[assembly: AssemblyCompany("van Ettinger Information Technology")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright 2011, M.J.B. van Ettinger Jr., The Netherlands")]
+[assembly: AssemblyCopyright("Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
@@ -43,7 +44,7 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("2.2.*")]
+[assembly: AssemblyVersion("2.3.*")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 

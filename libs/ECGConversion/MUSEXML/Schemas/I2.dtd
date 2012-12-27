@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ENTITY % I2field SYSTEM "I2field.dtd">
+%I2field;
+
+<!ELEMENT MuseInfo (MuseVersion, RegisteredName?)>
+<!ELEMENT MuseVersion (#PCDATA) >
+<!ELEMENT RegisteredName (#PCDATA) >
+
+<!ELEMENT PatientDemographics (PatientID, FamilyRelation?, (PatientAge, AgeUnits)?, DateofBirth?, Gender?, Race?, (HeightIN|HeightCM)?, (WeightLBS|WeightKG)?, PatientLastName?, PatientFirstName?, (AnalysisAge, AnalysisAgeUnits)?)>
+<!ELEMENT PatientID (#PCDATA) >
+<!ELEMENT FamilyRelation (#PCDATA)>
+<!ELEMENT PatientAge (#PCDATA)>
+<!ELEMENT AgeUnits (#PCDATA)>
+<!ELEMENT DateofBirth (#PCDATA)>
+<!ELEMENT Gender (#PCDATA)>
+<!ELEMENT Race (#PCDATA)>
+<!ELEMENT HeightIN (#PCDATA)>
+<!ELEMENT HeightCM (#PCDATA)>
+<!ELEMENT WeightLBS (#PCDATA)>
+<!ELEMENT WeightKG (#PCDATA)>
+<!ELEMENT PatientLastName (#PCDATA)>
+<!ELEMENT PatientFirstName (#PCDATA)>
+<!ELEMENT AnalysisAge (#PCDATA)>
+<!ELEMENT AnalysisAgeUnits (#PCDATA)>
+
+<!ELEMENT TestDemographics (DataType, Site, SiteName?, AcquisitionDevice?, Status, EditListStatus?, Priority?, Location?, LocationName?,
+                           RoomID?, AcquisitionTime, AcquisitionDate, CartNumber?, 
+                           AcquisitionSoftwareVersion?, AnalysisSoftwareVersion?, UserDefined?,
+                           EditTime?, EditDate?,
+                           OrderingMDID?, ReferringMDID?, OverreaderID?, FellowID?, AcquisitionTechID?, EditorID?,
+                           TestType?, TestReason?,
+                           OrderingMDLastName?, OrderingMDFirstName?,
+                           ReferringMDLastName?, ReferringMDFirstName?,
+                           OverreaderLastName?, OverreaderFirstName?,
+                           OptionNumber?,
+                           FellowLastName?, FellowFirstName?,
+                           AcquisitionTechLastName?, AcquisitionTechFirstName?,
+                           EditorLastName?, EditorFirstName?,
+                           SecondaryID?, HISStatus?, XMLSourceVersion?)>
+<!ELEMENT DataType (#PCDATA)>
+<!ELEMENT Site (#PCDATA)>
+<!ELEMENT SiteName (#PCDATA)>
+<!ELEMENT AcquisitionDevice (#PCDATA)>
+<!ELEMENT Status (#PCDATA)>
+<!ELEMENT EditListStatus (#PCDATA)>
+<!ELEMENT Priority (#PCDATA)>
+<!ELEMENT Location (#PCDATA)>
+<!ELEMENT LocationName (#PCDATA)>
+<!ELEMENT RoomID (#PCDATA)>
+<!ELEMENT AcquisitionTime (#PCDATA)>
+<!ELEMENT AcquisitionDate (#PCDATA)>
+<!ELEMENT CartNumber (#PCDATA)>
+<!ELEMENT AcquisitionSoftwareVersion (#PCDATA)>
+<!ELEMENT AnalysisSoftwareVersion (#PCDATA)>
+<!ELEMENT UserDefined (#PCDATA)>
+<!ELEMENT EditTime (#PCDATA)>
+<!ELEMENT EditDate (#PCDATA)>
+<!ELEMENT ReferringMDID (#PCDATA)>
+<!ELEMENT OverreaderID (#PCDATA)>
+<!ELEMENT FellowID (#PCDATA)>
+<!ELEMENT AcquisitionTechID (#PCDATA)>
+<!ELEMENT EditorID (#PCDATA)>
+<!ELEMENT TestType (#PCDATA)>
+<!ELEMENT TestReason (#PCDATA)>
+<!ELEMENT OrderingMDLastName (#PCDATA)>
+<!ELEMENT OrderingMDFirstName (#PCDATA)>
+<!ELEMENT ReferringMDLastName (#PCDATA)>
+<!ELEMENT ReferringMDFirstName (#PCDATA)>
+<!ELEMENT OverreaderLastName (#PCDATA)>
+<!ELEMENT OverreaderFirstName (#PCDATA)>
+<!ELEMENT OptionNumber (#PCDATA)>
+<!ELEMENT FellowLastName (#PCDATA)>
+<!ELEMENT FellowFirstName (#PCDATA)>
+<!ELEMENT AcquisitionTechLastName (#PCDATA)>
+<!ELEMENT AcquisitionTechFirstName (#PCDATA)>
+<!ELEMENT EditorLastName (#PCDATA)>
+<!ELEMENT EditorFirstName (#PCDATA)>
+<!ELEMENT SecondaryID (#PCDATA)>
+<!ELEMENT HISStatus (#PCDATA)>
+<!ELEMENT XMLSourceVersion (#PCDATA)>
+
+<!ELEMENT ExtraQuestions (ExtraQuestion*)>
+<!ELEMENT ExtraQuestion (Question, Answer)?>
+<!ELEMENT Question (#PCDATA)>
+<!ELEMENT Answer (#PCDATA)>
+
+<!ELEMENT  Order (RequisitionNumber?,HISOrderNumber?,HISAccountNumber?,
+HISSytemID?,Episode?,HISTestType?,OrderingMDID?,OrderingMDHISID?,HISOrderingMDLastName?,
+HISOrderingMDFirstName?,ScheduleTime?,OrderTime?,OrderExpirationTime?,AdmitTime?,
+AdmitDate?,AdmitDiagnosis?,HISLocation?,bed?,comments?,ExtraADTData1?,ExtraADTData2?,
+ExtraADTData3?,ExtraADTData4?,ExtraOrderData1?,ExtraOrderData2?,ExtraOrderData3?,ExtraOrderData4?,
+ExtraAccountData1?,ExtraAccountData2?,ExtraAccountData3?,ExtraAccountData4?,
+AttendingMDID?,AttendingMDHISID?,AttendingMDLastName?,AttendingMDFirstName?,
+PriorHISAccountNumber?,AlternateVisitID?,HISDisposition?,PatientDischargeDate?,
+PatientDischargeTime?,AdmitSource?,DischargeDisposition?,PrimaryDiagnosticCode?,
+SecondaryDiagnosticCode?,TertiaryDiagnosticCode?,OtherDiagnosticCode?,CurrentDiagnosis?,
+ServicingFacility?,AdmittingMDID?,AdmittingMDHISID?,AdmittingMDLastName?,AdmittingMDFirstName?,
+ConsultingMDID?,ConsultingMDHISID?,ConsultingMDLastName?,ConsultingMDFirstName?,
+ReferringMDHISID?,HospitalService?,AmbulatoryStatus?,AdmissionType?,DangerCode?,
+AltRequisitionNumber?,PlacersHISID?,PlacersLastName?,PlacersFirstName?,OrderPlacementDate?,
+OrderPlacementTime?,ReasonForTest?)>
+
+
+<!ELEMENT RequisitionNumber (#PCDATA)>
+<!ELEMENT HISOrderNumber (#PCDATA)>
+<!ELEMENT HISAccountNumber (#PCDATA)>
+<!ELEMENT HISSytemID (#PCDATA)>
+<!ELEMENT Episode (#PCDATA)>
+<!ELEMENT HISTestType (#PCDATA)>
+<!ELEMENT OrderingMDID (#PCDATA)>
+<!ELEMENT OrderingMDHISID (#PCDATA)>
+<!ELEMENT HISOrderingMDLastName (#PCDATA)>
+<!ELEMENT HISOrderingMDFirstName (#PCDATA)>
+<!ELEMENT ScheduleTime (#PCDATA)>
+<!ELEMENT OrderTime (#PCDATA)>
+<!ELEMENT OrderExpirationTime (#PCDATA)>
+<!ELEMENT AdmitTime (#PCDATA)>
+<!ELEMENT AdmitDate (#PCDATA)>
+<!ELEMENT AdmitDiagnosis (#PCDATA)>
+<!ELEMENT HISLocation (#PCDATA)>
+<!ELEMENT bed (#PCDATA)>
+<!ELEMENT comments (#PCDATA)>
+<!ELEMENT ExtraADTData1 (#PCDATA)>
+<!ELEMENT ExtraADTData2 (#PCDATA)>
+<!ELEMENT ExtraADTData3 (#PCDATA)>
+<!ELEMENT ExtraADTData4 (#PCDATA)>
+<!ELEMENT ExtraOrderData1 (#PCDATA)>
+<!ELEMENT ExtraOrderData2 (#PCDATA)>
+<!ELEMENT ExtraOrderData3 (#PCDATA)>
+<!ELEMENT ExtraOrderData4 (#PCDATA)>
+<!ELEMENT ExtraAccountData1 (#PCDATA)>
+<!ELEMENT ExtraAccountData2 (#PCDATA)>
+<!ELEMENT ExtraAccountData3 (#PCDATA)>
+<!ELEMENT ExtraAccountData4 (#PCDATA)>
+<!ELEMENT AttendingMDID (#PCDATA)>
+<!ELEMENT AttendingMDHISID (#PCDATA)>
+<!ELEMENT AttendingMDLastName (#PCDATA)>
+<!ELEMENT AttendingMDFirstName (#PCDATA)>
+<!ELEMENT PriorHISAccountNumber (#PCDATA)>
+<!ELEMENT AlternateVisitID (#PCDATA)>
+<!ELEMENT HISDisposition (#PCDATA)>
+<!ELEMENT PatientDischargeDate (#PCDATA)>
+<!ELEMENT PatientDischargeTime (#PCDATA)>
+<!ELEMENT AdmitSource (#PCDATA)>
+<!ELEMENT DischargeDisposition (#PCDATA)>
+<!ELEMENT PrimaryDiagnosticCode (#PCDATA)>
+<!ELEMENT SecondaryDiagnosticCode (#PCDATA)>
+<!ELEMENT TertiaryDiagnosticCode (#PCDATA)>
+<!ELEMENT OtherDiagnosticCode (#PCDATA)>
+<!ELEMENT CurrentDiagnosis (#PCDATA)>
+<!ELEMENT ServicingFacility (#PCDATA)>
+<!ELEMENT AdmittingMDID (#PCDATA)>
+<!ELEMENT AdmittingMDHISID (#PCDATA)>
+<!ELEMENT AdmittingMDLastName (#PCDATA)>
+<!ELEMENT AdmittingMDFirstName (#PCDATA)>
+<!ELEMENT ConsultingMDID (#PCDATA)>
+<!ELEMENT ConsultingMDHISID (#PCDATA)>
+<!ELEMENT ConsultingMDLastName (#PCDATA)>
+<!ELEMENT ConsultingMDFirstName (#PCDATA)>
+<!ELEMENT ReferringMDHISID (#PCDATA)>
+<!ELEMENT HospitalService (#PCDATA)>
+<!ELEMENT AmbulatoryStatus (#PCDATA)>
+<!ELEMENT AdmissionType (#PCDATA)>
+<!ELEMENT DangerCode (#PCDATA)>
+<!ELEMENT AltRequisitionNumber (#PCDATA)>
+<!ELEMENT PlacersHISID (#PCDATA)>
+<!ELEMENT PlacersLastName (#PCDATA)>
+<!ELEMENT PlacersFirstName (#PCDATA)>
+<!ELEMENT OrderPlacementDate (#PCDATA)>
+<!ELEMENT OrderPlacementTime (#PCDATA)>
+<!ELEMENT ReasonForTest (#PCDATA)>
+
+<!ELEMENT Diagnosis (Modality, StatementCount?, LabelText?, DiagnosisStatement*)>
+<!ELEMENT OriginalDiagnosis (Modality, StatementCount?, LabelText?, DiagnosisStatement*)>
+<!ELEMENT Modality (#PCDATA)>
+<!ELEMENT StatementCount (#PCDATA)>
+<!ELEMENT LabelText (#PCDATA)>
+<!ELEMENT DiagnosisStatement (StmtFlag*, StmtText)>
+<!ELEMENT StmtFlag  (#PCDATA)>
+<!ELEMENT StmtText  (#PCDATA)>
+<!ELEMENT Waveform (WaveformType, WaveformStartTime, NumberofLeads, SampleType, SampleBase, SampleExponent, HighPassFilter, LowPassFilter, ACFilter+, LeadData+, PaceSpikes?)>
+<!ELEMENT WaveformType (#PCDATA)>
+<!ELEMENT WaveformStartTime (#PCDATA)>
+<!ELEMENT NumberofLeads (#PCDATA)>
+<!ELEMENT SampleType (#PCDATA)>
+<!ELEMENT SampleBase (#PCDATA)>
+<!ELEMENT SampleExponent (#PCDATA)> 
+<!ELEMENT HighPassFilter (#PCDATA)> 
+<!ELEMENT LowPassFilter (#PCDATA)> 
+<!ELEMENT ACFilter (#PCDATA)> 
+
+<!ELEMENT LeadData (LeadByteCountTotal, LeadTimeOffset, LeadSampleCountTotal, LeadAmplitudeUnitsPerBit, LeadAmplitudeUnits, LeadHighLimit, LeadLowLimit, LeadID, LeadOffsetFirstSample, FirstSampleBaseline, LeadSampleSize, LeadOff, BaselineSway, ExcessiveACNoise?, MuscleNoise?, LeadDataCRC32, WaveFormData)>
+<!ELEMENT LeadByteCountTotal (#PCDATA)>
+<!ELEMENT LeadTimeOffset (#PCDATA)>
+<!ELEMENT LeadSampleCountTotal (#PCDATA)>
+<!ELEMENT LeadAmplitudeUnitsPerBit (#PCDATA)>
+<!ELEMENT LeadAmplitudeUnits (#PCDATA)>
+<!ELEMENT LeadHighLimit (#PCDATA)>
+<!ELEMENT LeadLowLimit (#PCDATA)>
+<!ELEMENT LeadID (#PCDATA)>
+<!ELEMENT LeadOffsetFirstSample (#PCDATA)>
+<!ELEMENT FirstSampleBaseline (#PCDATA)>
+<!ELEMENT LeadSampleSize (#PCDATA)> 
+<!ELEMENT LeadOff (#PCDATA)> 
+<!ELEMENT BaselineSway (#PCDATA)> 
+<!ELEMENT ExcessiveACNoise (#PCDATA)> 
+<!ELEMENT MuscleNoise (#PCDATA)> 
+<!ELEMENT LeadDataCRC32 (#PCDATA)>
+<!ELEMENT WaveFormData (#PCDATA)>
+
+<!ELEMENT PaceSpikes  (PaceType, (PaceCharacteristicsFromDevice, PaceWidth, PaceWidthUnits)?, (PaceAmplitude, PaceAmplitudeUnits)?, IndexOffsets)>
+<!ELEMENT PaceType (#PCDATA)>
+<!ELEMENT PaceCharacteristicsFromDevice (#PCDATA)>
+<!ELEMENT PaceWidth (#PCDATA)>
+<!ELEMENT PaceWidthUnits (#PCDATA)>
+<!ELEMENT PaceAmplitude (#PCDATA)>
+<!ELEMENT PaceAmplitudeUnits (#PCDATA)>
+<!ELEMENT IndexOffsets (#PCDATA)>
+
+<!ELEMENT Image    (ImageType,ImageTitle,ImageComment?,ImageDataCRC32,ImageData)>
+<!ELEMENT ImageType (#PCDATA)>
+<!ELEMENT ImageTitle (#PCDATA)>
+<!ELEMENT ImageComment (#PCDATA)>
+<!ELEMENT ImageDataCRC32 (#PCDATA)>
+<!ELEMENT ImageData (#PCDATA)>
+
+<!ATTLIST ImageData 
+href CDATA #IMPLIED>

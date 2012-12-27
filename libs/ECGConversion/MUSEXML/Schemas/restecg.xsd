@@ -1,0 +1,770 @@
+<!--
+
+Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Orignally created with dtd2xs tool.
+Changed by Maarten JB van Ettinger.
+
+-->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="MuseInfo">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="MuseVersion"/>
+<xs:element minOccurs="0" ref="RegisteredName"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="MuseVersion" type="xs:string"/>
+<xs:element name="RegisteredName" type="xs:string"/>
+<xs:element name="PatientDemographics">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="PatientID"/>
+<xs:element minOccurs="0" ref="FamilyRelation"/>
+<xs:sequence minOccurs="0">
+<xs:element ref="PatientAge"/>
+<xs:element ref="AgeUnits"/>
+</xs:sequence>
+<xs:element minOccurs="0" ref="DateofBirth"/>
+<xs:element minOccurs="0" ref="Gender"/>
+<xs:element minOccurs="0" ref="Race"/>
+<xs:choice id="HeightChoice" minOccurs="0">
+<xs:element ref="HeightIN"/>
+<xs:element ref="HeightCM"/>
+</xs:choice>
+<xs:choice id="WeightChoice" minOccurs="0">
+<xs:element ref="WeightLBS"/>
+<xs:element ref="WeightKG"/>
+</xs:choice>
+<xs:element minOccurs="0" ref="PatientLastName"/>
+<xs:element minOccurs="0" ref="PatientFirstName"/>
+<xs:sequence minOccurs="0">
+<xs:element ref="AnalysisAge"/>
+<xs:element ref="AnalysisAgeUnits"/>
+</xs:sequence>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="PatientID" type="xs:string"/>
+<xs:element name="FamilyRelation" type="xs:string"/>
+<xs:element name="PatientAge" type="xs:string"/>
+<xs:element name="AgeUnits" type="xs:string"/>
+<xs:element name="DateofBirth" type="xs:string"/>
+<xs:element name="Gender" type="xs:string"/>
+<xs:element name="Race" type="xs:string"/>
+<xs:element name="HeightIN" type="xs:decimal"/>
+<xs:element name="HeightCM" type="xs:decimal"/>
+<xs:element name="WeightLBS" type="xs:decimal"/>
+<xs:element name="WeightKG" type="xs:decimal"/>
+<xs:element name="PatientLastName" type="xs:string"/>
+<xs:element name="PatientFirstName" type="xs:string"/>
+<xs:element name="AnalysisAge" type="xs:string"/>
+<xs:element name="AnalysisAgeUnits" type="xs:string"/>
+<xs:element name="TestDemographics">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="DataType"/>
+<xs:element ref="Site"/>
+<xs:element minOccurs="0" ref="SiteName"/>
+<xs:element minOccurs="0" ref="AcquisitionDevice"/>
+<xs:element ref="Status"/>
+<xs:element minOccurs="0" ref="EditListStatus"/>
+<xs:element minOccurs="0" ref="Priority"/>
+<xs:element minOccurs="0" ref="Location"/>
+<xs:element minOccurs="0" ref="LocationName"/>
+<xs:element minOccurs="0" ref="RoomID"/>
+<xs:element ref="AcquisitionTime"/>
+<xs:element ref="AcquisitionDate"/>
+<xs:element minOccurs="0" ref="CartNumber"/>
+<xs:element minOccurs="0" ref="AcquisitionSoftwareVersion"/>
+<xs:element minOccurs="0" ref="AnalysisSoftwareVersion"/>
+<xs:element minOccurs="0" ref="UserDefined"/>
+<xs:element minOccurs="0" ref="EditTime"/>
+<xs:element minOccurs="0" ref="EditDate"/>
+<xs:element minOccurs="0" ref="OrderingMDID"/>
+<xs:element minOccurs="0" ref="ReferringMDID"/>
+<xs:element minOccurs="0" ref="OverreaderID"/>
+<xs:element minOccurs="0" ref="FellowID"/>
+<xs:element minOccurs="0" ref="AcquisitionTechID"/>
+<xs:element minOccurs="0" ref="EditorID"/>
+<xs:element minOccurs="0" ref="TestType"/>
+<xs:element minOccurs="0" ref="TestReason"/>
+<xs:element minOccurs="0" ref="OrderingMDLastName"/>
+<xs:element minOccurs="0" ref="OrderingMDFirstName"/>
+<xs:element minOccurs="0" ref="ReferringMDLastName"/>
+<xs:element minOccurs="0" ref="ReferringMDFirstName"/>
+<xs:element minOccurs="0" ref="OverreaderLastName"/>
+<xs:element minOccurs="0" ref="OverreaderFirstName"/>
+<xs:element minOccurs="0" ref="OptionNumber"/>
+<xs:element minOccurs="0" ref="FellowLastName"/>
+<xs:element minOccurs="0" ref="FellowFirstName"/>
+<xs:element minOccurs="0" ref="AcquisitionTechLastName"/>
+<xs:element minOccurs="0" ref="AcquisitionTechFirstName"/>
+<xs:element minOccurs="0" ref="EditorLastName"/>
+<xs:element minOccurs="0" ref="EditorFirstName"/>
+<xs:element minOccurs="0" ref="SecondaryID"/>
+<xs:element minOccurs="0" ref="HISStatus"/>
+<xs:element minOccurs="0" ref="XMLSourceVersion"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="DataType" type="xs:string"/>
+<xs:element name="Site" type="xs:string"/>
+<xs:element name="SiteName" type="xs:string"/>
+<xs:element name="AcquisitionDevice" type="xs:string"/>
+<xs:element name="Status" type="xs:string"/>
+<xs:element name="EditListStatus" type="xs:string"/>
+<xs:element name="Priority" type="xs:string"/>
+<xs:element name="Location" type="xs:string"/>
+<xs:element name="LocationName" type="xs:string"/>
+<xs:element name="RoomID" type="xs:string"/>
+<xs:element name="AcquisitionTime" type="xs:string"/>
+<xs:element name="AcquisitionDate" type="xs:string"/>
+<xs:element name="CartNumber" type="xs:string"/>
+<xs:element name="AcquisitionSoftwareVersion" type="xs:string"/>
+<xs:element name="AnalysisSoftwareVersion" type="xs:string"/>
+<xs:element name="UserDefined" type="xs:string"/>
+<xs:element name="EditTime" type="xs:string"/>
+<xs:element name="EditDate" type="xs:string"/>
+<xs:element name="ReferringMDID" type="xs:string"/>
+<xs:element name="OverreaderID" type="xs:string"/>
+<xs:element name="FellowID" type="xs:string"/>
+<xs:element name="AcquisitionTechID" type="xs:string"/>
+<xs:element name="EditorID" type="xs:string"/>
+<xs:element name="TestType" type="xs:string"/>
+<xs:element name="TestReason" type="xs:string"/>
+<xs:element name="OrderingMDLastName" type="xs:string"/>
+<xs:element name="OrderingMDFirstName" type="xs:string"/>
+<xs:element name="ReferringMDLastName" type="xs:string"/>
+<xs:element name="ReferringMDFirstName" type="xs:string"/>
+<xs:element name="OverreaderLastName" type="xs:string"/>
+<xs:element name="OverreaderFirstName" type="xs:string"/>
+<xs:element name="OptionNumber" type="xs:string"/>
+<xs:element name="FellowLastName" type="xs:string"/>
+<xs:element name="FellowFirstName" type="xs:string"/>
+<xs:element name="AcquisitionTechLastName" type="xs:string"/>
+<xs:element name="AcquisitionTechFirstName" type="xs:string"/>
+<xs:element name="EditorLastName" type="xs:string"/>
+<xs:element name="EditorFirstName" type="xs:string"/>
+<xs:element name="SecondaryID" type="xs:string"/>
+<xs:element name="HISStatus" type="xs:string"/>
+<xs:element name="XMLSourceVersion" type="xs:string"/>
+<xs:element name="ExtraQuestions">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="ExtraQuestion"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="ExtraQuestion">
+<xs:complexType>
+<xs:sequence minOccurs="0">
+<xs:element ref="Question"/>
+<xs:element ref="Answer"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="Question" type="xs:string"/>
+<xs:element name="Answer" type="xs:string"/>
+<xs:element name="Order">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" ref="RequisitionNumber"/>
+<xs:element minOccurs="0" ref="HISOrderNumber"/>
+<xs:element minOccurs="0" ref="HISAccountNumber"/>
+<xs:element minOccurs="0" ref="HISSytemID"/>
+<xs:element minOccurs="0" ref="Episode"/>
+<xs:element minOccurs="0" ref="HISTestType"/>
+<xs:element minOccurs="0" ref="OrderingMDID"/>
+<xs:element minOccurs="0" ref="OrderingMDHISID"/>
+<xs:element minOccurs="0" ref="HISOrderingMDLastName"/>
+<xs:element minOccurs="0" ref="HISOrderingMDFirstName"/>
+<xs:element minOccurs="0" ref="ScheduleTime"/>
+<xs:element minOccurs="0" ref="OrderTime"/>
+<xs:element minOccurs="0" ref="OrderExpirationTime"/>
+<xs:element minOccurs="0" ref="AdmitTime"/>
+<xs:element minOccurs="0" ref="AdmitDate"/>
+<xs:element minOccurs="0" ref="AdmitDiagnosis"/>
+<xs:element minOccurs="0" ref="HISLocation"/>
+<xs:element minOccurs="0" ref="bed"/>
+<xs:element minOccurs="0" ref="comments"/>
+<xs:element minOccurs="0" ref="ExtraADTData1"/>
+<xs:element minOccurs="0" ref="ExtraADTData2"/>
+<xs:element minOccurs="0" ref="ExtraADTData3"/>
+<xs:element minOccurs="0" ref="ExtraADTData4"/>
+<xs:element minOccurs="0" ref="ExtraOrderData1"/>
+<xs:element minOccurs="0" ref="ExtraOrderData2"/>
+<xs:element minOccurs="0" ref="ExtraOrderData3"/>
+<xs:element minOccurs="0" ref="ExtraOrderData4"/>
+<xs:element minOccurs="0" ref="ExtraAccountData1"/>
+<xs:element minOccurs="0" ref="ExtraAccountData2"/>
+<xs:element minOccurs="0" ref="ExtraAccountData3"/>
+<xs:element minOccurs="0" ref="ExtraAccountData4"/>
+<xs:element minOccurs="0" ref="AttendingMDID"/>
+<xs:element minOccurs="0" ref="AttendingMDHISID"/>
+<xs:element minOccurs="0" ref="AttendingMDLastName"/>
+<xs:element minOccurs="0" ref="AttendingMDFirstName"/>
+<xs:element minOccurs="0" ref="PriorHISAccountNumber"/>
+<xs:element minOccurs="0" ref="AlternateVisitID"/>
+<xs:element minOccurs="0" ref="HISDisposition"/>
+<xs:element minOccurs="0" ref="PatientDischargeDate"/>
+<xs:element minOccurs="0" ref="PatientDischargeTime"/>
+<xs:element minOccurs="0" ref="AdmitSource"/>
+<xs:element minOccurs="0" ref="DischargeDisposition"/>
+<xs:element minOccurs="0" ref="PrimaryDiagnosticCode"/>
+<xs:element minOccurs="0" ref="SecondaryDiagnosticCode"/>
+<xs:element minOccurs="0" ref="TertiaryDiagnosticCode"/>
+<xs:element minOccurs="0" ref="OtherDiagnosticCode"/>
+<xs:element minOccurs="0" ref="CurrentDiagnosis"/>
+<xs:element minOccurs="0" ref="ServicingFacility"/>
+<xs:element minOccurs="0" ref="AdmittingMDID"/>
+<xs:element minOccurs="0" ref="AdmittingMDHISID"/>
+<xs:element minOccurs="0" ref="AdmittingMDLastName"/>
+<xs:element minOccurs="0" ref="AdmittingMDFirstName"/>
+<xs:element minOccurs="0" ref="ConsultingMDID"/>
+<xs:element minOccurs="0" ref="ConsultingMDHISID"/>
+<xs:element minOccurs="0" ref="ConsultingMDLastName"/>
+<xs:element minOccurs="0" ref="ConsultingMDFirstName"/>
+<xs:element minOccurs="0" ref="ReferringMDHISID"/>
+<xs:element minOccurs="0" ref="HospitalService"/>
+<xs:element minOccurs="0" ref="AmbulatoryStatus"/>
+<xs:element minOccurs="0" ref="AdmissionType"/>
+<xs:element minOccurs="0" ref="DangerCode"/>
+<xs:element minOccurs="0" ref="AltRequisitionNumber"/>
+<xs:element minOccurs="0" ref="PlacersHISID"/>
+<xs:element minOccurs="0" ref="PlacersLastName"/>
+<xs:element minOccurs="0" ref="PlacersFirstName"/>
+<xs:element minOccurs="0" ref="OrderPlacementDate"/>
+<xs:element minOccurs="0" ref="OrderPlacementTime"/>
+<xs:element minOccurs="0" ref="ReasonForTest"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="RequisitionNumber" type="xs:string"/>
+<xs:element name="HISOrderNumber" type="xs:string"/>
+<xs:element name="HISAccountNumber" type="xs:string"/>
+<xs:element name="HISSytemID" type="xs:string"/>
+<xs:element name="Episode" type="xs:string"/>
+<xs:element name="HISTestType" type="xs:string"/>
+<xs:element name="OrderingMDID" type="xs:string"/>
+<xs:element name="OrderingMDHISID" type="xs:string"/>
+<xs:element name="HISOrderingMDLastName" type="xs:string"/>
+<xs:element name="HISOrderingMDFirstName" type="xs:string"/>
+<xs:element name="ScheduleTime" type="xs:string"/>
+<xs:element name="OrderTime" type="xs:string"/>
+<xs:element name="OrderExpirationTime" type="xs:string"/>
+<xs:element name="AdmitTime" type="xs:string"/>
+<xs:element name="AdmitDate" type="xs:string"/>
+<xs:element name="AdmitDiagnosis" type="xs:string"/>
+<xs:element name="HISLocation" type="xs:string"/>
+<xs:element name="bed" type="xs:string"/>
+<xs:element name="comments" type="xs:string"/>
+<xs:element name="ExtraADTData1" type="xs:string"/>
+<xs:element name="ExtraADTData2" type="xs:string"/>
+<xs:element name="ExtraADTData3" type="xs:string"/>
+<xs:element name="ExtraADTData4" type="xs:string"/>
+<xs:element name="ExtraOrderData1" type="xs:string"/>
+<xs:element name="ExtraOrderData2" type="xs:string"/>
+<xs:element name="ExtraOrderData3" type="xs:string"/>
+<xs:element name="ExtraOrderData4" type="xs:string"/>
+<xs:element name="ExtraAccountData1" type="xs:string"/>
+<xs:element name="ExtraAccountData2" type="xs:string"/>
+<xs:element name="ExtraAccountData3" type="xs:string"/>
+<xs:element name="ExtraAccountData4" type="xs:string"/>
+<xs:element name="AttendingMDID" type="xs:string"/>
+<xs:element name="AttendingMDHISID" type="xs:string"/>
+<xs:element name="AttendingMDLastName" type="xs:string"/>
+<xs:element name="AttendingMDFirstName" type="xs:string"/>
+<xs:element name="PriorHISAccountNumber" type="xs:string"/>
+<xs:element name="AlternateVisitID" type="xs:string"/>
+<xs:element name="HISDisposition" type="xs:string"/>
+<xs:element name="PatientDischargeDate" type="xs:string"/>
+<xs:element name="PatientDischargeTime" type="xs:string"/>
+<xs:element name="AdmitSource" type="xs:string"/>
+<xs:element name="DischargeDisposition" type="xs:string"/>
+<xs:element name="PrimaryDiagnosticCode" type="xs:string"/>
+<xs:element name="SecondaryDiagnosticCode" type="xs:string"/>
+<xs:element name="TertiaryDiagnosticCode" type="xs:string"/>
+<xs:element name="OtherDiagnosticCode" type="xs:string"/>
+<xs:element name="CurrentDiagnosis" type="xs:string"/>
+<xs:element name="ServicingFacility" type="xs:string"/>
+<xs:element name="AdmittingMDID" type="xs:string"/>
+<xs:element name="AdmittingMDHISID" type="xs:string"/>
+<xs:element name="AdmittingMDLastName" type="xs:string"/>
+<xs:element name="AdmittingMDFirstName" type="xs:string"/>
+<xs:element name="ConsultingMDID" type="xs:string"/>
+<xs:element name="ConsultingMDHISID" type="xs:string"/>
+<xs:element name="ConsultingMDLastName" type="xs:string"/>
+<xs:element name="ConsultingMDFirstName" type="xs:string"/>
+<xs:element name="ReferringMDHISID" type="xs:string"/>
+<xs:element name="HospitalService" type="xs:string"/>
+<xs:element name="AmbulatoryStatus" type="xs:string"/>
+<xs:element name="AdmissionType" type="xs:string"/>
+<xs:element name="DangerCode" type="xs:string"/>
+<xs:element name="AltRequisitionNumber" type="xs:string"/>
+<xs:element name="PlacersHISID" type="xs:string"/>
+<xs:element name="PlacersLastName" type="xs:string"/>
+<xs:element name="PlacersFirstName" type="xs:string"/>
+<xs:element name="OrderPlacementDate" type="xs:string"/>
+<xs:element name="OrderPlacementTime" type="xs:string"/>
+<xs:element name="ReasonForTest" type="xs:string"/>
+<xs:element name="Diagnosis">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="Modality"/>
+<xs:element minOccurs="0" ref="StatementCount"/>
+<xs:element minOccurs="0" ref="LabelText"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="DiagnosisStatement"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="OriginalDiagnosis">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="Modality"/>
+<xs:element minOccurs="0" ref="StatementCount"/>
+<xs:element minOccurs="0" ref="LabelText"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="DiagnosisStatement"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="Modality" type="xs:string"/>
+<xs:element name="StatementCount" type="xs:string"/>
+<xs:element name="LabelText" type="xs:string"/>
+<xs:element name="DiagnosisStatement">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="StmtFlag"/>
+<xs:element ref="StmtText"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="StmtFlag" type="xs:string"/>
+<xs:element name="StmtText" type="xs:string"/>
+<xs:element name="Waveform">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="WaveformType"/>
+<xs:element ref="WaveformStartTime"/>
+<xs:element ref="NumberofLeads"/>
+<xs:element ref="SampleType"/>
+<xs:element ref="SampleBase"/>
+<xs:element ref="SampleExponent"/>
+<xs:element ref="HighPassFilter"/>
+<xs:element ref="LowPassFilter"/>
+<xs:element maxOccurs="unbounded" ref="ACFilter"/>
+<xs:element maxOccurs="unbounded" ref="LeadData"/>
+<xs:element minOccurs="0" ref="PaceSpikes"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="WaveformType" type="xs:string"/>
+<xs:element name="WaveformStartTime" type="xs:string"/>
+<xs:element name="NumberofLeads" type="xs:int"/>
+<xs:element name="SampleType" type="xs:string"/>
+<xs:element name="SampleBase" type="xs:int"/>
+<xs:element name="SampleExponent" type="xs:int"/>
+<xs:element name="HighPassFilter" type="xs:string"/>
+<xs:element name="LowPassFilter" type="xs:string"/>
+<xs:element name="ACFilter" type="xs:string"/>
+<xs:element name="LeadData">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="LeadByteCountTotal"/>
+<xs:element ref="LeadTimeOffset"/>
+<xs:element ref="LeadSampleCountTotal"/>
+<xs:element ref="LeadAmplitudeUnitsPerBit"/>
+<xs:element ref="LeadAmplitudeUnits"/>
+<xs:element ref="LeadHighLimit"/>
+<xs:element ref="LeadLowLimit"/>
+<xs:element ref="LeadID"/>
+<xs:element ref="LeadOffsetFirstSample"/>
+<xs:element ref="FirstSampleBaseline"/>
+<xs:element ref="LeadSampleSize"/>
+<xs:element ref="LeadOff"/>
+<xs:element ref="BaselineSway"/>
+<xs:element minOccurs="0" ref="ExcessiveACNoise"/>
+<xs:element minOccurs="0" ref="MuscleNoise"/>
+<xs:element ref="LeadDataCRC32"/>
+<xs:element ref="WaveFormData"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="LeadByteCountTotal" type="xs:int"/>
+<xs:element name="LeadTimeOffset" type="xs:int"/>
+<xs:element name="LeadSampleCountTotal" type="xs:int"/>
+<xs:element name="LeadAmplitudeUnitsPerBit" type="xs:decimal"/>
+<xs:element name="LeadAmplitudeUnits" type="xs:string"/>
+<xs:element name="LeadHighLimit" type="xs:unsignedLong"/>
+<xs:element name="LeadLowLimit" type="xs:unsignedLong"/>
+<xs:element name="LeadID" type="xs:string"/>
+<xs:element name="LeadOffsetFirstSample" type="xs:int"/>
+<xs:element name="FirstSampleBaseline" type="xs:int"/>
+<xs:element name="LeadSampleSize" type="xs:short"/>
+<xs:element name="LeadOff" type="xs:string"/>
+<xs:element name="BaselineSway" type="xs:string"/>
+<xs:element name="ExcessiveACNoise" type="xs:string"/>
+<xs:element name="MuscleNoise" type="xs:string"/>
+<xs:element name="LeadDataCRC32" type="xs:unsignedInt"/>
+<xs:element name="WaveFormData" type="xs:string"/>
+<xs:element name="PaceSpikes">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="PaceType"/>
+<xs:sequence minOccurs="0">
+<xs:element ref="PaceCharacteristicsFromDevice"/>
+<xs:element ref="PaceWidth"/>
+<xs:element ref="PaceWidthUnits"/>
+</xs:sequence>
+<xs:sequence minOccurs="0">
+<xs:element ref="PaceAmplitude"/>
+<xs:element ref="PaceAmplitudeUnits"/>
+</xs:sequence>
+<xs:element ref="IndexOffsets"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="PaceType" type="xs:string"/>
+<xs:element name="PaceCharacteristicsFromDevice" type="xs:string"/>
+<xs:element name="PaceWidth" type="xs:string"/>
+<xs:element name="PaceWidthUnits" type="xs:string"/>
+<xs:element name="PaceAmplitude" type="xs:string"/>
+<xs:element name="PaceAmplitudeUnits" type="xs:string"/>
+<xs:element name="IndexOffsets" type="xs:string"/>
+<xs:element name="Image">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="ImageType"/>
+<xs:element ref="ImageTitle"/>
+<xs:element minOccurs="0" ref="ImageComment"/>
+<xs:element ref="ImageDataCRC32"/>
+<xs:element ref="ImageData"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="ImageType" type="xs:string"/>
+<xs:element name="ImageTitle" type="xs:string"/>
+<xs:element name="ImageComment" type="xs:string"/>
+<xs:element name="ImageDataCRC32" type="xs:string"/>
+<xs:element name="ImageData">
+<xs:complexType>
+<xs:simpleContent>
+<xs:extension base="xs:string">
+<xs:attribute name="href" type="xs:string"/>
+</xs:extension>
+</xs:simpleContent>
+</xs:complexType>
+</xs:element>
+<xs:element name="RestingECG">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" ref="MuseInfo"/>
+<xs:element ref="PatientDemographics"/>
+<xs:element ref="TestDemographics"/>
+<xs:element minOccurs="0" ref="Order"/>
+<xs:element minOccurs="0" ref="RestingECGMeasurements"/>
+<xs:element minOccurs="0" ref="OriginalRestingECGMeasurements"/>
+<xs:element minOccurs="0" ref="Diagnosis"/>
+<xs:element minOccurs="0" ref="OriginalDiagnosis"/>
+<xs:element minOccurs="0" ref="ExtraQuestions"/>
+<xs:element minOccurs="0" ref="ACITIPIAnalysis"/>
+<xs:element minOccurs="0" ref="MeasurementMatrix"/>
+<xs:element minOccurs="0" ref="IntervalMeasurements"/>
+<xs:element minOccurs="0" ref="QRSTimesTypes"/>
+<xs:element minOccurs="0" ref="AmplitudeMeasurements"/>
+<xs:choice id="DataChoice" maxOccurs="unbounded" minOccurs="0">
+<xs:element ref="Waveform"/>
+<xs:element ref="Image"/>
+</xs:choice>
+<xs:element minOccurs="0" ref="PharmaData"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="RestingECGMeasurements">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" ref="SystolicBP"/>
+<xs:element minOccurs="0" ref="DiastolicBP"/>
+<xs:element minOccurs="0" ref="VentricularRate"/>
+<xs:element minOccurs="0" ref="AtrialRate"/>
+<xs:element minOccurs="0" ref="PRInterval"/>
+<xs:element minOccurs="0" ref="QRSDuration"/>
+<xs:element minOccurs="0" ref="QTInterval"/>
+<xs:element minOccurs="0" ref="QTCorrected"/>
+<xs:element minOccurs="0" ref="PAxis"/>
+<xs:element minOccurs="0" ref="RAxis"/>
+<xs:element minOccurs="0" ref="TAxis"/>
+<xs:element minOccurs="0" ref="QRSCount"/>
+<xs:element minOccurs="0" ref="QOnset"/>
+<xs:element minOccurs="0" ref="QOffset"/>
+<xs:element minOccurs="0" ref="POnset"/>
+<xs:element minOccurs="0" ref="POffset"/>
+<xs:element minOccurs="0" ref="TOffset"/>
+<xs:element ref="ECGSampleBase"/>
+<xs:element ref="ECGSampleExponent"/>
+<xs:element minOccurs="0" ref="QTcFrederica"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="OriginalRestingECGMeasurements">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" ref="SystolicBP"/>
+<xs:element minOccurs="0" ref="DiastolicBP"/>
+<xs:element minOccurs="0" ref="VentricularRate"/>
+<xs:element minOccurs="0" ref="AtrialRate"/>
+<xs:element minOccurs="0" ref="PRInterval"/>
+<xs:element minOccurs="0" ref="QRSDuration"/>
+<xs:element minOccurs="0" ref="QTInterval"/>
+<xs:element minOccurs="0" ref="QTCorrected"/>
+<xs:element minOccurs="0" ref="PAxis"/>
+<xs:element minOccurs="0" ref="RAxis"/>
+<xs:element minOccurs="0" ref="TAxis"/>
+<xs:element minOccurs="0" ref="QRSCount"/>
+<xs:element minOccurs="0" ref="QOnset"/>
+<xs:element minOccurs="0" ref="QOffset"/>
+<xs:element minOccurs="0" ref="POnset"/>
+<xs:element minOccurs="0" ref="POffset"/>
+<xs:element minOccurs="0" ref="TOffset"/>
+<xs:element ref="ECGSampleBase"/>
+<xs:element ref="ECGSampleExponent"/>
+<xs:element minOccurs="0" ref="QTcFrederica"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="SystolicBP" type="xs:string"/>
+<xs:element name="DiastolicBP" type="xs:string"/>
+<xs:element name="VentricularRate" type="xs:string"/>
+<xs:element name="AtrialRate" type="xs:string"/>
+<xs:element name="PRInterval" type="xs:string"/>
+<xs:element name="QRSDuration" type="xs:string"/>
+<xs:element name="QTInterval" type="xs:string"/>
+<xs:element name="QTCorrected" type="xs:string"/>
+<xs:element name="PAxis" type="xs:string"/>
+<xs:element name="RAxis" type="xs:string"/>
+<xs:element name="TAxis" type="xs:string"/>
+<xs:element name="QRSCount" type="xs:string"/>
+<xs:element name="QOnset" type="xs:string"/>
+<xs:element name="QOffset" type="xs:string"/>
+<xs:element name="POnset" type="xs:string"/>
+<xs:element name="POffset" type="xs:string"/>
+<xs:element name="TOffset" type="xs:string"/>
+<xs:element name="ECGSampleBase" type="xs:int"/>
+<xs:element name="ECGSampleExponent" type="xs:int"/>
+<xs:element name="QTcFrederica" type="xs:string"/>
+<xs:element name="MeasurementMatrix" type="xs:string"/>
+<xs:element name="ACITIPIAnalysis">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="ACITIPIAlgorithmVersion"/>
+<xs:element ref="TwelveSLVersion"/>
+<xs:element ref="TIPIScore"/>
+<xs:element minOccurs="0" ref="TIPIChestPain"/>
+<xs:element minOccurs="0" ref="TIPIGender"/>
+<xs:element minOccurs="0" ref="TIPIAgeRange"/>
+<xs:element minOccurs="0" ref="TIPIStatementCodes"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="TIPIStatementCodes">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="TIPIStatement"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="ACITIPIAlgorithmVersion" type="xs:string"/>
+<xs:element name="TwelveSLVersion" type="xs:string"/>
+<xs:element name="TIPIScore" type="xs:string"/>
+<xs:element name="TIPIChestPain" type="xs:string"/>
+<xs:element name="TIPIGender" type="xs:string"/>
+<xs:element name="TIPIAgeRange" type="xs:string"/>
+<xs:element name="TIPIStatement" type="xs:string"/>
+<xs:element name="IntervalMeasurements">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="IntervalMeasurementTimeResolution"/>
+<xs:element ref="IntervalMeasurementAmplitudeResolution"/>
+<xs:element ref="IntervalMeasurementFilter"/>
+<xs:element ref="IntervalMeasurementMode"/>
+<xs:element ref="IntervalMeasurementMethodType"/>
+<xs:choice id="IntervalCalculationChoice" minOccurs="0">
+<xs:sequence id="IntervalCalculationType">
+<xs:element ref="LeadIntervalCalculationMethod"/>
+<xs:element minOccurs="0" ref="BeatIntervalCalculationMethod"/>
+</xs:sequence>
+<xs:sequence>
+<xs:element ref="LeadPOnsetCalculationMethod"/>
+<xs:element ref="LeadPOffsetCalculationMethod"/>
+<xs:element ref="LeadQOnsetCalculationMethod"/>
+<xs:element ref="LeadQOffsetCalculationMethod"/>
+<xs:element ref="LeadTOffsetCalculationMethod"/>
+<xs:sequence minOccurs="0">
+<xs:element ref="BeatPOnsetCalculationMethod"/>
+<xs:element ref="BeatPOffsetCalculationMethod"/>
+<xs:element ref="BeatQOnsetCalculationMethod"/>
+<xs:element ref="BeatQOffsetCalculationMethod"/>
+<xs:element ref="BeatTOffsetCalculationMethod"/>
+</xs:sequence>
+</xs:sequence>
+</xs:choice>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="MeasuredInterval"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="MeasuredInterval">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="IntervalMeasurementLeadID"/>
+<xs:sequence minOccurs="0">
+<xs:element ref="IntervalMeasurementBeatNumber"/>
+<xs:element ref="IntervalMeasurementBeatOffset"/>
+</xs:sequence>
+<xs:element minOccurs="0" ref="IntervalMeasurementPOnset"/>
+<xs:element minOccurs="0" ref="IntervalMeasurementPOffset"/>
+<xs:element ref="IntervalMeasurementQOnset"/>
+<xs:element ref="IntervalMeasurementQOffset"/>
+<xs:element ref="IntervalMeasurementTOffset"/>
+<xs:element minOccurs="0" ref="IntervalMeasurementRRInterval"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="IntervalMeasurementTimeResolution" type="xs:string"/>
+<xs:element name="IntervalMeasurementAmplitudeResolution" type="xs:string"/>
+<xs:element name="IntervalMeasurementFilter" type="xs:string"/>
+<xs:element name="IntervalMeasurementMode" type="xs:string"/>
+<xs:element name="IntervalMeasurementMethodType" type="xs:string"/>
+<xs:element name="LeadIntervalCalculationMethod" type="xs:string"/>
+<xs:element name="BeatIntervalCalculationMethod" type="xs:string"/>
+<xs:element name="LeadPOnsetCalculationMethod" type="xs:string"/>
+<xs:element name="LeadPOffsetCalculationMethod" type="xs:string"/>
+<xs:element name="LeadQOnsetCalculationMethod" type="xs:string"/>
+<xs:element name="LeadQOffsetCalculationMethod" type="xs:string"/>
+<xs:element name="LeadTOffsetCalculationMethod" type="xs:string"/>
+<xs:element name="BeatPOnsetCalculationMethod" type="xs:string"/>
+<xs:element name="BeatPOffsetCalculationMethod" type="xs:string"/>
+<xs:element name="BeatQOnsetCalculationMethod" type="xs:string"/>
+<xs:element name="BeatQOffsetCalculationMethod" type="xs:string"/>
+<xs:element name="BeatTOffsetCalculationMethod" type="xs:string"/>
+<xs:element name="IntervalMeasurementLeadID" type="xs:string"/>
+<xs:element name="IntervalMeasurementBeatNumber" type="xs:string"/>
+<xs:element name="IntervalMeasurementBeatOffset" type="xs:string"/>
+<xs:element name="IntervalMeasurementPOnset" type="xs:string"/>
+<xs:element name="IntervalMeasurementPOffset" type="xs:string"/>
+<xs:element name="IntervalMeasurementQOnset" type="xs:string"/>
+<xs:element name="IntervalMeasurementQOffset" type="xs:string"/>
+<xs:element name="IntervalMeasurementTOffset" type="xs:string"/>
+<xs:element name="IntervalMeasurementRRInterval" type="xs:string"/>
+<xs:element name="QRSTimesTypes">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="QRS"/>
+<xs:element minOccurs="0" ref="GlobalRR"/>
+<xs:element minOccurs="0" ref="QTRGGR"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="QRS">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="Number"/>
+<xs:element ref="Type"/>
+<xs:element ref="Time"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="GlobalRR" type="xs:string"/>
+<xs:element name="QTRGGR" type="xs:string"/>
+<xs:element name="Number" type="xs:string"/>
+<xs:element name="Type" type="xs:string"/>
+<xs:element name="Time" type="xs:string"/>
+<xs:element name="PharmaData">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" ref="PharmaInvestigatorID"/>
+<xs:element minOccurs="0" ref="PharmaDoseType"/>
+<xs:element minOccurs="0" ref="PharmaRRinterval"/>
+<xs:element minOccurs="0" ref="PharmaVisitNumber"/>
+<xs:element minOccurs="0" ref="PharmaVisitType"/>
+<xs:element minOccurs="0" ref="PharmaUniqueECGID"/>
+<xs:element minOccurs="0" ref="PharmaPPinterval"/>
+<xs:element minOccurs="0" ref="PharmaExtendedCartID"/>
+<xs:element minOccurs="0" ref="PharmaCartID"/>
+<xs:element minOccurs="0" ref="PharmaProjectCode"/>
+<xs:element minOccurs="0" ref="PharmaQuestion1"/>
+<xs:element minOccurs="0" ref="PharmaAnswer1"/>
+<xs:element minOccurs="0" ref="PharmaQuestion2"/>
+<xs:element minOccurs="0" ref="PharmaAnswer2"/>
+<xs:element minOccurs="0" ref="PharmaQuestion3"/>
+<xs:element minOccurs="0" ref="PharmaAnswer3"/>
+<xs:element minOccurs="0" ref="PharmaQuestion4"/>
+<xs:element minOccurs="0" ref="PharmaAnswer4"/>
+<xs:element minOccurs="0" ref="PharmaQuestion5"/>
+<xs:element minOccurs="0" ref="PharmaAnswer5"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="PharmaInvestigatorID" type="xs:string"/>
+<xs:element name="PharmaDoseType" type="xs:string"/>
+<xs:element name="PharmaRRinterval" type="xs:string"/>
+<xs:element name="PharmaVisitNumber" type="xs:string"/>
+<xs:element name="PharmaVisitType" type="xs:string"/>
+<xs:element name="PharmaUniqueECGID" type="xs:string"/>
+<xs:element name="PharmaPPinterval" type="xs:string"/>
+<xs:element name="PharmaExtendedCartID" type="xs:string"/>
+<xs:element name="PharmaCartID" type="xs:string"/>
+<xs:element name="PharmaProjectCode" type="xs:string"/>
+<xs:element name="PharmaQuestion1" type="xs:string"/>
+<xs:element name="PharmaAnswer1" type="xs:string"/>
+<xs:element name="PharmaQuestion2" type="xs:string"/>
+<xs:element name="PharmaAnswer2" type="xs:string"/>
+<xs:element name="PharmaQuestion3" type="xs:string"/>
+<xs:element name="PharmaAnswer3" type="xs:string"/>
+<xs:element name="PharmaQuestion4" type="xs:string"/>
+<xs:element name="PharmaAnswer4" type="xs:string"/>
+<xs:element name="PharmaQuestion5" type="xs:string"/>
+<xs:element name="PharmaAnswer5" type="xs:string"/>
+<xs:element name="AmplitudeMeasurements">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="AmplitudeMeasurementMode"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="MeasuredAmplitude"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="MeasuredAmplitude">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="AmplitudeMeasurementLeadID"/>
+<xs:element ref="AmplitudeMeasurementWaveID"/>
+<xs:element minOccurs="0" ref="AmplitudeMeasurementBeatID"/>
+<xs:element ref="AmplitudeMeasurementPeak"/>
+<xs:element ref="AmplitudeMeasurementStart"/>
+<xs:element ref="AmplitudeMeasurementDuration"/>
+<xs:element ref="AmplitudeMeasurementArea"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="AmplitudeMeasurementMode" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementLeadID" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementWaveID" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementBeatID" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementPeak" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementStart" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementDuration" type="xs:string"/>
+<xs:element name="AmplitudeMeasurementArea" type="xs:string"/>
+</xs:schema>
