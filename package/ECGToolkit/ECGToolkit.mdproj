@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ItemType>PackagingProject</ItemType>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C61C0E4F-D5C3-445A-B87A-4C5AC78F0EFA}</ProjectGuid>
+    <Packages>
+      <Packages>
+        <Package name="C# ECG Toolkit (windows)">
+          <Builder targetFile="ECGToolkit-bin.zip" platform="Windows" configuration="Release" ctype="BinariesZipPackageBuilder">
+            <ChildEntries>
+              <SolutionItemReference path="..\..\libs\ECGConversion\ECGConversion\ECGConversion.csproj" />
+              <SolutionItemReference path="..\..\libs\ECGConversion\aECG\aECG.csproj" />
+              <SolutionItemReference path="..\..\libs\ECGConversion\DICOM\DICOM.csproj" />
+              <SolutionItemReference path="..\..\libs\ECGConversion\PDF\PDF.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGPrint\ECGPrint.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGStoreSCU\ECGStoreSCU.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGTool\ECGTool.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGViewer\ECGViewer.csproj" />
+            </ChildEntries>
+            <RootEntry path="..\package.sln" id=":root:" />
+          </Builder>
+        </Package>
+        <Package name="C# ECG Toolkit (other)">
+          <Builder targetFile="ECGToolkit-bin.tar.gz" platform="Linux" configuration="Release" ctype="BinariesZipPackageBuilder">
+            <ChildEntries>
+              <SolutionItemReference path="..\..\libs\ECGConversion\ECGConversion\ECGConversion.csproj" />
+              <SolutionItemReference path="..\..\libs\ECGConversion\aECG\aECG.csproj" />
+              <SolutionItemReference path="..\..\libs\ECGConversion\DICOM\DICOM.csproj" />
+              <SolutionItemReference path="..\..\libs\ECGConversion\PDF\PDF.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGPrint\ECGPrint.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGStoreSCU\ECGStoreSCU.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGTool\ECGTool.csproj" />
+              <SolutionItemReference path="..\..\apps\ECGViewer\ECGViewer.csproj" />
+            </ChildEntries>
+            <RootEntry path="..\package.sln" id=":root:" />
+          </Builder>
+        </Package>
+      </Packages>
+    </Packages>
+    <ReleaseVersion>2.2</ReleaseVersion>
+  </PropertyGroup>
+</Project>
