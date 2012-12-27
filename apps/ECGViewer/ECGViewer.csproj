@@ -54,4 +54,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ECGViewer.resx" />
+    <EmbeddedResource Include="OpenFromECGMS.resx" />
+    <EmbeddedResource Include="SaveToECGMS.resx" />
+    <EmbeddedResource Include="Config.resx" />
+  </ItemGroup>
 </Project>
