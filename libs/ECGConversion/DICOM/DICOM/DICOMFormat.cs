@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,19 @@ namespace ECGConversion.DICOM
 	/// </summary>
 	public sealed class DICOMFormat : IECGFormat, ISignal, IDemographic, IDiagnostic, IGlobalMeasurement
 	{
+		private enum GenerateSequenceNr
+		{
+			// default generate sequence nr values
+			False = 0,
+			True = 1,
+			Always = 2,
+			// Other values that are allowed
+			No = 0,
+			Yes = 1,
+			// value that is not allowed
+			Error = 0xff,
+		}
+
 		private bool _MortaraCompat
 		{
 			get
@@ -57,6 +70,27 @@ namespace ECGConversion.DICOM
 				string uidPrefix = _Config["UID Prefix"];
 
 				return uidPrefix == null ? "1.2.826.0.1.34471.2.44.6." : uidPrefix;
+			}
+		}
+
+		private GenerateSequenceNr _GenerateSequenceNr
+		{
+			get
+			{
+				string cfg = _Config["Generate SequenceNr"];
+
+				if ((cfg == null)
+				||	(cfg.Length == 0))
+				{
+					return GenerateSequenceNr.False;
+				}
+
+				try
+				{
+					return (GenerateSequenceNr) ECGConverter.EnumParse(typeof(GenerateSequenceNr), cfg, true);
+				} catch {}
+
+				return GenerateSequenceNr.Error;
 			}
 		}
 
@@ -79,9 +113,9 @@ namespace ECGConversion.DICOM
 		{
 			Empty();
 
-			string[] mustValue = {"Mortara Compatibility", "UID Prefix"};
+			string[] cfgValue = {"Mortara Compatibility", "UID Prefix", "Generate SequenceNr"};
 
-			_Config = new ECGConfig(mustValue, null, new ECGConversion.ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
+			_Config = new ECGConfig(cfgValue, 2, new ECGConversion.ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			_Config["Mortara Compatibility"] = "false";
 			_Config["UID Prefix"] = "1.2.826.0.1.34471.2.44.6.";
 		}
@@ -95,8 +129,9 @@ namespace ECGConversion.DICOM
 		{
 			try
 			{
-				return (string.Compare(_Config["Mortara Compatibility"], "true", true) == 0)
-					|| (string.Compare(_Config["Mortara Compatibility"], "false", true) == 0);
+				return (_GenerateSequenceNr != GenerateSequenceNr.Error)
+					&& ((string.Compare(_Config["Mortara Compatibility"], "true", true) == 0)
+					||  (string.Compare(_Config["Mortara Compatibility"], "false", true) == 0));
 			}
 			catch {}
 
@@ -965,15 +1000,30 @@ namespace ECGConversion.DICOM
 				_DICOMData.PutTM(Tags.StudyTime, value);
 				_DICOMData.PutTM(Tags.ContentTime, value);
 
-				string uid = "1.2.826.0.1.34471.2.44." + value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat);
+				string
+					val = "1",
+					uid = _UIDPrefix + value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
 
+				// code to generate a sequence nr if not provided or always
+				if ((_GenerateSequenceNr == GenerateSequenceNr.True)
+				||	(_GenerateSequenceNr == GenerateSequenceNr.Always))
+				{
+					Random r = new Random();
+					
+					val = r.Next(1, 9999).ToString();
+
+					_DICOMData.PutST(Tags.AccessionNumber, val);
+				}
+
+				uid += val;
+				
 				FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
 				if (fmi != null)
-					fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + ".1.1");
-
-				_DICOMData.PutUI(Tags.SOPInstanceUID, uid + ".1.1");
-				_DICOMData.PutUI(Tags.StudyInstanceUID, uid + ".1");
-				_DICOMData.PutUI(Tags.SeriesInstanceUID, uid + ".1.2");
+					fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + ".1");
+				
+				_DICOMData.PutUI(Tags.SOPInstanceUID, uid + ".1");
+				_DICOMData.PutUI(Tags.StudyInstanceUID, uid);
+				_DICOMData.PutUI(Tags.SeriesInstanceUID, uid + ".2");
 			}
 		}
 		public ushort BaselineFilter
@@ -1089,7 +1139,26 @@ namespace ECGConversion.DICOM
 			}
 			set
 			{
-				string uid = _UIDPrefix + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + "." + value;
+				string
+					val = value,
+					uid = _UIDPrefix + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
+
+				// code to generate a sequence nr if not provided or always
+				if ((_GenerateSequenceNr == GenerateSequenceNr.Always)
+				||	((_GenerateSequenceNr == GenerateSequenceNr.True))
+				&&	 ((val == null)
+				||	  (val.Length == 0)))
+				{
+					Random r = new Random();
+
+					val = r.Next(1, 9999).ToString();
+				}
+
+				if ((val == null)
+				||	(val.Length == 0))
+					uid += "1";
+				else
+					uid += val;
 
 				FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
 				if (fmi != null)
@@ -1099,7 +1168,14 @@ namespace ECGConversion.DICOM
 				_DICOMData.PutUI(Tags.StudyInstanceUID, uid);
 				_DICOMData.PutUI(Tags.SeriesInstanceUID, uid + ".2");
 
-				_DICOMData.PutST(Tags.AccessionNumber, value);
+				if (val != null)
+				{
+					_DICOMData.PutST(Tags.AccessionNumber, val);
+				}
+				else if (_DICOMData.Get(Tags.AccessionNumber) != null)
+				{
+					_DICOMData.Remove(Tags.AccessionNumber);
+				}
 			}
 		}
 		public string AcqInstitution
@@ -1192,14 +1268,14 @@ namespace ECGConversion.DICOM
 
 					try
 					{
-						if (line != null)
-						{
-							if (annotationGroupNumber < 0)
-								annotationGroupNumber = ds.GetInteger(Tags.AnnotationGroupNumber);
+						if (line == null)
+							line = "";
 
-							if (annotationGroupNumber == ds.GetInteger(Tags.AnnotationGroupNumber))
-								al.Add(line);
-						}
+						if (annotationGroupNumber < 0)
+							annotationGroupNumber = ds.GetInteger(Tags.AnnotationGroupNumber);
+
+						if (annotationGroupNumber == ds.GetInteger(Tags.AnnotationGroupNumber))
+							al.Add(line);
 					}
 					catch
 					{

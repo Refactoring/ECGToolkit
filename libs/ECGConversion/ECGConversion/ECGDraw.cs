@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,9 +56,9 @@ namespace ECGConversion
 		public const int DirtSolutionFactor = 20; // max 20!!
 
 		// Colors for drawing.
-		public static Color SignalColor = Color.Black;
-		public static Color TextColor = Color.Black;
-		public static Color BackColor = Color.Transparent;
+		public static Color SignalColor = Color.FromArgb(255, 0, 0, 0);
+		public static Color TextColor = Color.FromArgb(255, 0, 0, 0);
+		public static Color BackColor =  Color.FromArgb(0, 255, 255, 255); 
 		public static Color GraphColor = Color.FromArgb(255, 187, 187);
 		public static Color GraphSecondColor = Color.FromArgb(255, 229, 229);
 

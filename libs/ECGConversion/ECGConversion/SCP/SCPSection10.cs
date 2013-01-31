@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +28,7 @@ using Communication.IO.Tools;
 namespace ECGConversion.SCP
 {
 	/// <summary>
-	/// Class contains section 10 (contains the Universal ECG interpretive statements section).
+	/// Class contains section 10 (contains the Lead Measurements Result section).
 	/// </summary>
 	public class SCPSection10 : SCPSection, ILeadMeasurement
 	{

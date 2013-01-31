@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -643,7 +644,7 @@ namespace ECGConversion.SCP
 						def = AgeDefinition.Unspecified;
 					break;
 				}
-				return 0;
+				return (val == 0) && (def == AgeDefinition.Unspecified) ? 2 : 0;
 			}
 			return 1;
 		}
@@ -721,7 +722,7 @@ namespace ECGConversion.SCP
 						def = HeightDefinition.Unspecified;
 					break;
 				}
-				return 0;
+				return (val == 0) && (def == HeightDefinition.Unspecified) ? 2 : 0;
 			}
 			return 1;
 		}
@@ -763,7 +764,7 @@ namespace ECGConversion.SCP
 						def = WeightDefinition.Unspecified;
 					break;
 				}
-				return 0;
+				return (val == 0) && (def == WeightDefinition.Unspecified) ? 2 : 0;
 			}
 			return 1;
 		}

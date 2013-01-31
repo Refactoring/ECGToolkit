@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,6 +171,16 @@ namespace ECGConversion.SCP
 						stat.statement[loper] = BytesTool.readString(_Encoding, _Statements[loper].Field, 0, _Statements[loper].Length);
 					}
 				}
+
+				if  ((stat.statement.Length == 1)
+				&&   ((stat.statement[0] == null)
+				||	  (stat.statement[0].Length == 0)))
+				{
+					stat = null;
+
+					return 1;
+				}
+
 				return 0;
 			}
 			return 1;
