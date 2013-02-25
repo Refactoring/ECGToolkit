@@ -42,6 +42,110 @@ namespace ECGConversion.DICOM
 	/// </summary>
 	public sealed class DICOMFormat : IECGFormat, ISignal, IDemographic, IDiagnostic, IGlobalMeasurement
 	{
+		public static int ParseInt(string str)
+		{
+			int ret = int.MinValue;
+
+			if (str != null)
+			{
+				if (str.Contains("."))
+				{
+					if (str.EndsWith("."))
+						str += "0";
+
+					double temp = double.Parse(str, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+
+					if ((temp > int.MaxValue)
+					||	(temp < int.MinValue))
+					{
+						throw new Exception("Value outside the allowed range (int)!");
+					}
+
+					if (temp > 0)
+					{
+						ret = (int) Math.Floor(temp);
+					}
+					else
+					{
+						ret = (int) Math.Ceiling(temp);
+					}
+				}
+				else
+				{
+					ret = int.Parse(str, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				}
+			}
+
+			return ret;
+		}
+
+		public static ushort ParseUShort(string str)
+		{
+			ushort ret = ushort.MinValue;
+			
+			if (str != null)
+			{
+				if (str.Contains("."))
+				{
+					if (str.EndsWith("."))
+						str += "0";
+					
+					double temp = double.Parse(str, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+
+					if ((temp > ushort.MaxValue)
+					||	(temp < ushort.MinValue))
+					{
+						throw new Exception("Value outside the allowed range (ushort)!");
+					}
+
+					if (temp > 0)
+					{
+						ret = (ushort) Math.Floor(temp);
+					}
+					else
+					{
+						ret = (ushort) Math.Ceiling(temp);
+					}
+				}
+				else
+				{
+					ret = ushort.Parse(str, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				}
+			}
+			
+			return ret;
+		}
+
+		public static double ParseDouble(string str)
+		{
+			double ret = double.NaN;
+
+			if (str != null)
+			{
+				if (str.EndsWith("."))
+					str += "0";
+
+				ret = double.Parse(str, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+			}
+
+			return ret;
+		}
+
+		public static float ParseFloat(string str)
+		{
+			float ret = float.NaN;
+			
+			if (str != null)
+			{
+				if (str.EndsWith("."))
+					str += "0";
+				
+				ret = float.Parse(str, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+			}
+			
+			return ret;
+		}
+
 		private enum GenerateSequenceNr
 		{
 			// default generate sequence nr values
@@ -467,7 +571,7 @@ namespace ECGConversion.DICOM
 
 					signals.NrLeads = (byte) waveformSet.GetInteger(Tags.NumberOfWaveformChannels);
                     int nrSamples = (int) waveformSet.GetInteger(Tags.NumberOfWaveformSamples);
-					signals.RhythmSamplesPerSecond = int.Parse(waveformSet.GetString(Tags.SamplingFrequency), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+					signals.RhythmSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
 
 					int ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefInitionSeq), waveformSet.GetInts(Tags.WaveformData), nrSamples, false);
 
@@ -491,7 +595,7 @@ namespace ECGConversion.DICOM
 						&&	(signals.NrLeads == waveformSet.GetInteger(Tags.NumberOfWaveformChannels)))
 						{
 							nrSamples = (int) waveformSet.GetInteger(Tags.NumberOfWaveformSamples);
-							signals.MedianSamplesPerSecond = int.Parse(waveformSet.GetString(Tags.SamplingFrequency), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+							signals.MedianSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
 							signals.MedianLength = (ushort) ((1000 * nrSamples) / signals.MedianSamplesPerSecond);
 
 							ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefInitionSeq), waveformSet.GetInts(Tags.WaveformData), nrSamples, true);
@@ -700,7 +804,7 @@ namespace ECGConversion.DICOM
 			{
 				try
 				{
-					val = ushort.Parse(temp, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+					val = ParseUShort(temp);
 
 					switch (temp[temp.Length-1])
 					{
@@ -796,7 +900,7 @@ namespace ECGConversion.DICOM
 
 			try
 			{
-				double val2 = double.Parse(_DICOMData.GetString(Tags.PatientSize), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				double val2 = ParseDouble(_DICOMData.GetString(Tags.PatientSize));
 
 				if (val >= 0.1)
 				{
@@ -853,7 +957,7 @@ namespace ECGConversion.DICOM
 
 			try
 			{
-				double val2 = double.Parse(_DICOMData.GetString(Tags.PatientWeight), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				double val2 = ParseDouble(_DICOMData.GetString(Tags.PatientWeight));
 
 				if (val2 >= 1.0)
 				{
@@ -1423,7 +1527,7 @@ namespace ECGConversion.DICOM
 					{
 						try
 						{
-							factor = 1000.0f / int.Parse(temp2.GetItem(0).GetString(Tags.SamplingFrequency));
+							factor = 1000.0f / ParseInt(temp2.GetItem(0).GetString(Tags.SamplingFrequency));
 						}
 						catch {}
 					}
@@ -1442,16 +1546,16 @@ namespace ECGConversion.DICOM
 					if (resultAvgRR_PP.GetLength(0) >= 1)
 					{
 						if (resultAvgRR_PP[0, 0] != null)
-							mes.AvgRR = ushort.Parse(resultAvgRR_PP[0, 0], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+							mes.AvgRR = ParseUShort(resultAvgRR_PP[0, 0]);
 
 						if (resultAvgRR_PP[0, 1] != null)
-							mes.AvgPP = ushort.Parse(resultAvgRR_PP[0, 1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+							mes.AvgPP = ParseUShort(resultAvgRR_PP[0, 1]);
 
 						if (resultAvgRR_PP[0, 2] != null)
-							mes.QTc = ushort.Parse(resultAvgRR_PP[0, 2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+							mes.QTc = ParseUShort(resultAvgRR_PP[0, 2]);
 
 						if (resultAvgRR_PP[0, 3] != null)
-							mes.VentRate = ushort.Parse(resultAvgRR_PP[0, 3], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+							mes.VentRate = ParseUShort(resultAvgRR_PP[0, 3]);
 					}
 
 					int end1 = resultMeasurments.GetLength(0),
@@ -1471,7 +1575,7 @@ namespace ECGConversion.DICOM
 							{
 								if (resultMeasurments[i,j] != null)
 								{
-									int temp = int.Parse(resultMeasurments[i, j]);
+									int temp = ParseInt(resultMeasurments[i, j]);
 
 									if (fi[j].FieldType == typeof(ushort))
 									{
@@ -1614,7 +1718,7 @@ namespace ECGConversion.DICOM
 
 					try
 					{
-						MortaraCompat = int.Parse(_DICOMData.Get(Tags.WaveformSeq).GetItem(0).GetString(Tags.SamplingFrequency));
+						MortaraCompat = ParseInt(_DICOMData.Get(Tags.WaveformSeq).GetItem(0).GetString(Tags.SamplingFrequency));
 					}
 					catch {}
 				
@@ -1966,7 +2070,7 @@ namespace ECGConversion.DICOM
 					return float.NaN;
 			}
 
-			return float.Parse(str, System.Globalization.CultureInfo.InvariantCulture);
+			return ParseFloat(str);
 		}
 
 		public int GetWaveform(Signals sigs, DcmElement chDef, int[] data, int nrSamples, bool median)
@@ -2164,7 +2268,7 @@ namespace ECGConversion.DICOM
 
 			try
 			{
-				if (float.Parse(ds.GetString(Tags.ChannelSensitivityCorrectionFactor), System.Globalization.CultureInfo.InvariantCulture.NumberFormat) != 1.0f)
+				if (ParseFloat(ds.GetString(Tags.ChannelSensitivityCorrectionFactor)) != 1.0f)
 					return;
 			}
 			catch
@@ -2201,7 +2305,7 @@ namespace ECGConversion.DICOM
 						break;
 				}
 
-				val *= double.Parse(ds.GetString(Tags.ChannelSensitivity), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				val *= ParseDouble(ds.GetString(Tags.ChannelSensitivity));
 			}
 			catch
 			{
@@ -2210,12 +2314,12 @@ namespace ECGConversion.DICOM
 
 			try
 			{
-				baseline = double.Parse(ds.GetString(Tags.ChannelBaseline), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				baseline = ParseDouble(ds.GetString(Tags.ChannelBaseline));
 			} catch {}
 
 			try
 			{
-				skew = double.Parse(ds.GetString(Tags.ChannelSampleSkew), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				skew = ParseDouble(ds.GetString(Tags.ChannelSampleSkew));
 			} catch {}
 
 			try
@@ -2228,7 +2332,7 @@ namespace ECGConversion.DICOM
 					{
 						string[] temp = ds2.GetString(Tags.CodeValue).Split('-');
 
-						type = (LeadType) int.Parse(temp[temp.Length-1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+						type = (LeadType) ParseInt(temp[temp.Length-1]);
 					}
 					break;
 					case "MDC":
