@@ -1516,9 +1516,9 @@ namespace ECGViewer
 						string temp2 = stat.statement[stat.statement.Length-1];
 
 						if ((temp2 != null)
-						&&	!temp2.StartsWith("Confirmed by")
-						&&	!temp2.StartsWith("Interpreted by")
-						&&	!temp2.StartsWith("Reviewed by"))
+						&&	!temp2.StartsWith("confirmed by", StringComparison.InvariantCultureIgnoreCase)
+						&&	!temp2.StartsWith("interpreted by", StringComparison.InvariantCultureIgnoreCase)
+						&&	!temp2.StartsWith("reviewed by", StringComparison.InvariantCultureIgnoreCase))
 						{
 							if ((format.Demographics.OverreadingPhysician != null)
 							&&	(format.Demographics.OverreadingPhysician.Length != 0))

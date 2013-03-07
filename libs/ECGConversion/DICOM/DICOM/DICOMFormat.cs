@@ -797,7 +797,7 @@ namespace ECGConversion.DICOM
 			{
 				try
 				{
-					val = ParseUShort(temp);
+					val = ParseUShort(temp.Substring(0, temp.Length-1));
 
 					switch (temp[temp.Length-1])
 					{
@@ -814,7 +814,8 @@ namespace ECGConversion.DICOM
 							def = AgeDefinition.Years;
 							break;
 						default:
-							def = AgeDefinition.Unspecified;
+							val = ParseUShort(temp);
+							def = AgeDefinition.Years;
 							break;
 					}
 				}
@@ -1365,14 +1366,22 @@ namespace ECGConversion.DICOM
 
 					try
 					{
+						int currentGroupNumber = ds.GetInteger(Tags.AnnotationGroupNumber);
+
+						if ((line != null)
+						&&	(annotationGroupNumber < currentGroupNumber))
+						{
+							annotationGroupNumber = currentGroupNumber;
+							al.Clear();
+						}
+
 						if (line == null)
 							line = "";
 
-						if (annotationGroupNumber < 0)
-							annotationGroupNumber = ds.GetInteger(Tags.AnnotationGroupNumber);
-
-						if (annotationGroupNumber == ds.GetInteger(Tags.AnnotationGroupNumber))
+						if (annotationGroupNumber == currentGroupNumber)
+						{
 							al.Add(line);
+						}
 					}
 					catch
 					{
