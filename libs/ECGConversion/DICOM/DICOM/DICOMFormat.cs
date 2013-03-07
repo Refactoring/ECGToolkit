@@ -61,7 +61,7 @@ namespace ECGConversion.DICOM
 						throw new Exception("Value outside the allowed range (int)!");
 					}
 
-					if (temp > 0)
+					if (temp >= 0)
 					{
 						ret = (int) Math.Floor(temp);
 					}
@@ -98,14 +98,7 @@ namespace ECGConversion.DICOM
 						throw new Exception("Value outside the allowed range (ushort)!");
 					}
 
-					if (temp > 0)
-					{
-						ret = (ushort) Math.Floor(temp);
-					}
-					else
-					{
-						ret = (ushort) Math.Ceiling(temp);
-					}
+					ret = (ushort) Math.Floor(temp);
 				}
 				else
 				{
@@ -1495,8 +1488,8 @@ namespace ECGConversion.DICOM
 
 		private static int[] s_MeasurementRWC = {1, 0};
 
-		private static string[,] s_AvgRRPPItems = {{"5.10.2.1-3", "5.10.2.1-5", "5.10.2.5-5", "5.10.2.5-1"}, {"RR Interval", "PP Interval", "QTc Interval", "Vent Rate"}};
-		private static string[,] s_AvgRRPPUnits = {{"ms", "ms", "ms", "/min"}, {"milliseconds", "milliseconds", "milliseconds", "heartbeat per minute"}};
+		private static string[,] s_AvgRRPPItems = {{"5.10.2.1-3", "5.10.2.1-5", "5.10.2.5-5", "5.10.2.5-1", "5.13.5-7", "5.13.5-9", "5.13.5-11"}, {"RR Interval", "PP Interval", "QTc Interval", "Vent Rate", "PR Interval", "QRS Duration", "QT Interval"}};
+		private static string[,] s_AvgRRPPUnits = {{"ms", "ms", "ms", "/min", "ms", "ms", "ms"}, {"milliseconds", "milliseconds", "milliseconds", "heartbeat per minute", "milliseconds", "milliseconds", "milliseconds"}};
 
 		private static string[,] s_MeasurementItems = {{"5.10.3-1", "5.10.3-2", "5.10.3-3", "5.10.3-4", "5.10.3-5", "5.10.3-11", "5.10.3-13", "5.10.3-15"}, {"P onset", "P offset", "QRS onset", "QRS offset", "T offset", "P Axis", "QRS Axis", "T Axis"}};
 		private static string[,] s_MeasurementUnits = {{"ms", "ms", "ms", "ms", "ms", "deg", "deg", "deg"}, {"milliseconds", "milliseconds", "milliseconds", "milliseconds", "milliseconds", "degrees", "degrees", "degrees"}};
@@ -1565,11 +1558,17 @@ namespace ECGConversion.DICOM
 					if ((end1 > 0)
 					&&	(end2 == fi.Length))
 					{
+						GlobalMeasurement firstMes = ((mes.measurment != null) && (mes.measurment.Length == 1)) ? mes.measurment[0] : null;
+
 						mes.measurment = new GlobalMeasurement[end1];
+
+						if (firstMes != null)
+							mes.measurment[0] = firstMes;
 
 						for (int i=0;i < end1;i++)
 						{
-							mes.measurment[i] = new GlobalMeasurement();
+							if (mes.measurment[i] == null)
+								mes.measurment[i] = new GlobalMeasurement();
 							
 							for (int j=0;j < end2;j++)
 							{
@@ -1590,10 +1589,27 @@ namespace ECGConversion.DICOM
 											fi[j].SetValue(mes.measurment[i], (short)temp);
 									}
 									else
+									{
 										throw new Exception("Error by developer!");
+									}
 								}
 							}
 						}
+					}
+
+					if (resultAvgRR_PP.GetLength(0) >= 1)
+					{	
+						if ((resultAvgRR_PP[0, 4] != null)
+						&&	(mes.PRint == GlobalMeasurement.NoValue))
+							mes.PRint = ParseUShort(resultAvgRR_PP[0, 4]);
+						
+						if ((resultAvgRR_PP[0, 5] != null)
+						&&	(mes.QRSdur == GlobalMeasurement.NoValue))
+							mes.QRSdur = ParseUShort(resultAvgRR_PP[0, 5]);
+						
+						if ((resultAvgRR_PP[0, 6] != null)
+						&&	(mes.QTdur == GlobalMeasurement.NoValue))
+							mes.QTdur = ParseUShort(resultAvgRR_PP[0, 6]);
 					}
 
 					return 0;
@@ -1668,8 +1684,8 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.13.5-7", "SCPECG", "1.3", "PR Interval");
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 4], "UCUM", "1.4", s_AvgRRPPUnits[1, 4]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 4], "SCPECG", "1.3", s_AvgRRPPItems[1, 4]);
 					
 					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
@@ -1680,8 +1696,8 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.13.5-9", "SCPECG", "1.3", "QRS Duration");
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 5], "UCUM", "1.4", s_AvgRRPPUnits[1, 5]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 5], "SCPECG", "1.3", s_AvgRRPPItems[1, 5]);
 					
 					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
@@ -1692,8 +1708,8 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.13.5-11", "SCPECG", "1.3", "QT Interval");
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 6], "UCUM", "1.4", s_AvgRRPPUnits[1, 6]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 6], "SCPECG", "1.3", s_AvgRRPPItems[1, 6]);
 					
 					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);

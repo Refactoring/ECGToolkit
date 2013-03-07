@@ -63,6 +63,12 @@ namespace ECGConversion.ECGGlobalMeasurements
 				if ((value > 0)
 				&&	(value != NoValue))
 				{
+					if (Ponset == NoValue)
+					{
+						Ponset = 100;
+						Poffset = NoValue;
+					}
+
 					QRSonset = (ushort) (value + Ponset);
 				}
 			}
