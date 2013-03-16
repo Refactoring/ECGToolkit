@@ -191,6 +191,25 @@ namespace ECGConversion.DICOM
 			}
 		}
 
+		private int StartPerBeatMeasurement
+		{
+			get
+			{
+				int ret = 100;
+
+				try
+				{
+					ret = int.Parse(_Config["Start PerBeat Measurement"], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+				}
+				catch
+				{
+					ret = 100;
+				}
+
+				return ret;
+			}
+		}
+
 		public Dataset DICOMData
 		{
 			get
@@ -210,11 +229,12 @@ namespace ECGConversion.DICOM
 		{
 			Empty();
 
-			string[] cfgValue = {"Mortara Compatibility", "UID Prefix", "Generate SequenceNr"};
+			string[] cfgValue = {"Mortara Compatibility", "UID Prefix", "Generate SequenceNr", "Start PerBeat Measurement"};
 
 			_Config = new ECGConfig(cfgValue, 2, new ECGConversion.ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			_Config["Mortara Compatibility"] = "false";
 			_Config["UID Prefix"] = "1.2.826.0.1.34471.2.44.6.";
+			_Config["Start PerBeat Measurement"] = "100";
 		}
 
 		public DICOMFormat(Dataset ds) : this()
@@ -226,7 +246,10 @@ namespace ECGConversion.DICOM
 		{
 			try
 			{
+				int spbm = int.Parse(_Config["Start PerBeat Measurement"], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+
 				return (_GenerateSequenceNr != GenerateSequenceNr.Error)
+					&& (spbm >= 0)
 					&& ((string.Compare(_Config["Mortara Compatibility"], "true", true) == 0)
 					||  (string.Compare(_Config["Mortara Compatibility"], "false", true) == 0));
 			}
@@ -1509,7 +1532,7 @@ namespace ECGConversion.DICOM
 			mes = null;
 
 			string[,] resultAvgRR_PP = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_AvgRRPPItems, s_AvgRRPPUnits, s_MeasurementRWC);
-			string[,] resultMeasurments = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_MeasurementItems, s_MeasurementUnits, s_MeasurementRWC, true);
+			string[,] resultMeasurements = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_MeasurementItems, s_MeasurementUnits, s_MeasurementRWC, true);
 
 			float factor = 1.0f;
 
@@ -1518,9 +1541,9 @@ namespace ECGConversion.DICOM
 				string[,] temp1 = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_MeasurementItems, s_MeasurementUnitsPoints, s_MeasurementRWC, true);
 
 				if ((temp1 != null)
-				&&	((resultMeasurments == null)
-				||	 (resultMeasurments.Length < temp1.Length)
-				||	 (calcNrOfValues(resultMeasurments) < calcNrOfValues(temp1))))
+				&&	((resultMeasurements == null)
+				||	 (resultMeasurements.Length < temp1.Length)
+				||	 (calcNrOfValues(resultMeasurements) < calcNrOfValues(temp1))))
 				{
 					DcmElement temp2 = _DICOMData.Get(Tags.WaveformSeq);
 
@@ -1534,40 +1557,47 @@ namespace ECGConversion.DICOM
 						catch {}
 					}
 
-					resultMeasurments = temp1;
+					resultMeasurements = temp1;
 				}
 			}
 
 			if ((resultAvgRR_PP != null)
-			&&	(resultMeasurments != null))
+			&&	(resultMeasurements != null))
 			{
 				try
 				{
+					int spbm = StartPerBeatMeasurement;
+
 					mes = new GlobalMeasurements();
 
-					if (resultAvgRR_PP.GetLength(0) >= 1)
+					for (int n=0;n < resultAvgRR_PP.GetLength(0);n++)
 					{
-						if (resultAvgRR_PP[0, 0] != null)
-							mes.AvgRR = ParseUShort(resultAvgRR_PP[0, 0]);
+						if ((resultAvgRR_PP[n, 7] != null)
+						&&	(int.Parse(resultAvgRR_PP[n, 7]) >= spbm))
+							continue;
 
-						if (resultAvgRR_PP[0, 1] != null)
-							mes.AvgPP = ParseUShort(resultAvgRR_PP[0, 1]);
+						if (resultAvgRR_PP[n, 0] != null)
+							mes.AvgRR = ParseUShort(resultAvgRR_PP[n, 0]);
 
-						if (resultAvgRR_PP[0, 2] != null)
-							mes.QTc = ParseUShort(resultAvgRR_PP[0, 2]);
+						if (resultAvgRR_PP[n, 1] != null)
+							mes.AvgPP = ParseUShort(resultAvgRR_PP[n, 1]);
 
-						if (resultAvgRR_PP[0, 3] != null)
-							mes.VentRate = ParseUShort(resultAvgRR_PP[0, 3]);
+						if (resultAvgRR_PP[n, 2] != null)
+							mes.QTc = ParseUShort(resultAvgRR_PP[n, 2]);
+
+						if (resultAvgRR_PP[n, 3] != null)
+							mes.VentRate = ParseUShort(resultAvgRR_PP[n, 3]);
 					}
 
-					int end1 = resultMeasurments.GetLength(0),
-						end2 = resultMeasurments.GetLength(1) - 1;
+					int end1 = resultMeasurements.GetLength(0),
+						end2 = resultMeasurements.GetLength(1) - 1;
 					System.Reflection.FieldInfo[] fi = typeof(GlobalMeasurement).GetFields(System.Reflection.BindingFlags.Public | BindingFlags.Instance);
 
 					if ((end1 > 0)
 					&&	(end2 == fi.Length))
 					{
 						GlobalMeasurement firstMes = ((mes.measurment != null) && (mes.measurment.Length == 1)) ? mes.measurment[0] : null;
+						int k = 0;
 
 						mes.measurment = new GlobalMeasurement[end1];
 
@@ -1576,26 +1606,30 @@ namespace ECGConversion.DICOM
 
 						for (int i=0;i < end1;i++)
 						{
-							if (mes.measurment[i] == null)
-								mes.measurment[i] = new GlobalMeasurement();
+							if ((resultMeasurements[i, end2] != null)
+							&&	(int.Parse(resultMeasurements[i, end2]) >= spbm))
+								k++;
+
+							if (mes.measurment[k] == null)
+								mes.measurment[k] = new GlobalMeasurement();
 							
 							for (int j=0;j < end2;j++)
 							{
-								if (resultMeasurments[i,j] != null)
+								if (resultMeasurements[i,j] != null)
 								{
-									int temp = ParseInt(resultMeasurments[i, j]);
+									int temp = ParseInt(resultMeasurements[i, j]);
 
 									if (fi[j].FieldType == typeof(ushort))
 									{
 										if ((temp >= ushort.MinValue)
 										&&	(temp <= ushort.MaxValue))
-											fi[j].SetValue(mes.measurment[i], (ushort)(temp * factor));
+											fi[j].SetValue(mes.measurment[k], (ushort)(temp * factor));
 									}
 									else if (fi[j].FieldType == typeof(short))
 									{
 										if ((temp >= short.MinValue)
 										&&	(temp <= short.MaxValue))
-											fi[j].SetValue(mes.measurment[i], (short)temp);
+											fi[j].SetValue(mes.measurment[k], (short)temp);
 									}
 									else
 									{
@@ -1604,21 +1638,46 @@ namespace ECGConversion.DICOM
 								}
 							}
 						}
+
+						GlobalMeasurement[] tempMes = mes.measurment;
+
+						if ((tempMes != null)
+						&&  ((tempMes.Length != (k+1))
+						||   (tempMes[0] == null)))
+						{
+							if (tempMes[k] != null)
+								k++;
+							if (tempMes[0] == null)
+								k--;
+
+							mes.measurment = new GlobalMeasurement[k];
+							for (int i=0,j=0;(i < tempMes.Length)&&(j < k);i++)
+							{
+								if (tempMes[i] != null)
+								{
+									mes.measurment[j++] = tempMes[i];
+								}
+							}
+						}
 					}
 
-					if (resultAvgRR_PP.GetLength(0) >= 1)
-					{	
-						if ((resultAvgRR_PP[0, 4] != null)
+					for (int n=resultAvgRR_PP.GetLength(0)-1;n >= 0;n--)
+					{
+						if ((resultAvgRR_PP[n, 7] != null)
+						&&	(int.Parse(resultAvgRR_PP[n, 7]) >= spbm))
+							continue;
+
+						if ((resultAvgRR_PP[n, 4] != null)
 						&&	(mes.PRint == GlobalMeasurement.NoValue))
-							mes.PRint = ParseUShort(resultAvgRR_PP[0, 4]);
-						
-						if ((resultAvgRR_PP[0, 5] != null)
+							mes.PRint = ParseUShort(resultAvgRR_PP[n, 4]);
+
+						if ((resultAvgRR_PP[n, 5] != null)
 						&&	(mes.QRSdur == GlobalMeasurement.NoValue))
-							mes.QRSdur = ParseUShort(resultAvgRR_PP[0, 5]);
+							mes.QRSdur = ParseUShort(resultAvgRR_PP[n, 5]);
 						
-						if ((resultAvgRR_PP[0, 6] != null)
+						if ((resultAvgRR_PP[n, 6] != null)
 						&&	(mes.QTdur == GlobalMeasurement.NoValue))
-							mes.QTdur = ParseUShort(resultAvgRR_PP[0, 6]);
+							mes.QTdur = ParseUShort(resultAvgRR_PP[n, 6]);
 					}
 
 					return 0;
@@ -1869,7 +1928,7 @@ namespace ECGConversion.DICOM
 							ds.PutUL(Tags.RefSamplePositions, (mes.measurment[0].Toffset * MortaraCompat) / 1000);
 						}
 
-						annotationGroupNumber = 100;
+						annotationGroupNumber = StartPerBeatMeasurement;
 					}
 
 					System.Reflection.FieldInfo[] fi = mes.measurment[0].GetType().GetFields(System.Reflection.BindingFlags.Public | BindingFlags.Instance);
