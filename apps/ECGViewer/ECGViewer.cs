@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -2058,7 +2058,7 @@ namespace ECGViewer
 									Math.Abs(_LineY1 - _LineY2));
 
 								this.statusBar.Text = Math.Round((Math.Abs(_LineX1 - _LineX2) * 1000 * ECGDraw.mm_Per_Inch) / (ECGDraw.DpiX * 25.0f), 0) + " ms, "
-													+ Math.Round((Math.Abs(_LineY1 - _LineY2) * 1000 * ECGDraw.mm_Per_Inch) / (ECGDraw.DpiY * 10.0f), 0) + " uV";
+													+ Math.Round((Math.Abs(_LineY1 - _LineY2) * 1000 * ECGDraw.mm_Per_Inch) / (ECGDraw.DpiY * _Gain), 0) + " uV";
 							}
 							else
 							{
