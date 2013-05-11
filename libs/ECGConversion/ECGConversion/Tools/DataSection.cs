@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ Written by Maarten JB van Ettinger.
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Communication.IO.Tools
 {
@@ -85,8 +86,8 @@ namespace Communication.IO.Tools
 						if (fiLen != null)
 						{
 							int size = (int)fiLen.GetValue(obj);
-
-							val = BytesTool.readString(buffer, offset, size);
+							
+							val = BytesTool.readString(obj.EncodingOfString, buffer, offset, size);
 
 							if (obj.TypeOfString == StringType.FIXED_LENGTH)
 							{
@@ -94,24 +95,20 @@ namespace Communication.IO.Tools
 							}
 							else
 							{
-								offset++;
+								string val2 = val == null ? "\0" : val + "\0";
 
-								if (val != null)
-								{
-									offset += val.Length;
-								}
+								offset += obj.EncodingOfString.GetByteCount(val2);
 							}
 						}
 						else
 						{
-							val = BytesTool.readString(buffer, offset, length - offset);
+							int maxSize = obj.EncodingOfString.GetMaxCharCount(length - offset);
 
-							offset++;
+							val = BytesTool.readString(obj.EncodingOfString, buffer, offset, maxSize);
+							
+							string val2 = val == null ? "\0" : val + "\0";
 
-							if (val != null)
-							{
-								offset += val.Length;
-							}
+							offset += obj.EncodingOfString.GetByteCount(val2);
 						}
 
 						if ((val != null)
@@ -138,7 +135,7 @@ namespace Communication.IO.Tools
 
 								for (int i=0;i < array.Length;i++)
 								{
-									array[i] = BytesTool.readString(buffer, offset, size);
+									array[i] = BytesTool.readString(obj.EncodingOfString, buffer, offset, size);
 
 									if (obj.TypeOfString == StringType.FIXED_LENGTH)
 									{
@@ -146,12 +143,9 @@ namespace Communication.IO.Tools
 									}
 									else
 									{
-										offset++;
+										string val2 = array[i] == null ? "\0" : array[i] + "\0";
 
-										if (array[i] != null)
-										{
-											offset += array[i].Length;
-										}
+										offset += obj.EncodingOfString.GetByteCount(val2);
 									}
 
 									if ((array[i] != null)
@@ -165,19 +159,13 @@ namespace Communication.IO.Tools
 							{
 								for (int i=0;i < array.Length;i++)
 								{
-									array[i] = BytesTool.readString(buffer, offset, length - offset);
+									int maxSize = obj.EncodingOfString.GetMaxCharCount(length - offset);
 
-									offset++;
+									array[i] = BytesTool.readString(obj.EncodingOfString, buffer, offset, maxSize);
+									
+									string val2 = array[i] == null ? "\0" : array[i] + "\0";
 
-									if (array[i] != null)
-									{
-										offset += array[i].Length;
-								
-										if (array[i].Length == 0)
-										{
-											array[i] = null;
-										}
-									}
+									offset += obj.EncodingOfString.GetByteCount(val2);
 								}
 							}
 						}
@@ -459,41 +447,30 @@ namespace Communication.IO.Tools
 								BytesTool.emptyBuffer(buffer, offset, size, 0);
 
 								if (val != null)
-									BytesTool.writeString(val, buffer, offset, size);
+									BytesTool.writeString(obj.EncodingOfString, val, buffer, offset, size);
 
 								offset += size;
 							}
 							else
 							{
-								if (val != null)
-								{
-									BytesTool.writeString(val, buffer, offset, size);
+								if (val == null)
+									val = "\0";
+							
+								int valLength = obj.EncodingOfString.GetByteCount(val);
+								BytesTool.writeString(obj.EncodingOfString, val, buffer, offset, size);
 
-									offset += val.Length < size ? val.Length + 1 : size;
-
-									if (obj.TypeOfString == StringType.MAX_LENGTH_ZERO_END)
-										buffer[offset-1] = 0;
-								}
-								else
-								{
-									buffer[offset++] = 0;
-								}
+								offset += valLength < size ? valLength : size;
 							}
 						}
 						else
 						{
-							if (val != null)
-							{
-								BytesTool.writeString(val, buffer, offset, length - offset);
+							if (val == null)
+								val = "\0";
+							
+							int valLength = obj.EncodingOfString.GetByteCount(val);
+							BytesTool.writeString(obj.EncodingOfString, val, buffer, offset, length - offset);
 
-								offset += val.Length;
-							}
-							else
-							{
-								buffer[0] = 0;
-							}
-
-							offset++;
+							offset += valLength;
 						}
 					}
 					else if (fieldInfo.FieldType.IsArray
@@ -517,7 +494,7 @@ namespace Communication.IO.Tools
 										BytesTool.emptyBuffer(buffer, offset, size, 0);
 
 										if (array[i] != null)
-											BytesTool.writeString(array[i], buffer, offset, size);
+											BytesTool.writeString(obj.EncodingOfString, array[i], buffer, offset, size);
 
 										offset += size;
 									}
@@ -526,19 +503,15 @@ namespace Communication.IO.Tools
 								{
 									for (int i=0;i < array.Length;i++)
 									{
-										if (array[i] != null)
-										{
-											BytesTool.writeString(array[i], buffer, offset, size);
+										string val = array[i];
+										
+										if (val != null)
+											val = "\0";
 
-											offset += array[i].Length < size ? array[i].Length + 1 : size;
+										int valLength = obj.EncodingOfString.GetByteCount(val);
+										BytesTool.writeString(obj.EncodingOfString, val, buffer, offset, size);
 
-											if (obj.TypeOfString == StringType.MAX_LENGTH_ZERO_END)
-												buffer[offset-1] = 0;
-										}
-										else
-										{
-											buffer[offset++] = 0;
-										}
+										offset += valLength < size ? valLength : size;
 									}
 								}
 							}
@@ -546,18 +519,15 @@ namespace Communication.IO.Tools
 							{
 								for (int i=0;i < array.Length;i++)
 								{
-									if (array[i] != null)
-									{
-										BytesTool.writeString(array[i], buffer, offset, length - offset);
+									string val = array[i];
+									
+									if (val == null)
+										val = "\0";
+							
+									int valLength = obj.EncodingOfString.GetByteCount(val);
+									BytesTool.writeString(obj.EncodingOfString, val, buffer, offset, length - offset);
 
-										offset += array[i].Length;
-									}
-									else
-									{
-										buffer[offset] = 0;
-									}
-
-									offset++;
+									offset += valLength;
 								}
 							}
 						}
@@ -1040,6 +1010,13 @@ namespace Communication.IO.Tools
 		}
 
 		public abstract StringType TypeOfString {get;}
+		public virtual Encoding EncodingOfString
+		{
+			get
+			{
+				return Encoding.ASCII;
+			}
+		}
 		public abstract bool LittleEndian {get;}
 		public virtual int Pack
 		{

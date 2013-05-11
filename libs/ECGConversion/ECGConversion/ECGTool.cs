@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,56 @@ namespace ECGConversion
 		/// </summary>
 		public static int ResampleInterval = 20;
 		public static double[][] Fast = null;
+		
+		public static bool LeadSubtract(short[] leadA, short[] leadB)
+		{
+			if ((leadA != null)
+			&&  (leadB != null)
+			&&	(leadA.Length == leadB.Length))
+			{
+				_LeadSubtract(leadA, leadB, leadA.Length);
+				
+				return true;
+			}
+			
+			return false;
+		}
+		
+		private unsafe static void _LeadSubtract(short[] leadA, short[] leadB, int length)
+		{
+			fixed (short* pLeadA = leadA, pLeadB = leadB)
+			{
+				for (int loper=0;loper < length;loper++)
+				{
+					pLeadA[loper] -= pLeadB[loper];
+				}
+			}
+		}
+		
+		public static bool LeadAdd(short[] leadA, short[] leadB)
+		{
+			if ((leadA != null)
+			&&  (leadB != null)
+			&&	(leadA.Length == leadB.Length))
+			{
+				_LeadAdd(leadA, leadB, leadA.Length);
+				
+				return true;
+			}
+			
+			return false;
+		}
+		
+		private unsafe static void _LeadAdd(short[] leadA, short[] leadB, int length)
+		{
+			fixed (short* pLeadA = leadA, pLeadB = leadB)
+			{
+				for (int loper=0;loper < length;loper++)
+				{
+					pLeadA[loper] += pLeadB[loper];
+				}
+			}
+		}
 
 		/// <summary>
 		/// Calculate four leads from lead I, II and (optionaly) III.
@@ -289,7 +339,7 @@ namespace ECGConversion
 			&&  ((beginI + lengthI) <= totalLength)
 			&&  ((beginX + lengthX) <= totalLength))
 			{
-				return _CalculateLeadaVF(leadI, beginI, lengthI, leadX, beginX, lengthX, totalLength, threeLeads);
+				return _CalculateLeadaVL(leadI, beginI, lengthI, leadX, beginX, lengthX, totalLength, threeLeads);
 			}
 			return null;
 		}

@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,10 +144,19 @@ namespace Communication.IO.Tools
 		{
 			string ret = null;
 			
-			length = stringLength(enc, buffer, offset, length);
-			if (length != 0)
+			int strLen = stringLength(enc, buffer, offset, length);
+			
+			if (strLen != 0)
 			{
+				int maxLen = enc.GetMaxByteCount(strLen);
+				length = (length > maxLen) ? maxLen : length;
 				ret = enc.GetString(buffer, offset, length);
+				
+				if ((ret != null)
+				&&	(ret.Length > strLen))
+				{
+					ret = ret.Substring(0, strLen);
+				}
 			}
 			return ret;
 		}
