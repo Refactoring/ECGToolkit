@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ namespace ECGConversion.MUSEXML
 {
 	public class MUSEXMLFormat : IECGFormat, IDemographic, ISignal, IGlobalMeasurement, IDiagnostic
 	{
-		private const String _TimeFormat = "HH:mm:ss";
-		private const String _DateFormat = "MM/dd/yyyy";
+		private const String _ConstTimeFormat = "HH:mm:ss";
+		private const String _ConstDateFormat = "MM/dd/yyyy";
 		private const double _MinAVM = 0.001;
 		private const int _MinSPS = 5;
 		private const int _MinLength = 1;
@@ -44,13 +44,16 @@ namespace ECGConversion.MUSEXML
 		/// </summary>
 		public MUSEXMLFormat()
 		{
-			_Config = new ECGConfig(new string[]{"Excluded Leads", "Default AVM", "Default SPS", "Default Length", "Default Site"}, 4, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
+			_Config = new ECGConfig(new string[]{"Excluded Leads", "Default AVM", "Default SPS", "Default Length", "Default Site", "Time Format", "Date Format"}, 4, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 
 			_Config["Excluded Leads"] = "III, aVF, aVL, aVR";
 			_Config["Default AVM"] = "4.88";
 			_Config["Default SPS"] = "500";
 			_Config["Default Length"] = "10";
 			_Config["Default Site"] = "1";
+			
+			_Config["Time Format"] = _ConstTimeFormat;
+			_Config["Date Format"] = _ConstDateFormat;
 		}
 
 		public bool _ConfigurationWorks()
@@ -159,6 +162,60 @@ namespace ECGConversion.MUSEXML
 			{
 				return _Config["Default Site"];
 			}
+		}
+		
+		private string _TimeFormat
+		{
+			get
+			{
+				string ret = null;
+				
+				ret = _Config["Time Format"];
+				
+				if ((ret == null)
+				||	(ret.Length == 0))
+					ret = _ConstTimeFormat;
+				
+				return ret;
+			}
+		}
+		
+		private string _DateFormat
+		{
+			get
+			{
+				string ret = null;
+				
+				ret = _Config["Date Format"];
+				
+				if ((ret == null)
+				||	(ret.Length == 0))
+					ret = _ConstDateFormat;
+				
+				return ret;
+			}
+		}
+		
+		private DateTime ParseDateTime(string str)
+		{
+			string[] formats = new string[]{
+				_TimeFormat + " " + _DateFormat,
+				_ConstTimeFormat + " " + _ConstDateFormat,
+				CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern + " " + CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+				CultureInfo.CurrentUICulture.DateTimeFormat.LongTimePattern + " " + CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern};
+			
+			return DateTime.ParseExact(str, formats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None);
+		}
+		
+		private DateTime ParseDate(string str)
+		{
+			string[] formats = new string[]{
+				_DateFormat,
+				_ConstDateFormat,
+				CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+				CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern};
+			
+			return DateTime.ParseExact(str, formats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None);
 		}
 		
 		/// <summary>
@@ -758,7 +815,7 @@ namespace ECGConversion.MUSEXML
 		{
 			get
 			{	
-				return DateTime.ParseExact(_Root.TestDemographics.AcquisitionTime + " " + _Root.TestDemographics.AcquisitionDate, _TimeFormat + " " + _DateFormat, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None);
+				return ParseDateTime(_Root.TestDemographics.AcquisitionTime + " " + _Root.TestDemographics.AcquisitionDate);
 			}
 			set
 			{
@@ -804,16 +861,15 @@ namespace ECGConversion.MUSEXML
 				{
 					try
 					{
-						String[] date = _Root.PatientDemographics.DateofBirth.Split('-', '/');
+						DateTime dt = ParseDate(_Root.PatientDemographics.DateofBirth);
 						
-						if (date.Length == 3)
-						{
-							ret = new Date();
-							
-							ret.Month = (byte) UInt16.Parse(date[0], CultureInfo.InvariantCulture.NumberFormat);
-							ret.Day = (byte) UInt16.Parse(date[1], CultureInfo.InvariantCulture.NumberFormat);
-							ret.Year = UInt16.Parse(date[2], CultureInfo.InvariantCulture.NumberFormat);
-						}
+						ret = new Date();
+						ret.Year = (ushort) dt.Year;
+						ret.Month = (byte) dt.Month;
+						ret.Day = (byte) dt.Day;
+						
+						if (!ret.isExistingDate())
+							ret = null;
 					}
 					catch
 					{
@@ -827,15 +883,14 @@ namespace ECGConversion.MUSEXML
 			{
 				_Root.PatientDemographics.DateofBirth = "";
 				
-				if (value != null)
+				if ((value != null)
+				&&	(value.isExistingDate()))
 				{
 					try
 					{
-						StringBuilder sb = new StringBuilder();
+						DateTime dt = new DateTime(value.Year, value.Month, value.Day);
 						
-						sb.AppendFormat(CultureInfo.InvariantCulture.NumberFormat, "{0:00}/{1:00}/{2:0000}", value.Month, value.Day, value.Year);
-					
-						_Root.PatientDemographics.DateofBirth = sb.ToString();
+						_Root.PatientDemographics.DateofBirth = dt.ToString(_DateFormat, CultureInfo.InvariantCulture.DateTimeFormat);
 					}
 					catch {}
 				}
@@ -846,11 +901,26 @@ namespace ECGConversion.MUSEXML
 		{
 			get
 			{
-				return (ECGConversion.ECGDemographics.Sex) Enum.Parse(typeof(ECGConversion.ECGDemographics.Sex), _Root.PatientDemographics.Gender, true);
+				ECGConversion.ECGDemographics.Sex ret = Sex.Null;
+				
+				if (_Root.PatientDemographics.Gender != null)
+				{
+					if (_Root.PatientDemographics.Gender.Length == 0)
+						ret = ECGConversion.ECGDemographics.Sex.Unspecified;
+					else
+						ret = (ECGConversion.ECGDemographics.Sex) Enum.Parse(typeof(ECGConversion.ECGDemographics.Sex), _Root.PatientDemographics.Gender, true);	
+				}
+				
+				return ret;
 			}
 			set
 			{
-				_Root.PatientDemographics.Gender = value.ToString();
+				if (value == Sex.Null)
+					_Root.PatientDemographics.Gender = null;
+				else if (value == Sex.Unspecified)
+					_Root.PatientDemographics.Gender = "";
+				else
+					_Root.PatientDemographics.Gender = value.ToString();
 			}
 		}
 
@@ -1788,7 +1858,7 @@ namespace ECGConversion.MUSEXML
 					
 					if (stat.interpreted)
 					{
-						stat.time = DateTime.ParseExact(_Root.TestDemographics.EditTime + " " + _Root.TestDemographics.EditDate, _TimeFormat + " " + _DateFormat, CultureInfo.InvariantCulture.DateTimeFormat);
+						stat.time = ParseDateTime(_Root.TestDemographics.EditTime + " " + _Root.TestDemographics.EditDate);
 					}
 				}
 

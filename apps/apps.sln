@@ -1,6 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+# SharpDevelop 4.3
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGPrint", "ECGPrint\ECGPrint.csproj", "{D6BA6917-543C-4198-AA19-54BE3C363EDD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion", "..\libs\ECGConversion\ECGConversion\ECGConversion.csproj", "{F969B245-DCD2-4AF6-AE74-E95F778D2339}"

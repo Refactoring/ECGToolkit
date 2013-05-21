@@ -1,6 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+# SharpDevelop 4.3
 Project("{9344bdbb-3e7f-41fc-a0dd-8665d75ee146}") = "ECGToolkit", "ECGToolkit\ECGToolkit.mdproj", "{C61C0E4F-D5C3-445A-B87A-4C5AC78F0EFA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGConversion", "..\libs\ECGConversion\ECGConversion\ECGConversion.csproj", "{F969B245-DCD2-4AF6-AE74-E95F778D2339}"
@@ -99,6 +100,10 @@ Global
 		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Default|Any CPU.Build.0 = Debug|Any CPU
 		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F969B245-DCD2-4AF6-AE74-E95F778D2339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C61C0E4F-D5C3-445A-B87A-4C5AC78F0EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C61C0E4F-D5C3-445A-B87A-4C5AC78F0EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C61C0E4F-D5C3-445A-B87A-4C5AC78F0EFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C61C0E4F-D5C3-445A-B87A-4C5AC78F0EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = ECGToolkit\ECGToolkit.mdproj
