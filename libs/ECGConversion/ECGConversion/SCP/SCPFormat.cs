@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -584,9 +585,16 @@ namespace ECGConversion.SCP
 						signals[loper].Median = medianData[loper];
 					}
 				}
+				else
+				{
+					// this will make sure that Decoding of rhythm data will work also for strange files
+					signals.MedianAVM = 0;
+					signals.MedianLength = 0;
+					signals.MedianSamplesPerSecond = 0;
+				}
 
 				SCPSection6 rhythm = (SCPSection6) _Default[6];
-				short[][] rhythmData = rhythm.DecodeData((SCPSection2) _Default[2], (SCPSection3) _Default[3], (SCPSection4) _Default[4], ((SCPSection5) _Default[5]).getSamplesPerSecond());
+				short[][] rhythmData = rhythm.DecodeData((SCPSection2) _Default[2], (SCPSection3) _Default[3], (SCPSection4) _Default[4], signals.MedianSamplesPerSecond);
 				signals.RhythmAVM = rhythm.getAVM();
 
 				if (rhythmData == null)

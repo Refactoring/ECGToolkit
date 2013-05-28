@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -192,8 +193,8 @@ namespace ECGConversion.SCP
 				{
 					medianFreq = localFreq;
 				}
-
-				if ((medianFreq % localFreq) != 0
+				
+				if (((medianFreq % localFreq) != 0)
 				||	((medianFreq / localFreq) < 1)
 				||	((medianFreq / localFreq) > 4))
 				{

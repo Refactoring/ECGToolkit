@@ -937,12 +937,12 @@ namespace ECGConversion
 			dst = null;
 			
 			if ((src != null)
-			    &&  (srcFreq > MAX_HOLTER_SPS)
-			    &&  (dstFreq >= MIN_HOLTER_SPS)
-			    &&	(dstFreq <= MAX_HOLTER_SPS)
-			    &&	(startsample >= 0)
-			    &&	(nrsamples > 0)
-			    &&  ((startsample + nrsamples) <= src.Length))
+			&&  (srcFreq > MAX_HOLTER_SPS)
+			&&  (dstFreq >= MIN_HOLTER_SPS)
+			&&	(dstFreq <= MAX_HOLTER_SPS)
+			&&	(startsample >= 0)
+			&&	(nrsamples > 0)
+			&&  ((startsample + nrsamples) <= src.Length))
 			{
 				int dstSize = (nrsamples * dstFreq) / srcFreq;
 				
