@@ -251,6 +251,24 @@ namespace ECGConversion.SCP
 			_Fields = temp;
 		}
 		/// <summary>
+		/// Function to get a field from this section
+		/// </summary>
+		/// <param name="tag">tag to search for</param>
+		/// <returns></returns>
+		public SCPHeaderField GetField(byte tag)
+		{			
+			int pos = _SearchField(tag);
+			
+			if ((_Fields != null)
+			&&	(pos >= 0)
+			&&	(pos < _Fields.Length))
+			{
+				return _Fields[pos];
+			}
+			
+			return null;
+		}
+		/// <summary>
 		/// Function to search for a field with a certain tag.
 		/// </summary>
 		/// <param name="tag">tag to search for</param>

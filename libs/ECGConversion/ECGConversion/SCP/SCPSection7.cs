@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,16 +75,25 @@ namespace ECGConversion.SCP
 
 			if (_NrRefTypeQRS > 0)
 			{
+				if (((offset + (_NrRefTypeQRS * SCPMeasurement.Size)) > end)
+				&&	(_NrSpikes == 0))
+				{
+					_NrRefTypeQRS = (byte) ((end - offset) / SCPMeasurement.Size);
+				}
+				
 				if ((offset + (_NrRefTypeQRS * SCPMeasurement.Size)) > end)
 				{
 					return 0x2;
 				}
-				_Measurements = new SCPMeasurement[_NrRefTypeQRS];
-				for (int loper=0;loper < _NrRefTypeQRS;loper++)
+				else
 				{
-					_Measurements[loper] = new SCPMeasurement();
-					_Measurements[loper].Read(buffer, offset);
-					offset += SCPMeasurement.Size;
+					_Measurements = new SCPMeasurement[_NrRefTypeQRS];
+					for (int loper=0;loper < _NrRefTypeQRS;loper++)
+					{
+						_Measurements[loper] = new SCPMeasurement();
+						_Measurements[loper].Read(buffer, offset);
+						offset += SCPMeasurement.Size;
+					}
 				}
 			}
 			if (_NrSpikes > 0)
