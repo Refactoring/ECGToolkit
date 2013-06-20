@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,6 +34,42 @@ namespace ECGConversion.ISHNE
 			_InputStreamOffset = 0;
 			_InputStream = null;
 			_Signals = null;
+			
+			_Config = new ECGConfig(new string[]{"CRC Validation", "AVM Override"}, 1, null);
+			_Config["CRC Validation"] = "true";
+		}
+		
+		private bool _CRCValidation
+		{
+			get
+			{
+				return string.Compare(_Config["CRC Validation"], "false", true) != 0;
+			}
+		}
+		
+		private double _AVMOverride
+		{
+			get
+			{
+				double ret = -1.0;
+				
+				try
+				{
+					string temp = _Config["AVM Override"];
+					
+					if ((temp != null)
+					&&	(temp.Length > 0))
+					{
+						ret = double.Parse(temp, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+						
+						if (ret <= 0.0)
+							ret = -1.0;
+					}
+				}
+				catch {}
+				
+				return ret;
+			}
 		}
 
 		~ISHNEFormat()
@@ -138,22 +174,38 @@ namespace ECGConversion.ISHNE
 
 							ushort crc = (ushort) BytesTool.readBytes(_HeaderAndVarBlock, MAGIC_NUMBER.Length, SHORT_SIZE, true);
 
-							if (crc == tool.CalcCRCITT(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _HeaderAndVarBlock.Length - BYTES_BEFORE_HEADER))
+							if (!_CRCValidation
+							||	(crc == tool.CalcCRCITT(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _HeaderAndVarBlock.Length - BYTES_BEFORE_HEADER)))
 							{
 								BufferedSignals sigs = new BufferedSignals(this, (byte)_Header.ECGNrLeads);
 
-								double avm = double.MaxValue;
-
-								for (int i=0;i < _Header.ECGNrLeads;i++)
+								// Begin: code that handles overriding of AVM
+								double avm = _AVMOverride;
+								
+								if (avm <= 0.0)
 								{
-									sigs[i] = new Signal();
-									sigs[i].Type = _Header.GetLeadType(i);
+									avm = double.MaxValue;
+									
+									for (int i=0;i < _Header.ECGNrLeads;i++)
+									{
+										sigs[i] = new Signal();
+										sigs[i].Type = _Header.GetLeadType(i);
 
-									double val = _Header.GetLeadAmplitude(i);
+										double val = _Header.GetLeadAmplitude(i);
 
-									if (val < avm)
-										avm = val;
+										if (val < avm)
+											avm = val;
+									}
 								}
+								else
+								{
+									for (int i=0;i < _Header.ECGNrLeads;i++)
+									{
+										sigs[i] = new Signal();
+										sigs[i].Type = _Header.GetLeadType(i);
+									}
+								}
+								// End: code that handles overriding of AVM
 
 								sigs.RhythmAVM = avm;
 								sigs.RhythmSamplesPerSecond = _Header.ECGSampleRate;
@@ -260,7 +312,7 @@ namespace ECGConversion.ISHNE
 
 						if (_Header.Write(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _Header.Size()) != 0)
 							return 0x4;
-
+						
 						CRCTool tool = new CRCTool();
 						tool.Init(CRCTool.CRCCode.CRC_CCITT);
 
@@ -269,11 +321,26 @@ namespace ECGConversion.ISHNE
 						BytesTool.writeBytes(crc, _HeaderAndVarBlock, MAGIC_NUMBER.Length, SHORT_SIZE, true);
 
 						output.Write(_HeaderAndVarBlock, 0, _Header.ECGOffset);
-
+						
+						// Begin: code that handles overriding of AVM
+						double avmOverride = _AVMOverride;
 						int nrLeads = _Signals.NrLeads;
 						double[] avm = new double[nrLeads];
-						for (int i=0;i < nrLeads;i++)
-							avm[i] = _Header.GetLeadAmplitude(i);
+						
+						if (avmOverride <= 0.0)
+						{
+							for (int i=0;i < nrLeads;i++)
+								avm[i] = _Header.GetLeadAmplitude(i);
+						}
+						else
+						{
+							for (int i=0;i < nrLeads;i++)
+							{
+								_Header.ECGLeadResolution[i] = (Int16) (avmOverride * ISHNEHeader.UV_TO_AMPLITUDE);
+								avm[i] = avmOverride;
+							}
+						}
+						// End: code that handles overriding of AVM
 
 						if (_Signals.IsBuffered)
 						{
@@ -392,13 +459,18 @@ namespace ECGConversion.ISHNE
 							}
 
 							input.Position = origin;
-
-							CRCTool tool = new CRCTool();
-							tool.Init(CRCTool.CRCCode.CRC_CCITT);
-
-							ushort crc = (ushort) BytesTool.readBytes(buff, MAGIC_NUMBER.Length, SHORT_SIZE, true);
-
-							return crc == tool.CalcCRCITT(buff, BYTES_BEFORE_HEADER, buff.Length - BYTES_BEFORE_HEADER);
+							
+							if (_CRCValidation)
+							{
+								CRCTool tool = new CRCTool();
+								tool.Init(CRCTool.CRCCode.CRC_CCITT);
+	
+								ushort crc = (ushort) BytesTool.readBytes(buff, MAGIC_NUMBER.Length, SHORT_SIZE, true);
+	
+								return crc == tool.CalcCRCITT(buff, BYTES_BEFORE_HEADER, buff.Length - BYTES_BEFORE_HEADER);
+							}
+							
+							return true;
 						}
 					}
 				}
@@ -636,7 +708,12 @@ namespace ECGConversion.ISHNE
 
 						int pos = leadNr * SHORT_SIZE;
 
-						double leadAVM = _Header.GetLeadAmplitude(leadNr);
+						// Begin: code that handles overriding of AVM
+						double leadAVM = _AVMOverride;
+
+						if (leadAVM <= 0.0)
+							leadAVM = _Header.GetLeadAmplitude(leadNr);
+						// End: code that handles overriding of AVM
 
 						for (int i=0;i < sigs_size;i++)
 						{

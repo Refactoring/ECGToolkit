@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ namespace ECGConversion
 				{
 					Stream input = new FileStream(file, FileMode.Open, FileAccess.Read);
 					ret = Read(input, offset, cfg);
-					input.Close();
 				}
 				catch
 				{

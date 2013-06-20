@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -139,8 +139,6 @@ namespace ECGConversion.ISHNE
 				&& (VarBlockOffset == (Size() + ISHNEFormat.BYTES_BEFORE_HEADER))
 				&& (ECGOffset == (VarBlockSize + VarBlockOffset))
 				&& (FileVersion != EMPTY_VAL)
-				&& (PatientSex >= 0)
-				&& (PatientRace >= 0)
 				&& (PatientBirthdate.Length == DATE_LEN)
 				&& (ECGRecordDate.Length == DATE_LEN)
 				&& (ECGRecordDate[0] != EMPTY_VAL)
@@ -284,7 +282,7 @@ namespace ECGConversion.ISHNE
 			FileVersion = 1;
 
 			PatientSex = 0;
-			PatientRace = 0;
+			PatientRaceCode = 0;
 
 			DateTime now = DateTime.Now;
 

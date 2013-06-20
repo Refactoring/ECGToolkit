@@ -963,6 +963,8 @@ namespace ECGViewer
 				sb.Append("Any ECG File (*.*)|*.*");
 
 				int i=0;
+				
+				System.Collections.ArrayList supportedList = new ArrayList();
 
 				foreach (string format in ECGConverter.Instance.getSupportedFormatsList())
 				{
@@ -970,6 +972,8 @@ namespace ECGViewer
 
 					if (ECGConverter.Instance.hasUnknownReaderSupport(i++))
 					{
+						supportedList.Add(format);
+						
 						sb.Append('|');
 
 						sb.Append(format);
@@ -994,14 +998,37 @@ namespace ECGViewer
 				if ((dr == DialogResult.OK)
 				&&	File.Exists(this.openECGFileDialog.FileName))
 				{
-					if (_ECGReader == null)
-						_ECGReader = new UnknownECGReader();
+					IECGFormat format = null;
+					
+					if (openECGFileDialog.FilterIndex > 1)
+					{
+						string fmt = (string)supportedList[openECGFileDialog.FilterIndex - 2];
+						IECGReader reader = ECGConverter.Instance.getReader(fmt);
+						ECGConfig cfg = ECGConverter.Instance.getConfig(fmt);
+						
+						if (cfg != null)
+						{
+							Config cfgScreen = new Config(fmt, cfg);
 
-					IECGFormat format = _ECGReader.Read(this.openECGFileDialog.FileName);
+							dr = cfgScreen.ShowDialog(this);
+							
+							if (dr != DialogResult.OK)
+								return;
+						}
+							
+						format = reader.Read(this.openECGFileDialog.FileName, 0, cfg);
+					}
+					else
+					{
+						if (_ECGReader == null)
+							_ECGReader = new UnknownECGReader();
+
+						format = _ECGReader.Read(this.openECGFileDialog.FileName);
+					}
 
 					if (format != null)
 					{
-						CurrentECG = format;	
+						CurrentECG = format;
 
 						this.statusBar.Text = "Opened file!";
 					}
