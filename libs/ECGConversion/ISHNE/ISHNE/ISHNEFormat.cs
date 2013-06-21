@@ -307,20 +307,6 @@ namespace ECGConversion.ISHNE
 						{
 							_HeaderAndVarBlock = new byte[_Header.ECGOffset];
 						}
-
-						BytesTool.writeString(MAGIC_NUMBER, _HeaderAndVarBlock, 0, MAGIC_NUMBER.Length);
-
-						if (_Header.Write(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _Header.Size()) != 0)
-							return 0x4;
-						
-						CRCTool tool = new CRCTool();
-						tool.Init(CRCTool.CRCCode.CRC_CCITT);
-
-						ushort crc = tool.CalcCRCITT(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _HeaderAndVarBlock.Length - BYTES_BEFORE_HEADER);
-
-						BytesTool.writeBytes(crc, _HeaderAndVarBlock, MAGIC_NUMBER.Length, SHORT_SIZE, true);
-
-						output.Write(_HeaderAndVarBlock, 0, _Header.ECGOffset);
 						
 						// Begin: code that handles overriding of AVM
 						double avmOverride = _AVMOverride;
@@ -341,6 +327,20 @@ namespace ECGConversion.ISHNE
 							}
 						}
 						// End: code that handles overriding of AVM
+
+						BytesTool.writeString(MAGIC_NUMBER, _HeaderAndVarBlock, 0, MAGIC_NUMBER.Length);
+
+						if (_Header.Write(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _Header.Size()) != 0)
+							return 0x4;
+						
+						CRCTool tool = new CRCTool();
+						tool.Init(CRCTool.CRCCode.CRC_CCITT);
+
+						ushort crc = tool.CalcCRCITT(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _HeaderAndVarBlock.Length - BYTES_BEFORE_HEADER);
+
+						BytesTool.writeBytes(crc, _HeaderAndVarBlock, MAGIC_NUMBER.Length, SHORT_SIZE, true);
+
+						output.Write(_HeaderAndVarBlock, 0, _Header.ECGOffset);
 
 						if (_Signals.IsBuffered)
 						{
