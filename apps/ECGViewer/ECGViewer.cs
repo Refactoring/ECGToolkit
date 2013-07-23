@@ -1417,160 +1417,172 @@ namespace ECGViewer
 			}
 			else
 			{
-				StringBuilder sb = new StringBuilder();
-
-				sb.Append("Name:       ");
-
-				if ((format.Demographics.FirstName != null)
-				&&	(format.Demographics.FirstName.Length != 0))
+				try
 				{
-					sb.Append(format.Demographics.FirstName);
-					sb.Append(" ");
-				}
-
-				sb.Append(format.Demographics.LastName);
-
-				if ((format.Demographics.SecondLastName != null)
-				&&	(format.Demographics.SecondLastName.Length != 0))
-				{
-					sb.Append('-');
-					sb.Append(format.Demographics.SecondLastName);
-				}
-
-				sb.Append('\n');
-				sb.Append("Patient ID: ");
-				sb.Append(format.Demographics.PatientID);
-
-				GlobalMeasurements gms;
-
-				if ((format.GlobalMeasurements != null)
-				&&	(format.GlobalMeasurements.getGlobalMeasurements(out gms) == 0)
-				&&	(gms.measurment != null)
-				&&	(gms.measurment.Length > 0)
-				&&	(gms.measurment[0] != null))
-				{
-					int ventRate = (gms.VentRate == GlobalMeasurement.NoValue) ? 0 : (int) gms.VentRate,
-						PRint = (gms.PRint == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].PRint,
-						QRSdur = (gms.QRSdur == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].QRSdur,
-						QT = (gms.QTdur == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].QTdur,
-						QTc = (gms.QTc == GlobalMeasurement.NoValue) ? 0 : (int) gms.QTc;
-
-					sb.Append("\n\nVent rate:      ");
-					PrintValue(sb, ventRate, 3);
-					sb.Append(" BPM");
-					
-					sb.Append("\nPR int:         ");
-					PrintValue(sb, PRint, 3);
-					sb.Append(" ms");
-
-					sb.Append("\nQRS dur:        ");
-					PrintValue(sb, QRSdur, 3);
-					sb.Append(" ms");
-
-					sb.Append("\nQT\\QTc:     ");
-					PrintValue(sb, QT, 3);
-					sb.Append('/');
-					PrintValue(sb, QTc, 3);
-					sb.Append(" ms");
-
-					sb.Append("\nP-R-T axes: ");
-					sb.Append((gms.measurment[0].Paxis != GlobalMeasurement.NoAxisValue) ? gms.measurment[0].Paxis.ToString() : "999");
-					sb.Append(' ');
-					sb.Append((gms.measurment[0].QRSaxis != GlobalMeasurement.NoAxisValue) ? gms.measurment[0].QRSaxis.ToString() : "999");
-					sb.Append(' ');
-					sb.Append((gms.measurment[0].Taxis != GlobalMeasurement.NoAxisValue) ? gms.measurment[0].Taxis.ToString() : "999");
-				}
-
-				this.labelPatient.Text = sb.ToString();
-
-				sb = new StringBuilder();
-
-				sb.Append("DOB:  ");
-
-				ECGConversion.ECGDemographics.Date birthDate = format.Demographics.PatientBirthDate;
-				if (birthDate != null)
-				{
-					sb.Append(birthDate.Day.ToString("00"));
-					sb.Append(birthDate.Month.ToString("00"));
-					sb.Append(birthDate.Year.ToString("0000"));
-				}
-
-				sb.Append("\nAge:  ");
-
-				ushort ageVal;
-				ECGConversion.ECGDemographics.AgeDefinition ad;
-
-				if (format.Demographics.getPatientAge(out ageVal, out ad) == 0)
-				{
-					sb.Append(ageVal);
-
-					if (ad != ECGConversion.ECGDemographics.AgeDefinition.Years)
+					StringBuilder sb = new StringBuilder();
+	
+					sb.Append("Name:       ");
+	
+					if ((format.Demographics.FirstName != null)
+					&&	(format.Demographics.FirstName.Length != 0))
 					{
+						sb.Append(format.Demographics.FirstName);
 						sb.Append(" ");
-						sb.Append(ad.ToString());
 					}
-				}
-				else
-					sb.Append("0");
-
-				sb.Append("\nGen:  ");
-				if (format.Demographics.Gender != ECGConversion.ECGDemographics.Sex.Null)
-					sb.Append(format.Demographics.Gender.ToString());
-				sb.Append("\nDep:  ");
-				sb.Append(format.Demographics.AcqDepartment);
-
-				this.labelPatientSecond.Text = sb.ToString();
-
-				DateTime dt = format.Demographics.TimeAcquisition;
-
-				this.labelTime.Text = (dt.Year > 1000) ? dt.ToString("dd/MM/yyyy HH:mm:ss") : "Time Unknown";
-
-				Statements stat;
-
-				if ((format.Diagnostics != null)
-				&&	(format.Diagnostics.getDiagnosticStatements(out stat) == 0))
-				{
-					if (stat.statement != null)
+	
+					sb.Append(format.Demographics.LastName);
+	
+					if ((format.Demographics.SecondLastName != null)
+					&&	(format.Demographics.SecondLastName.Length != 0))
 					{
-						sb = new StringBuilder();
-
-						foreach (string temp in stat.statement)
+						sb.Append('-');
+						sb.Append(format.Demographics.SecondLastName);
+					}
+	
+					sb.Append('\n');
+					sb.Append("Patient ID: ");
+					sb.Append(format.Demographics.PatientID);
+	
+					GlobalMeasurements gms;
+	
+					if ((format.GlobalMeasurements != null)
+					&&	(format.GlobalMeasurements.getGlobalMeasurements(out gms) == 0)
+					&&	(gms.measurment != null)
+					&&	(gms.measurment.Length > 0)
+					&&	(gms.measurment[0] != null))
+					{
+						int ventRate = (gms.VentRate == GlobalMeasurement.NoValue) ? 0 : (int) gms.VentRate,
+							PRint = (gms.PRint == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].PRint,
+							QRSdur = (gms.QRSdur == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].QRSdur,
+							QT = (gms.QTdur == GlobalMeasurement.NoValue) ? 0 : (int) gms.measurment[0].QTdur,
+							QTc = (gms.QTc == GlobalMeasurement.NoValue) ? 0 : (int) gms.QTc;
+	
+						sb.Append("\n\nVent rate:      ");
+						PrintValue(sb, ventRate, 3);
+						sb.Append(" BPM");
+						
+						sb.Append("\nPR int:         ");
+						PrintValue(sb, PRint, 3);
+						sb.Append(" ms");
+	
+						sb.Append("\nQRS dur:        ");
+						PrintValue(sb, QRSdur, 3);
+						sb.Append(" ms");
+	
+						sb.Append("\nQT\\QTc:     ");
+						PrintValue(sb, QT, 3);
+						sb.Append('/');
+						PrintValue(sb, QTc, 3);
+						sb.Append(" ms");
+	
+						sb.Append("\nP-R-T axes: ");
+						sb.Append((gms.measurment[0].Paxis != GlobalMeasurement.NoAxisValue) ? gms.measurment[0].Paxis.ToString() : "999");
+						sb.Append(' ');
+						sb.Append((gms.measurment[0].QRSaxis != GlobalMeasurement.NoAxisValue) ? gms.measurment[0].QRSaxis.ToString() : "999");
+						sb.Append(' ');
+						sb.Append((gms.measurment[0].Taxis != GlobalMeasurement.NoAxisValue) ? gms.measurment[0].Taxis.ToString() : "999");
+					}
+	
+					this.labelPatient.Text = sb.ToString();
+	
+					sb = new StringBuilder();
+	
+					sb.Append("DOB:  ");
+	
+					ECGConversion.ECGDemographics.Date birthDate = format.Demographics.PatientBirthDate;
+					if (birthDate != null)
+					{
+						sb.Append(birthDate.Day.ToString("00"));
+						sb.Append(birthDate.Month.ToString("00"));
+						sb.Append(birthDate.Year.ToString("0000"));
+					}
+	
+					sb.Append("\nAge:  ");
+	
+					ushort ageVal;
+					ECGConversion.ECGDemographics.AgeDefinition ad;
+	
+					if (format.Demographics.getPatientAge(out ageVal, out ad) == 0)
+					{
+						sb.Append(ageVal);
+	
+						if (ad != ECGConversion.ECGDemographics.AgeDefinition.Years)
 						{
-							sb.Append(temp);
-							sb.Append("\r\n");
+							sb.Append(" ");
+							sb.Append(ad.ToString());
 						}
+					}
+					else
+						sb.Append("0");
+	
+					sb.Append("\nGen:  ");
+					if (format.Demographics.Gender != ECGConversion.ECGDemographics.Sex.Null)
+						sb.Append(format.Demographics.Gender.ToString());
+					sb.Append("\nDep:  ");
+					sb.Append(format.Demographics.AcqDepartment);
+	
+					this.labelPatientSecond.Text = sb.ToString();
 
-						string temp2 = stat.statement[stat.statement.Length-1];
+					DateTime dt = format.Demographics.TimeAcquisition;
 
-						if ((temp2 != null)
-						&&	!temp2.StartsWith("confirmed by", StringComparison.InvariantCultureIgnoreCase)
-						&&	!temp2.StartsWith("interpreted by", StringComparison.InvariantCultureIgnoreCase)
-						&&	!temp2.StartsWith("reviewed by", StringComparison.InvariantCultureIgnoreCase))
+					this.labelTime.Text = (dt.Year > 1000) ? dt.ToString("dd/MM/yyyy HH:mm:ss") : "Time Unknown";
+	
+					Statements stat;
+	
+					if ((format.Diagnostics != null)
+					&&	(format.Diagnostics.getDiagnosticStatements(out stat) == 0))
+					{
+						if (stat.statement != null)
 						{
-							if ((format.Demographics.OverreadingPhysician != null)
-							&&	(format.Demographics.OverreadingPhysician.Length != 0))
+							sb = new StringBuilder();
+	
+							foreach (string temp in stat.statement)
 							{
-								if (stat.confirmed)
-									sb.Append("Confirmed by ");
-								else if (stat.interpreted)
-									sb.Append("Interpreted by ");
-								else
-									sb.Append("Reviewed by ");
-
-								sb.Append(format.Demographics.OverreadingPhysician);
-
+								sb.Append(temp);
+								sb.Append("\r\n");
 							}
-							else
-								sb.Append("UNCONFIRMED AUTOMATED INTERPRETATION");
+	
+							string temp2 = stat.statement[stat.statement.Length-1];
+	
+							if ((temp2 != null)
+							&&	!temp2.StartsWith("confirmed by", StringComparison.InvariantCultureIgnoreCase)
+							&&	!temp2.StartsWith("interpreted by", StringComparison.InvariantCultureIgnoreCase)
+							&&	!temp2.StartsWith("reviewed by", StringComparison.InvariantCultureIgnoreCase))
+							{
+								if ((format.Demographics.OverreadingPhysician != null)
+								&&	(format.Demographics.OverreadingPhysician.Length != 0))
+								{
+									if (stat.confirmed)
+										sb.Append("Confirmed by ");
+									else if (stat.interpreted)
+										sb.Append("Interpreted by ");
+									else
+										sb.Append("Reviewed by ");
+	
+									sb.Append(format.Demographics.OverreadingPhysician);
+	
+								}
+								else
+									sb.Append("UNCONFIRMED AUTOMATED INTERPRETATION");
+							}
+	
+							this.labelDiagnostic.Text = sb.ToString();
+							this.labelDiagnostic.Visible = true;
 						}
-
-						this.labelDiagnostic.Text = sb.ToString();
-						this.labelDiagnostic.Visible = true;
+					}
+					else
+					{
+						this.labelDiagnostic.Text = "";
 					}
 				}
-				else
+				catch
 				{
+					this.labelPatient.Text = "";
+					this.labelPatientSecond.Text = "";
+					this.labelTime.Text = "";
 					this.labelDiagnostic.Text = "";
+					
+					CurrentECG = null;
 				}
 			}
 		}

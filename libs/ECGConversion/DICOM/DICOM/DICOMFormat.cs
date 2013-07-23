@@ -1586,7 +1586,15 @@ namespace ECGConversion.DICOM
 							mes.QTc = ParseUShort(resultAvgRR_PP[n, 2]);
 
 						if (resultAvgRR_PP[n, 3] != null)
-							mes.VentRate = ParseUShort(resultAvgRR_PP[n, 3]);
+						{
+							ushort temp = ParseUShort(resultAvgRR_PP[n, 3]);
+							
+							if ((temp != mes.VentRate)
+							&&	(temp != GlobalMeasurement.NoValue))
+							{
+								mes.VentRate = temp;
+							}
+						}
 					}
 
 					int end1 = resultMeasurements.GetLength(0),
@@ -1746,6 +1754,18 @@ namespace ECGConversion.DICOM
 					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.AvgPP);
+				}
+				
+				if (mes.VentRate != GlobalMeasurement.NoValue)
+				{
+					Dataset ds = element.AddNewItem();
+
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 3], "UCUM", "1.4", s_AvgRRPPUnits[1, 3]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 3], "SCPECG", "1.3", s_AvgRRPPItems[1, 3]);
+
+					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
+					ds.PutDS(Tags.NumericValue, mes.VentRate);
 				}
 
 				if (mes.PRint != GlobalMeasurement.NoValue)
