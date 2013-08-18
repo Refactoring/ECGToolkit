@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +52,9 @@ namespace ECGTool
 		private bool _Anonymize;
 		private string _PatientId;
 		private SortedList _Config = new SortedList();
+		
+		private int _BufferedSecondsToLoad;
+		private int _BufferedOffsetToLoad;
 
 		public ECGTool()
 		{
@@ -75,6 +79,9 @@ namespace ECGTool
 			_Anonymize = false;
 			_PatientId = null;
 			_Config.Clear();
+			
+			_BufferedSecondsToLoad = 0;
+			_BufferedOffsetToLoad = 0;
 		}
 
 		public void ParseArguments(string[] args)
@@ -170,13 +177,157 @@ namespace ECGTool
 								}
 
 								if ((temp != null)
-									&&	(temp.Length == 2))
+								&&	(temp.Length == 2))
 								{
 									_Config[temp[0]] = temp[1];
 								}
 								else
 								{
 									_Error = "Bad Arguments!";
+									
+									return;
+								}
+							}
+							else if (args[i].StartsWith("-bsl"))
+							{
+								string val = null;
+								
+								// set the nr of seconds to load for buffered signals.
+								if (args[i].Length == 4)
+								{
+									if (args.Length == ++i)
+									{
+										_Error = "Bad Arguments!";
+		
+										return;
+									}
+		
+									val = args[i];
+								}
+								else
+								{
+									val = args[i].Substring(4, args[i].Length - 4);
+								}
+								
+								if (val != null)
+								{
+									if (string.Compare(val, "all", true) == 0)
+									{
+										_BufferedSecondsToLoad = int.MaxValue;
+									}
+									else
+									{
+										try
+										{
+											char B = val[val.Length-1];
+											
+											int nA = 0,
+												nB = 1;
+											
+											if (char.ToLower(B) == 's')
+											{
+												nB = 1;
+												val = val.Substring(0, val.Length-1);
+											}
+											else if (char.ToLower(B) == 'm')
+											{
+												nB = 60;
+												val = val.Substring(0, val.Length-1);
+											}
+											else if (char.ToLower(B) == 'h')
+											{
+												nB = 3600;
+												val = val.Substring(0, val.Length-1);
+											}
+											else if (char.ToLower(B) == 'd')
+											{
+												nB = 86400;
+												val = val.Substring(0, val.Length-1);
+											}
+											else if (char.ToLower(B) == 'w')
+											{
+												nB = 604800;
+												val = val.Substring(0, val.Length-1);
+											}
+											
+											nA = int.Parse(val);
+										
+											_BufferedSecondsToLoad = nA * nB;
+										}
+										catch
+										{
+											_Error = "Bad Arguments!";
+		
+											return;
+										}
+									}
+								}
+							}
+							else if (args[i].StartsWith("-bol"))
+							{
+								string val = null;
+								
+								// set the nr of seconds to load for buffered signals.
+								if (args[i].Length == 4)
+								{
+									if (args.Length == ++i)
+									{
+										_Error = "Bad Arguments!";
+		
+										return;
+									}
+		
+									val = args[i];
+								}
+								else
+								{
+									val = args[i].Substring(4, args[i].Length - 4);
+								}
+								
+								if (val != null)
+								{
+									try
+									{
+										char B = val[val.Length-1];
+		
+										int nA = 0,
+											nB = 1;
+		
+										if (char.ToLower(B) == 's')
+										{
+											nB = 1;
+											val = val.Substring(0, val.Length-1);
+										}
+										else if (char.ToLower(B) == 'm')
+										{
+											nB = 60;
+											val = val.Substring(0, val.Length-1);
+										}
+										else if (char.ToLower(B) == 'h')
+										{
+											nB = 3600;
+											val = val.Substring(0, val.Length-1);
+										}
+										else if (char.ToLower(B) == 'd')
+										{
+											nB = 86400;
+											val = val.Substring(0, val.Length-1);
+										}
+										else if (char.ToLower(B) == 'w')
+										{
+											nB = 604800;
+											val = val.Substring(0, val.Length-1);
+										}
+											
+										nA = int.Parse(val);
+										
+										_BufferedOffsetToLoad = nA * nB;
+									}
+									catch
+									{
+										_Error = "Bad Arguments!";
+										return;
+									}
 								}
 							}
 							else
@@ -275,7 +426,37 @@ namespace ECGTool
 
 						return;
 					}
-
+					
+					if ((_BufferedSecondsToLoad > 0)
+					||	(_BufferedOffsetToLoad > 0))
+					{
+						ECGConversion.ECGSignals.Signals sigs = null;
+						
+						if ((src.Signals.getSignals(out sigs) == 0)
+						&&	sigs.IsBuffered)
+						{
+							ECGConversion.ECGSignals.BufferedSignals bs = (ECGConversion.ECGSignals.BufferedSignals)sigs;
+							
+							int start = 0,
+								end = 0;
+								
+							start = bs.RealRhythmStart + (_BufferedOffsetToLoad * bs.RhythmSamplesPerSecond);
+							end = (_BufferedSecondsToLoad == int.MaxValue) ? _BufferedSecondsToLoad : start + (_BufferedSecondsToLoad * bs.RhythmSamplesPerSecond);
+							
+							if (start > bs.RealRhythmEnd)
+								start = bs.RealRhythmEnd;
+							
+							if (end > bs.RealRhythmEnd)
+								end = bs.RealRhythmEnd;
+								
+							if (start < end)
+							{
+								bs.LoadSignal(start, end);
+								
+								src.Signals.setSignals(bs);
+							}
+						}
+					}
 
 					IECGManagementSystem manSys = _OutFile == null ? null : converter.getECGManagementSystem(_OutType);
 
@@ -499,8 +680,8 @@ namespace ECGTool
 
 					outputECGMS = sb.Length == 0 ? "(none)" : sb.ToString();
 
-					Console.WriteLine("Usage: ECGTool [-A] [-P patid] [-I intype] [-C \"var=val\" [...]] filein [offset] outtype fileout");
-					Console.WriteLine("       ECGTool [-A] [-P patid] [-I intype] [-C \"var=val\" [...]] filein [offset] outecgms");
+					Console.WriteLine("Usage: ECGTool [-A] [-P patid] [-I intype] [-bsl nrsec] [-bol nrsec] [-C \"var=val\" [...]] filein [offset] outtype fileout");
+					Console.WriteLine("       ECGTool [-A] [-P patid] [-I intype] [-bsl nrsec] [-bol nrsec] [-C \"var=val\" [...]] filein [offset] outecgms");
 					Console.WriteLine("       ECGTool -h [outtype | outecgms | intype]");
 					Console.WriteLine();
 					Console.WriteLine("  filein     path to input file");
@@ -511,6 +692,8 @@ namespace ECGTool
 					Console.WriteLine("  -A         anonymize output");
 					Console.WriteLine("  -P patid   specifiy a Patient ID for ECG");
 					Console.WriteLine("  -I intype  specify an input type");
+					Console.WriteLine("  -bsl nrsec buffered seconds to load (add to value: s, m, h, d or w) or use: all");
+					Console.WriteLine("  -bol nrsec buffered seconds offset to load (add to value: s, m, h, d or w)");
 					Console.WriteLine("  -C var=val providing a configuration item");
 				}
 			}

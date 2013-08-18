@@ -1155,11 +1155,17 @@ namespace ECGConversion.DICOM
 				{
 					if (_HighpassFilter == 0)
 					{
-						float filter = GetFilter(_DICOMData.Get(Tags.WaveformSeq).GetItem(0), Tags.FilterLowFrequency) * 100.0f;
+						DcmElement element = _DICOMData.Get(Tags.WaveformSeq);
+						
+						float filter = GetFilter(element != null ? element.GetItem(0) : null, Tags.FilterLowFrequency);
 
-						if ((filter > 0)
-						&&	(filter <= ushort.MaxValue))
-							_HighpassFilter = (ushort) filter;
+						if (!float.IsNaN(filter))
+						{
+							filter *=  100.0f;
+							if ((filter > 0)
+							&&	(filter <= ushort.MaxValue))
+								_HighpassFilter = (ushort) filter;
+						}
 					}
 
 					return _HighpassFilter;
@@ -1181,9 +1187,12 @@ namespace ECGConversion.DICOM
 				{
 					if (_LowpassFilter == 0)
 					{
-						float filter = GetFilter(_DICOMData.Get(Tags.WaveformSeq).GetItem(0), Tags.FilterHighFrequency);
+						DcmElement element = _DICOMData.Get(Tags.WaveformSeq);
+						
+						float filter = GetFilter(element != null ? element.GetItem(0) : null, Tags.FilterHighFrequency);
 
-						if ((filter > 0)
+						if (!float.IsNaN(filter)
+						&&	(filter > 0)
 						&&	(filter <= ushort.MaxValue))
 							_LowpassFilter = (ushort) filter;
 					}
@@ -1196,7 +1205,7 @@ namespace ECGConversion.DICOM
 			}
 			set
 			{
-				_HighpassFilter = value;
+				_LowpassFilter = value;
 			}
 		}
 		public byte FilterBitmap
@@ -1207,24 +1216,27 @@ namespace ECGConversion.DICOM
 				{
 					if (_FilterMap > byte.MaxValue)
 					{
-						byte map = 0;
-
-						Dataset ds = _DICOMData.Get(Tags.WaveformSeq).GetItem(0);
-
-						float filter = GetFilter(ds, Tags.NotchFilterFrequency);
-
-						if (filter == 60.0f)
-							map |= 0x1;
-						else if (filter == 50.0f)
-							map |= 0x2;
-
-						filter = GetFilter(ds, Tags.FilterHighFrequency) * 100;
-					
-						if ((filter >= 0)
-						&&	(filter <= ushort.MaxValue))
-							map |= 0x8;
-
-						_FilterMap = map;
+						DcmElement element = _DICOMData.Get(Tags.WaveformSeq);
+							
+						if (element != null)
+						{
+							byte map = 0;
+							Dataset ds = element.GetItem(0);
+							float filter = GetFilter(ds, Tags.NotchFilterFrequency);
+	
+							if (filter == 60.0f)
+								map |= 0x1;
+							else if (filter == 50.0f)
+								map |= 0x2;
+	
+							filter = GetFilter(ds, Tags.FilterHighFrequency) * 100;
+						
+							if ((filter >= 0)
+							&&	(filter <= ushort.MaxValue))
+								map |= 0x8;
+	
+							_FilterMap = map;
+						}
 					}
 
 					return _FilterMap;
@@ -2156,25 +2168,31 @@ namespace ECGConversion.DICOM
 
 		public float GetFilter(Dataset ds, uint tag)
 		{
-			string str = null;
-
-			DcmElement ele = ds.Get(Tags.ChannelDefInitionSeq);
-
-			for (int i=0;i < ele.vm();i++)
+			if (ds != null)
 			{
-				string temp = ele.GetItem(i).GetString(tag);
+				string str = null;
+	
+				DcmElement ele = ds.Get(Tags.ChannelDefInitionSeq);
+	
+				for (int i=0;i < ele.vm();i++)
+				{
+					string temp = ele.GetItem(i).GetString(tag);
+	
+					if (str == null)
+						str = temp;
+	
+					if (str == null)
+						return float.NaN;;
+	
+					if (string.Compare(str, temp, true) != 0)
+						return float.NaN;
+				}
 
-				if (str == null)
-					str = temp;
-
-				if (str == null)
-					return float.NaN;;
-
-				if (string.Compare(str, temp, true) != 0)
-					return float.NaN;
+				if (str != null)
+					return ParseFloat(str);
 			}
-
-			return ParseFloat(str);
+			
+			return float.NaN;
 		}
 
 		public int GetWaveform(Signals sigs, DcmElement chDef, int[] data, int nrSamples, bool median)
