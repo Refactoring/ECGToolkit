@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -1309,8 +1310,6 @@ namespace ECGConversion
 				err |= (0x1 << 2);
 
 			dst.PatientID = src.PatientID;
-			if (dst.PatientID == null)
-				return -1;
 
 			dst.SecondLastName = src.SecondLastName;
 			if (dst.SecondLastName == null)
@@ -1377,16 +1376,12 @@ namespace ECGConversion
 				err |= (0x1 << 9);
 
 			dst.AcqMachineID = src.AcqMachineID;
-			if (dst.AcqMachineID == null)
-				return -1;
 
 			dst.AnalyzingMachineID = src.AnalyzingMachineID;
 			if (dst.AnalyzingMachineID == null)
 				err |= (0x1 << 10);
 
 			dst.TimeAcquisition = src.TimeAcquisition;
-			if (dst.TimeAcquisition.Year <= 1000)
-				return -1;
 
 			dst.BaselineFilter = src.BaselineFilter;
 			if (dst.BaselineFilter == 0)
@@ -1459,6 +1454,11 @@ namespace ECGConversion
 			dst.StatCode = src.StatCode;
 			if (dst.StatCode == 0xff)
 				err |= (0x1 << 28);
+			
+			if ((dst.PatientID == null)
+			||	(dst.AcqMachineID == null)
+			||	(dst.TimeAcquisition.Year <= 1000))
+				return -1;
 
 			return err;
 		}
