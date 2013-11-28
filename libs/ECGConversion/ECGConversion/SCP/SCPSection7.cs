@@ -151,8 +151,10 @@ namespace ECGConversion.SCP
 
 			int err = _ExtraMeasurements.Read(buffer, offset);
 			offset += _ExtraMeasurements.getLength();
+			
+			// added an extra byte in check to prevent some errors
 			if ((err != 0)
-			||  (offset > end))
+			||  (offset > end+1))
 			{
 				_AfterQRSType = false;
 				_ExtraMeasurements.Empty();
