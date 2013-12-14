@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,7 +74,33 @@ namespace ECGConversion.SCP
 			}
 			if ((offset + sum) > end)
 			{
-				return 0x4;
+				if (_Difference == 0)
+				{
+					// Begin: special correction for SCP-ECG by corpuls
+					int nrBytes = (end - offset);
+					int bytesPerLead = nrBytes / _NrLeads;
+					
+					if ((bytesPerLead < ushort.MaxValue)
+					&&	(((bytesPerLead * 1000) / this.getSamplesPerSecond()) >= 1000))
+					{
+						for (int i=0;i < _NrLeads;i++)
+						{
+							_DataLength[i] = (ushort) bytesPerLead;
+						}
+						
+						// Here is the trick the data length is missing
+						offset -= (_NrLeads << 1);
+					}
+					else
+					{
+						return 0x4;
+					}
+					// End: special correction for SCP-ECG by corpuls
+				}
+				else
+				{
+					return 0x4;
+				}
 			}
 			for (int loper=0;loper < _Data.Length;loper++)
 			{

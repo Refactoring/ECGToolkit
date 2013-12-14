@@ -624,6 +624,34 @@ namespace ECGConversion.SCP
 				{
 					signals.RhythmAVM = rhythm.getAVM();
 					signals.RhythmSamplesPerSecond = rhythm.getSamplesPerSecond();
+					
+					// Begin: special correction for SCP-ECG by corpuls (part 2)
+					if ((_Default[5] != null)
+					&&	_Default[5].Works())
+					{
+						SCPSection5 medianSpecial = (SCPSection5) _Default[5];
+						
+						signals.MedianLength = 1000;
+						signals.MedianAVM = medianSpecial.getAVM();
+						signals.MedianSamplesPerSecond = medianSpecial.getSamplesPerSecond();
+	
+						medianData = medianSpecial.DecodeData((SCPSection2) _Default[2], signals.MedianLength);
+						
+						if (medianData != null)
+						{
+							for (int loper=0;loper < signals.NrLeads;loper++)
+							{
+								signals[loper].Median = medianData[loper];
+							}
+						}
+						else
+						{
+							signals.MedianLength = 0;
+							signals.MedianAVM = 0;
+							signals.MedianSamplesPerSecond = 0;
+						}
+					}
+					// End: special correction for SCP-ECG by corpuls (part 2)
 				}
 
 				for (int loper=0;loper < signals.NrLeads;loper++)
