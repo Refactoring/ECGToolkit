@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2013-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");

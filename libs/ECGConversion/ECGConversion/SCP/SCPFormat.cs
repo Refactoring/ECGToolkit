@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2013-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -605,6 +605,14 @@ namespace ECGConversion.SCP
 				if ((medianData != null)
 				&&  (((SCPSection3) _Default[3]).isMediansUsed()))
 				{
+					// check this because corpuls ECG are in violation of this rule, but don't use median subtraction
+					if (((signals.MedianSamplesPerSecond % signals.RhythmSamplesPerSecond) != 0)
+					||	((signals.MedianSamplesPerSecond / signals.RhythmSamplesPerSecond) < 1)
+					||	((signals.MedianSamplesPerSecond / signals.RhythmSamplesPerSecond) > 4))
+					{
+						return 16;
+					}
+					
 					if (signals.RhythmAVM <= signals.MedianAVM)
 					{
 						ECGTool.ChangeMultiplier(medianData, signals.MedianAVM, signals.RhythmAVM);

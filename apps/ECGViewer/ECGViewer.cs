@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -321,7 +321,10 @@ namespace ECGViewer
 				{
 					CurrentECG = format; 
  
-					this.statusBar.Text = "Opened file!";
+					if (CurrentECG != null)
+					{
+						this.statusBar.Text = "Opened file!";
+					}
 				}
 				else
 				{
@@ -1029,8 +1032,11 @@ namespace ECGViewer
 					if (format != null)
 					{
 						CurrentECG = format;
-
-						this.statusBar.Text = "Opened file!";
+						
+						if (CurrentECG != null)
+						{
+							this.statusBar.Text = "Opened file!";
+						}
 					}
 					else
 					{

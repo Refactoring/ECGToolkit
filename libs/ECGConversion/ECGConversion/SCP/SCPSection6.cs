@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2013-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -198,7 +198,15 @@ namespace ECGConversion.SCP
 				||	((medianFreq / localFreq) < 1)
 				||	((medianFreq / localFreq) > 4))
 				{
-					return null;
+					// make an exception for ECGs that don't use compression (like corpuls ECGs that are in violation of this rule).
+					if (_Bimodal == 0x0)
+					{
+						medianFreq = localFreq;
+					}
+					else
+					{
+						return null;
+					}
 				}
 
 				if ((_Bimodal == 0x1)

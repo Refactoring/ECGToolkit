@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -1194,7 +1194,7 @@ namespace ECGConversion
 			Font fontText = new Font("Verdana", _TextSize, FontStyle.Regular);
 			SolidBrush solidBrush = new SolidBrush(TextColor);
 
-			long lTime = (nTime * 1000) / signals.RhythmSamplesPerSecond;
+			long lTime = (nTime * 1000L) / signals.RhythmSamplesPerSecond;
 
 			DateTime dtTemp = dtRecordTime.AddMilliseconds(lTime);
 
