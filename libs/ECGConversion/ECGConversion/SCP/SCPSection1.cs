@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2013-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ namespace ECGConversion.SCP
 		private static byte[] _MultipleInstanceFields = {10, 13, 30, 32, 35}; // Must be sorted
 		private static ushort _MaximumFieldLength = 64;
 		private static byte[] _MaximumLengthExceptions = {13, 14, 15, 30, 35}; // Must be sorted
-		private static ushort _ExceptionsMaximumLength = 128; // should be 80, but some scp file doen't use this maximum.
+		private static ushort _ExceptionsMaximumLength = 256; // should be 80, but some scp file doen't use this maximum. apparantly 128 wasn't enough as well
 		private static byte _ManufactorField = 0xc8;
 		private static ushort _SectionID = 1;
 		private static byte _DemographicTerminator = 0xff;

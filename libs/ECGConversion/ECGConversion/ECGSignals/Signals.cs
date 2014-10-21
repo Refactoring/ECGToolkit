@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-1014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -315,8 +315,8 @@ namespace ECGConversion.ECGSignals
 				{
 					ECGTool.ResampleLead(sig.Rhythm, this.RhythmSamplesPerSecond, samplesPerSecond, out sig.Rhythm);
 
-					sig.RhythmStart = (int) ((sig.RhythmStart * (long) samplesPerSecond) / this.RhythmSamplesPerSecond);
-					sig.RhythmEnd = (int) ((sig.RhythmEnd * (long) samplesPerSecond) / this.RhythmSamplesPerSecond);
+					sig.RhythmStart = (int) (((long)sig.RhythmStart * (long)samplesPerSecond) / (long)this.RhythmSamplesPerSecond);
+					sig.RhythmEnd = (int) (((long)sig.RhythmEnd * (long)samplesPerSecond) / (long)this.RhythmSamplesPerSecond);
 				}
 
 				if ((this.MedianSamplesPerSecond != 0)
@@ -331,9 +331,9 @@ namespace ECGConversion.ECGSignals
 			{
 				foreach (QRSZone zone in this.QRSZone)
 				{
-					zone.Start = (int) ((zone.Start * (long)samplesPerSecond) / this.MedianSamplesPerSecond);
-					zone.Fiducial = (int) ((zone.Fiducial * (long)samplesPerSecond) / this.MedianSamplesPerSecond);
-					zone.End = (int) ((zone.End * (long)samplesPerSecond) / this.MedianSamplesPerSecond);
+					zone.Start = (int) (((long)zone.Start * (long)samplesPerSecond) / (long)this.MedianSamplesPerSecond);
+					zone.Fiducial = (int) (((long)zone.Fiducial * (long)samplesPerSecond) / (long)this.MedianSamplesPerSecond);
+					zone.End = (int) (((long)zone.End * (long)samplesPerSecond) / (long)this.MedianSamplesPerSecond);
 				}
 			}
 
@@ -346,7 +346,7 @@ namespace ECGConversion.ECGSignals
 			if ((this.MedianSamplesPerSecond != 0)
 			&&	(this.MedianAVM != 0))
 			{
-				this.MedianFiducialPoint = (ushort) ((this.MedianFiducialPoint * (long)samplesPerSecond) / this.MedianSamplesPerSecond);
+				this.MedianFiducialPoint = (ushort) (((long)this.MedianFiducialPoint * (long)samplesPerSecond) / (long)this.MedianSamplesPerSecond);
 
 				this.MedianSamplesPerSecond = samplesPerSecond;
 			}

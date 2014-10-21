@@ -792,7 +792,7 @@ namespace ECGConversion
 			if (!bAllowResample
 			&&  (nOldSamplesPerSecond != 0))
 			{
-				ret = (int) (((long) ret * nOldSamplesPerSecond) / signals.RhythmSamplesPerSecond);
+				ret = (int) (((long)ret * (long)nOldSamplesPerSecond) / (long)signals.RhythmSamplesPerSecond);
 			}
 
 			return ret;
@@ -1162,7 +1162,7 @@ namespace ECGConversion
 
 			if (nOldRhythmSamplesPerSecond != 0)
 			{
-				nEnd = (int) (((long) nEnd * nOldRhythmSamplesPerSecond) / signals.RhythmSamplesPerSecond);
+				nEnd = (int) (((long)nEnd * (long)nOldRhythmSamplesPerSecond) / (long)signals.RhythmSamplesPerSecond);
 			}
 
 			myPen.Dispose();
@@ -1194,7 +1194,7 @@ namespace ECGConversion
 			Font fontText = new Font("Verdana", _TextSize, FontStyle.Regular);
 			SolidBrush solidBrush = new SolidBrush(TextColor);
 
-			long lTime = (nTime * 1000L) / signals.RhythmSamplesPerSecond;
+			long lTime = ((long)nTime * 1000L) / (long)signals.RhythmSamplesPerSecond;
 
 			DateTime dtTemp = dtRecordTime.AddMilliseconds(lTime);
 

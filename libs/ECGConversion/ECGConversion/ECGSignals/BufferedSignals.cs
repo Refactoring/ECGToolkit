@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-1024, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -198,8 +198,12 @@ namespace ECGConversion.ECGSignals
 							short[] temp = null;
 								
 							ECGTool.ResampleLead(this[i].Rhythm, RealRhythmSamplesPerSecond, RhythmSamplesPerSecond, out temp);
-								
-							this[i].RhythmStart = (this[i].RhythmStart * RealRhythmSamplesPerSecond) / RhythmSamplesPerSecond;
+							
+							long overflow_prevent = (long)this[i].RhythmStart;
+							overflow_prevent *= (long)RhythmSamplesPerSecond;
+							overflow_prevent /= (long)RealRhythmSamplesPerSecond;
+
+							this[i].RhythmStart = (int) overflow_prevent;
 							this[i].RhythmEnd = this[i].RhythmStart + temp.Length;
 							this[i].Rhythm = temp;
 						}
