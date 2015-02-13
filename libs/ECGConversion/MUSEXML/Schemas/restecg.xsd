@@ -409,8 +409,8 @@ Changed by Maarten JB van Ettinger.
 <xs:element name="LeadSampleCountTotal" type="xs:int"/>
 <xs:element name="LeadAmplitudeUnitsPerBit" type="xs:decimal"/>
 <xs:element name="LeadAmplitudeUnits" type="xs:string"/>
-<xs:element name="LeadHighLimit" type="xs:unsignedLong"/>
-<xs:element name="LeadLowLimit" type="xs:unsignedLong"/>
+<xs:element name="LeadHighLimit" type="xs:long"/>
+<xs:element name="LeadLowLimit" type="xs:long"/>
 <xs:element name="LeadID" type="xs:string"/>
 <xs:element name="LeadOffsetFirstSample" type="xs:int"/>
 <xs:element name="FirstSampleBaseline" type="xs:int"/>

@@ -2129,9 +2129,9 @@ namespace Schemas {
         
         private string leadAmplitudeUnitsField;
         
-        private ulong leadHighLimitField;
+        private long leadHighLimitField;
         
-        private ulong leadLowLimitField;
+        private long leadLowLimitField;
         
         private string leadIDField;
         
@@ -2210,7 +2210,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public ulong LeadHighLimit {
+        public long LeadHighLimit {
             get {
                 return this.leadHighLimitField;
             }
@@ -2221,7 +2221,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public ulong LeadLowLimit {
+        public long LeadLowLimit {
             get {
                 return this.leadLowLimitField;
             }
