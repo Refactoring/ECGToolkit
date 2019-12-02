@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -169,13 +170,13 @@ namespace ECGConversion.DICOM
 			Error = 0xff,
 		}
 
-		private bool _MortaraCompat
-		{
-			get
-			{
-				return string.Compare(_Config["Mortara Compatibility"], "true", true) == 0;
-			}
-		}
+        private bool _MortaraCompat
+        {
+            get
+            {
+                return _MortaraDiagCompat != MortaraDiagCompat.False;
+            }
+        }
 		
 		private MortaraDiagCompat _MortaraDiagCompat
 		{
@@ -204,9 +205,29 @@ namespace ECGConversion.DICOM
 			{
 				string uidPrefix = _Config["UID Prefix"];
 
-				return uidPrefix == null ? "1.2.826.0.1.34471.2.44.6." : uidPrefix;
+				return uidPrefix == null ? "1.2.826.0.1.34471.2.44.6" : uidPrefix;
 			}
 		}
+
+        private string _SeriesUIDPostfix
+        {
+            get
+            {
+                string uidPostfix = _Config["Series UID Postfix"];
+
+                return uidPostfix == null ? "2" : uidPostfix;
+            }
+        }
+
+        private string _SOPUIDPostfix
+        {
+            get
+            {
+                string uidPostfix = _Config["SOP UID Postfix"];
+
+                return uidPostfix == null ? "1" : uidPostfix;
+            }
+        }
 
 		private GenerateSequenceNr _GenerateSequenceNr
 		{
@@ -267,12 +288,14 @@ namespace ECGConversion.DICOM
 		{
 			Empty();
 
-			string[] cfgValue = {"Mortara Compatibility", "Mortara Diagnostics", "UID Prefix", "Generate SequenceNr", "Start PerBeat Measurement"};
+            string[] cfgValue = { "Mortara Compatibility", "Mortara Diagnostics", "UID Prefix", "Series UID Postfix", "SOP UID Postfix", "Generate SequenceNr", "Start PerBeat Measurement" };
 
 			_Config = new ECGConfig(cfgValue, 2, new ECGConversion.ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			_Config["Mortara Compatibility"] = "false";
 			_Config["Mortara Diagnostics"] = "true";
-			_Config["UID Prefix"] = "1.2.826.0.1.34471.2.44.6.";
+			_Config["UID Prefix"] = "1.2.826.0.1.34471.2.44.6";
+            _Config["Series UID Postfix"] = "0";
+            _Config["SOP UID Postfix"] = "1";
 			_Config["Start PerBeat Measurement"] = "100";
 		}
 
@@ -314,7 +337,7 @@ namespace ECGConversion.DICOM
 				{
 					parser.DcmHandler = _DICOMData.DcmHandler;
 
-					parser.ParseDcmFile(ff, Tags.PixelData);
+					parser.ParseDcmFile(ff, 0xffffffff);
 
 					return CheckFormat(_DICOMData) ? 0 : 2;
 				}
@@ -491,7 +514,7 @@ namespace ECGConversion.DICOM
 				{
 					parser.DcmHandler = _DICOMData.DcmHandler;
 
-					parser.ParseDcmFile(ff, Tags.PixelData);
+                    parser.ParseDcmFile(ff, 0xffffffff);
 
 					return CheckFormat(_DICOMData);
 				}
@@ -613,7 +636,7 @@ namespace ECGConversion.DICOM
 
 		public int getSignalsToObj(Signals signals)
 		{
-			DcmElement waveformElement = _DICOMData.Get(Tags.WaveformSeq);
+			DcmElement waveformElement = _DICOMData.Get(Tags.WaveformSequence);
 
 			try
 			{
@@ -629,7 +652,7 @@ namespace ECGConversion.DICOM
                     int nrSamples = (int) waveformSet.GetInteger(Tags.NumberOfWaveformSamples);
 					signals.RhythmSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
 
-					int ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefInitionSeq), waveformSet.GetInts(Tags.WaveformData), nrSamples, false);
+					int ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefinitionSequence), waveformSet.GetInts(Tags.WaveformData), nrSamples, false);
 
 					if (ret != 0)
 						return (ret > 0 ? 2 + ret : ret);
@@ -654,7 +677,7 @@ namespace ECGConversion.DICOM
 							signals.MedianSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
 							signals.MedianLength = (ushort) ((1000 * nrSamples) / signals.MedianSamplesPerSecond);
 
-							ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefInitionSeq), waveformSet.GetInts(Tags.WaveformData), nrSamples, true);
+							ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefinitionSequence), waveformSet.GetInts(Tags.WaveformData), nrSamples, true);
 
 							if (ret != 0)
 								return (ret > 0 ? 2 + ret : ret);
@@ -671,6 +694,8 @@ namespace ECGConversion.DICOM
 		public int setSignals(Signals signals)
 		{
 			Signals sigs = signals.CalculateTwelveLeads();
+            if (sigs == null)
+                sigs = signals.CalculateFifteenLeads();
 
 			if (sigs != null)
 			{
@@ -694,7 +719,7 @@ namespace ECGConversion.DICOM
 			_FiducialPoint = signals.MedianFiducialPoint;
 			_QRSZone = signals.QRSZone;
 
-			DcmElement waveformElement = _DICOMData.PutSQ(Tags.WaveformSeq);
+			DcmElement waveformElement = _DICOMData.PutSQ(Tags.WaveformSequence);
 
 			Dataset waveformSet = waveformElement.AddNewItem();
 
@@ -741,15 +766,15 @@ namespace ECGConversion.DICOM
 				_DICOMData.PutUI(Tags.SOPInstanceUID, "1.3.6.1.4.1.1.24.04.1985");
 				_DICOMData.PutDA(Tags.StudyDate, "");
 				_DICOMData.PutDA(Tags.ContentDate, "");
-				_DICOMData.PutDT(Tags.AcquisitionDatetime, "");
+				_DICOMData.PutDT(Tags.AcquisitionDateTime, "");
 				_DICOMData.PutTM(Tags.StudyTime, "");
 				_DICOMData.PutTM(Tags.ContentTime, "");
 				_DICOMData.PutSH(Tags.AccessionNumber, "");
 				_DICOMData.PutCS(Tags.Modality, "ECG");
 				_DICOMData.PutLO(Tags.Manufacturer, "");
 				_DICOMData.PutPN(Tags.ReferringPhysicianName, "");
-				_DICOMData.PutPN(Tags.NameOfPhysicianReadingStudy, "");
-				_DICOMData.PutPN(Tags.OperatorName, "");
+				_DICOMData.PutPN(Tags.NameOfPhysiciansReadingStudy, "");
+				_DICOMData.PutPN(Tags.OperatorsName, "");
 				_DICOMData.PutLO(Tags.ManufacturerModelName, "");
 				_DICOMData.PutPN(Tags.PatientName, "");
 				_DICOMData.PutLO(Tags.PatientID, "");
@@ -760,7 +785,7 @@ namespace ECGConversion.DICOM
 				_DICOMData.PutDS(Tags.PatientSize, "");
 				_DICOMData.PutDS(Tags.PatientWeight, "");
 				_DICOMData.PutLO(Tags.DeviceSerialNumber, "");
-				_DICOMData.PutLO(Tags.SoftwareVersion, "");
+				_DICOMData.PutLO(Tags.SoftwareVersions, "");
 				_DICOMData.PutUI(Tags.StudyInstanceUID, "1.1.1.1.1");
 				_DICOMData.PutUI(Tags.SeriesInstanceUID, "1.1.1.1.2");
 				_DICOMData.PutSH(Tags.StudyID, "");
@@ -771,12 +796,12 @@ namespace ECGConversion.DICOM
 				_DICOMData.PutLO(Tags.PatientInstitutionResidence, "");
 				_DICOMData.PutLT(Tags.VisitComments, "");
 
-				DcmElement temp1 = _DICOMData.PutSQ(Tags.AcquisitionContextSeq);
+				DcmElement temp1 = _DICOMData.PutSQ(Tags.AcquisitionContextSequence);
 				Dataset ds = temp1.AddNewItem();
 
 				ds.PutCS(Tags.ValueType, "CODE");
 
-				DcmElement temp2 = ds.PutSQ(Tags.ConceptNameCodeSeq);
+				DcmElement temp2 = ds.PutSQ(Tags.ConceptNameCodeSequence);
 				ds = temp2.AddNewItem();
 
 				ds.PutSH(Tags.CodeValue, "5.4.5-33-1");
@@ -786,7 +811,7 @@ namespace ECGConversion.DICOM
 
 				ds = temp1.GetItem(0);
 				
-				temp2 = ds.PutSQ(Tags.ConceptCodeSeq);
+				temp2 = ds.PutSQ(Tags.ConceptCodeSequence);
 				ds = temp2.AddNewItem();
 
 				ds.PutSH(Tags.CodeValue, "5.4.5-33-1-0");
@@ -796,11 +821,7 @@ namespace ECGConversion.DICOM
 
 				_DICOMData.PutLO(Tags.ReasonForTheRequestedProcedure, "");
 			}
-			catch
-			{
-				int i=0;
-				i++;
-			}
+			catch {}
 
 		}
 		private string getName(int pos)
@@ -831,8 +852,8 @@ namespace ECGConversion.DICOM
 		}
 		public string PatientID
 		{
-			get {return _DICOMData.GetString(Tags.PatientID);}
-			set {if (value != null) _DICOMData.PutLO(Tags.PatientID, value);}
+            get {return _DICOMData.GetString(Tags.PatientID);}
+            set { if (value != null) _DICOMData.PutLO(Tags.PatientID, value); else if (_DICOMData.GetItem(Tags.PatientID) != null) _DICOMData.Remove(Tags.PatientID); }
 		}
 		public string SecondLastName
 		{
@@ -927,6 +948,10 @@ namespace ECGConversion.DICOM
 
 				return 0;
 			}
+            else if (_DICOMData.GetItem(Tags.PatientAge) != null)
+            {
+                _DICOMData.Remove(Tags.PatientAge);
+            }
 
 			return 1;
 		}
@@ -948,6 +973,11 @@ namespace ECGConversion.DICOM
 				{
 					_DICOMData.PutDA(Tags.PatientBirthDate, new DateTime(value.Year, value.Month, value.Day));
 				}
+                else if ((value == null)
+                    &&   (_DICOMData.GetItem(Tags.PatientBirthDate) != null))
+                {
+                    _DICOMData.Remove(Tags.PatientBirthDate);
+                }
 			}
 		}
 		public int getPatientHeight(out ushort val, out HeightDefinition def)
@@ -991,9 +1021,7 @@ namespace ECGConversion.DICOM
 					break;
 				case HeightDefinition.Millimeters:
 					val2 = val * 0.001;
-					break;
-
-					
+					break;	
 			}
 
 			if (val2 > 0)
@@ -1004,6 +1032,11 @@ namespace ECGConversion.DICOM
 
 				return 0;
 			}
+            else if ((val2 == double.MinValue)
+            &&       (_DICOMData.GetItem(Tags.PatientSize)) != null)
+            {
+                _DICOMData.Remove(Tags.PatientSize);
+            }
 
 			return 1;
 		}
@@ -1061,6 +1094,11 @@ namespace ECGConversion.DICOM
 
 				return 0;
 			}
+            else if ((val2 == double.MinValue)
+                &&   (_DICOMData.GetItem(Tags.PatientWeight)) != null)
+            {
+                _DICOMData.Remove(Tags.PatientWeight);
+            }
 
 			return 1;
 		}
@@ -1103,6 +1141,8 @@ namespace ECGConversion.DICOM
 
 					if (sexText != null)
 						_DICOMData.PutCS(Tags.PatientSex, sexText);
+                    else if (_DICOMData.GetItem(Tags.PatientSex) != null)
+                        _DICOMData.Remove(Tags.PatientSex);
 				}
 			}
 		}
@@ -1133,8 +1173,16 @@ namespace ECGConversion.DICOM
 			}
 			set
 			{
-				_DICOMData.PutLO(Tags.Manufacturer, ((DeviceManufactor)value.ManufactorID).ToString());
-				_DICOMData.PutLO(Tags.ManufacturerModelName, BytesTool.readString(value.ModelDescription, 0, value.ModelDescription.Length));
+                if (value != null)
+                {
+                    _DICOMData.PutLO(Tags.Manufacturer, ((DeviceManufactor)value.ManufactorID).ToString());
+                    _DICOMData.PutLO(Tags.ManufacturerModelName, BytesTool.readString(value.ModelDescription, 0, value.ModelDescription.Length));
+                }
+                else
+                {
+                    if (_DICOMData.GetItem(Tags.Manufacturer) != null) _DICOMData.Remove(Tags.Manufacturer);
+                    if (_DICOMData.GetItem(Tags.ManufacturerModelName) != null) _DICOMData.Remove(Tags.ManufacturerModelName);
+                }
 			}
 		}
 		public AcquiringDeviceID AnalyzingMachineID
@@ -1146,7 +1194,7 @@ namespace ECGConversion.DICOM
 		{
 			get
 			{
-				DateTime time = _DICOMData.GetDate(Tags.AcquisitionDatetime);
+				DateTime time = _DICOMData.GetDate(Tags.AcquisitionDateTime);
 
 				if (time.Year <= 1000)
 					time = _DICOMData.GetDate(Tags.AcquisitionDate);
@@ -1157,13 +1205,13 @@ namespace ECGConversion.DICOM
 			{
 				_DICOMData.PutDA(Tags.StudyDate, value);
 				_DICOMData.PutDA(Tags.ContentDate, value);
-				_DICOMData.PutDT(Tags.AcquisitionDatetime, value);
+				_DICOMData.PutDT(Tags.AcquisitionDateTime, value);
 				_DICOMData.PutTM(Tags.StudyTime, value);
 				_DICOMData.PutTM(Tags.ContentTime, value);
 
 				string
 					val = "1",
-					uid = _UIDPrefix + value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
+                    uid = _UIDPrefix + (_UIDPrefix.EndsWith(".") ? "" : ".") + value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
 
 				// code to generate a sequence nr if not provided or always
 				if ((_GenerateSequenceNr == GenerateSequenceNr.True)
@@ -1180,11 +1228,33 @@ namespace ECGConversion.DICOM
 				
 				FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
 				if (fmi != null)
-					fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + ".1");
+                    fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
 				
-				_DICOMData.PutUI(Tags.SOPInstanceUID, uid + ".1");
+                _DICOMData.PutUI(Tags.SOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
 				_DICOMData.PutUI(Tags.StudyInstanceUID, uid);
-				_DICOMData.PutUI(Tags.SeriesInstanceUID, uid + ".2");
+                _DICOMData.PutUI(Tags.SeriesInstanceUID, uid + (_SeriesUIDPostfix.StartsWith(".") ? "" : ".") + _SeriesUIDPostfix);
+
+                if (_SOPUIDPostfix.Contains("."))
+                {
+                    string[] tmp = _SOPUIDPostfix.Split('.');
+
+                    _DICOMData.PutIS(Tags.InstanceNumber, tmp[tmp.Length - 1]);
+                }
+                else
+                {
+                    _DICOMData.PutIS(Tags.InstanceNumber, _SOPUIDPostfix);
+                }
+
+                if (_SeriesUIDPostfix.Contains("."))
+                {
+                    string[] tmp = _SeriesUIDPostfix.Split('.');
+
+                    _DICOMData.PutIS(Tags.SeriesNumber, tmp[tmp.Length - 1]);
+                }
+                else
+                {
+                    _DICOMData.PutIS(Tags.SeriesNumber, _SeriesUIDPostfix);
+                }
 			}
 		}
 		public ushort BaselineFilter
@@ -1195,7 +1265,7 @@ namespace ECGConversion.DICOM
 				{
 					if (_HighpassFilter == 0)
 					{
-						DcmElement element = _DICOMData.Get(Tags.WaveformSeq);
+						DcmElement element = _DICOMData.Get(Tags.WaveformSequence);
 						
 						float filter = GetFilter(element != null ? element.GetItem(0) : null, Tags.FilterLowFrequency);
 
@@ -1227,7 +1297,7 @@ namespace ECGConversion.DICOM
 				{
 					if (_LowpassFilter == 0)
 					{
-						DcmElement element = _DICOMData.Get(Tags.WaveformSeq);
+						DcmElement element = _DICOMData.Get(Tags.WaveformSequence);
 						
 						float filter = GetFilter(element != null ? element.GetItem(0) : null, Tags.FilterHighFrequency);
 
@@ -1256,7 +1326,7 @@ namespace ECGConversion.DICOM
 				{
 					if (_FilterMap > byte.MaxValue)
 					{
-						DcmElement element = _DICOMData.Get(Tags.WaveformSeq);
+						DcmElement element = _DICOMData.Get(Tags.WaveformSequence);
 							
 						if (element != null)
 						{
@@ -1292,8 +1362,8 @@ namespace ECGConversion.DICOM
 		}
 		public string[] FreeTextFields
 		{
-			get {return _DICOMData.GetStrings(Tags.VisitComments);}
-			set {if (value != null) _DICOMData.PutLT(Tags.VisitComments, value);}
+            get {return _DICOMData.GetStrings(Tags.VisitComments);}
+            set { if (value != null) _DICOMData.PutLT(Tags.VisitComments, value); else if (_DICOMData.GetItem(Tags.VisitComments) != null) _DICOMData.Remove(Tags.VisitComments); }
 		}
 		public string SequenceNr
 		{
@@ -1314,7 +1384,7 @@ namespace ECGConversion.DICOM
 			{
 				string
 					val = value,
-					uid = _UIDPrefix + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
+                    uid = _UIDPrefix + (_UIDPrefix.EndsWith(".") ? "" : ".") + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
 
 				// code to generate a sequence nr if not provided or always
 				if ((_GenerateSequenceNr == GenerateSequenceNr.Always)
@@ -1335,11 +1405,33 @@ namespace ECGConversion.DICOM
 
 				FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
 				if (fmi != null)
-					fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + ".1");
+                    fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
 
-				_DICOMData.PutUI(Tags.SOPInstanceUID, uid + ".1");
+                _DICOMData.PutUI(Tags.SOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
 				_DICOMData.PutUI(Tags.StudyInstanceUID, uid);
-				_DICOMData.PutUI(Tags.SeriesInstanceUID, uid + ".2");
+                _DICOMData.PutUI(Tags.SeriesInstanceUID, uid + (_SeriesUIDPostfix.StartsWith(".") ? "" : ".") + _SeriesUIDPostfix);
+
+                if (_SOPUIDPostfix.Contains("."))
+                {
+                    string[] tmp = _SOPUIDPostfix.Split('.');
+
+                    _DICOMData.PutIS(Tags.InstanceNumber, tmp[tmp.Length - 1]);
+                }
+                else
+                {
+                    _DICOMData.PutIS(Tags.InstanceNumber, _SOPUIDPostfix);
+                }
+
+                if (_SeriesUIDPostfix.Contains("."))
+                {
+                    string[] tmp = _SeriesUIDPostfix.Split('.');
+
+                    _DICOMData.PutIS(Tags.SeriesNumber, tmp[tmp.Length - 1]);
+                }
+                else
+                {
+                    _DICOMData.PutIS(Tags.SeriesNumber, _SeriesUIDPostfix);
+                }
 
 				if (val != null)
 				{
@@ -1353,8 +1445,8 @@ namespace ECGConversion.DICOM
 		}
 		public string AcqInstitution
 		{
-			get {return _DICOMData.GetString(Tags.InstitutionName);}
-			set {if (value != null) _DICOMData.PutLO(Tags.InstitutionName, value);}
+            get {return _DICOMData.GetString(Tags.InstitutionName);}
+            set { if (value != null) _DICOMData.PutLO(Tags.InstitutionName, value); else if (_DICOMData.GetItem(Tags.InstitutionName) != null) _DICOMData.Remove(Tags.InstitutionName); }
 		}
 		public string AnalyzingInstitution
 		{
@@ -1363,8 +1455,8 @@ namespace ECGConversion.DICOM
 		}
 		public string AcqDepartment
 		{
-			get {return _DICOMData.GetString(Tags.InstitutionalDepartmentName);}
-			set {if (value != null) _DICOMData.PutLO(Tags.InstitutionalDepartmentName, value);}
+            get {return _DICOMData.GetString(Tags.InstitutionalDepartmentName);}
+            set { if (value != null) _DICOMData.PutLO(Tags.InstitutionalDepartmentName, value); else if (_DICOMData.GetItem(Tags.InstitutionalDepartmentName) != null) _DICOMData.Remove(Tags.InstitutionalDepartmentName); }
 		}
 		public string AnalyzingDepartment
 		{
@@ -1373,48 +1465,48 @@ namespace ECGConversion.DICOM
 		}
 		public string ReferringPhysician
 		{
-			get {return _DICOMData.GetString(Tags.ReferringPhysicianName);}
-			set {if (value != null) _DICOMData.PutPN(Tags.ReferringPhysicianName, value);}
+            get {return _DICOMData.GetString(Tags.ReferringPhysicianName);}
+            set { if (value != null) _DICOMData.PutPN(Tags.ReferringPhysicianName, value); else if (_DICOMData.GetItem(Tags.ReferringPhysicianName) != null) _DICOMData.Remove(Tags.ReferringPhysicianName); }
 		}
 		public string OverreadingPhysician
 		{
-			get {return _DICOMData.GetString(Tags.NameOfPhysicianReadingStudy);}
-			set {if (value != null) _DICOMData.PutPN(Tags.NameOfPhysicianReadingStudy, value);}
+            get {return _DICOMData.GetString(Tags.NameOfPhysiciansReadingStudy);}
+            set { if (value != null) _DICOMData.PutPN(Tags.NameOfPhysiciansReadingStudy, value); else if (_DICOMData.GetItem(Tags.NameOfPhysiciansReadingStudy ) != null) _DICOMData.Remove(Tags.NameOfPhysiciansReadingStudy); }
 		}
 		public string TechnicianDescription
 		{
-			get {return _DICOMData.GetString(Tags.OperatorName);}
-			set {if (value != null) _DICOMData.PutPN(Tags.OperatorName, value);}
+            get {return _DICOMData.GetString(Tags.OperatorsName);}
+            set { if (value != null) _DICOMData.PutPN(Tags.OperatorsName, value); else if (_DICOMData.GetItem(Tags.OperatorsName) != null) _DICOMData.Remove(Tags.OperatorsName); }
 		}
 		public ushort SystolicBloodPressure
 		{
-			get {return 0;}
-			set {}
+            get {return 0;}
+            set {}
 		}
 		public ushort DiastolicBloodPressure
 		{
-			get {return 0;}
-			set {}
+            get {return 0;}
+            set {}
 		}
 		public Drug[] Drugs
 		{
-			get {return null;}
-			set {}
+            get {return null;}
+            set {}
 		}
 		public string[] ReferralIndication
 		{
-			get {return null;}
-			set {}
+            get {return null;}
+            set {}
 		}
 		public string RoomDescription
 		{
-			get {return null;}
-			set {}
+            get {return _DICOMData.GetString(Tags.CurrentPatientLocation);}
+            set { if (value != null) _DICOMData.PutLO(Tags.CurrentPatientLocation, value); else if (_DICOMData.GetItem(Tags.CurrentPatientLocation) != null) _DICOMData.Remove(Tags.CurrentPatientLocation); }
 		}
 		public byte StatCode
 		{
-			get {return 0xff;}
-			set {}
+            get {return 0xff;}
+            set {}
 		}
 		#endregion
 
@@ -1424,7 +1516,7 @@ namespace ECGConversion.DICOM
 		{
 			stat = null;
 
-			DcmElement element = _DICOMData.Get(Tags.AnnotationSeq);
+			DcmElement element = _DICOMData.Get(Tags.WaveformAnnotationSequence);
 
 			int annotationGroupNumber = -1;
 			
@@ -1503,7 +1595,7 @@ namespace ECGConversion.DICOM
 			{
 				MortaraDiagCompat mdc = _MortaraDiagCompat;
 				
-				DcmElement element = _DICOMData.Get(Tags.AnnotationSeq);
+				DcmElement element = _DICOMData.Get(Tags.WaveformAnnotationSequence);
 				
 				Dataset[] itemsToKeep = null;
 
@@ -1511,7 +1603,7 @@ namespace ECGConversion.DICOM
 			
 				if (element == null)
 				{
-					element = _DICOMData.PutSQ(Tags.AnnotationSeq);
+					element = _DICOMData.PutSQ(Tags.WaveformAnnotationSequence);
 				}
 				else
 				{
@@ -1530,7 +1622,11 @@ namespace ECGConversion.DICOM
 							{
 								int temp = ds.GetInteger(Tags.AnnotationGroupNumber);
 								
-								if (annotationGroupNumber <= temp)
+								if ((temp == 0)
+                                &&  (annotationGroupNumber == 0))
+                                    annotationGroupNumber = 5;
+                                else if ((temp >= 5)
+                                    &&   (annotationGroupNumber <= temp))
 									annotationGroupNumber = temp + 1;
 							}
 							else if (ds.Get(Tags.UnformattedTextValue) == null)
@@ -1548,15 +1644,15 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutST(Tags.UnformattedTextValue, line);
 				}
 				
 				if (itemsToKeep != null)
 				{
-					_DICOMData.Remove(Tags.AnnotationSeq);
-					element = _DICOMData.PutSQ(Tags.AnnotationSeq);
+					_DICOMData.Remove(Tags.WaveformAnnotationSequence);
+					element = _DICOMData.PutSQ(Tags.WaveformAnnotationSequence);
 					
 					for (int i=0,nr = itemsToKeep.Length;i < nr;i++)
 					{
@@ -1583,7 +1679,7 @@ namespace ECGConversion.DICOM
 					{
 						Dataset ds = element.AddNewItem();
 	
-						ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+						ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 						ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 						ds.PutST(Tags.UnformattedTextValue, "CONFIRMED REPORT");
 					}
@@ -1591,7 +1687,7 @@ namespace ECGConversion.DICOM
 					{
 						Dataset ds = element.AddNewItem();
 	
-						ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+						ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 						ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 						ds.PutST(Tags.UnformattedTextValue, "UNCONFIRMED REPORT");
 					}
@@ -1620,21 +1716,21 @@ namespace ECGConversion.DICOM
 		{
 			mes = null;
 
-			string[,] resultAvgRR_PP = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_AvgRRPPItems, s_AvgRRPPUnits, s_MeasurementRWC);
-			string[,] resultMeasurements = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_MeasurementItems, s_MeasurementUnits, s_MeasurementRWC, true);
+			string[,] resultAvgRR_PP = GetValues(_DICOMData.Get(Tags.WaveformAnnotationSequence), s_AvgRRPPItems, s_AvgRRPPUnits, s_MeasurementRWC);
+			string[,] resultMeasurements = GetValues(_DICOMData.Get(Tags.WaveformAnnotationSequence), s_MeasurementItems, s_MeasurementUnits, s_MeasurementRWC, true);
 
 			float factor = 1.0f;
 
 			if (resultAvgRR_PP != null)
 			{
-				string[,] temp1 = GetValues(_DICOMData.Get(Tags.AnnotationSeq), s_MeasurementItems, s_MeasurementUnitsPoints, s_MeasurementRWC, true);
+				string[,] temp1 = GetValues(_DICOMData.Get(Tags.WaveformAnnotationSequence), s_MeasurementItems, s_MeasurementUnitsPoints, s_MeasurementRWC, true);
 
 				if ((temp1 != null)
 				&&	((resultMeasurements == null)
 				||	 (resultMeasurements.Length < temp1.Length)
 				||	 (calcNrOfValues(resultMeasurements) < calcNrOfValues(temp1))))
 				{
-					DcmElement temp2 = _DICOMData.Get(Tags.WaveformSeq);
+					DcmElement temp2 = _DICOMData.Get(Tags.WaveformSequence);
 
 					if ((temp2 != null)
 					&&	(temp2.vm() >= 1))
@@ -1793,7 +1889,7 @@ namespace ECGConversion.DICOM
 			if ((mes != null)
 			&&	(mes.measurment != null))
 			{
-				DcmElement element = _DICOMData.Get(Tags.AnnotationSeq);
+				DcmElement element = _DICOMData.Get(Tags.WaveformAnnotationSequence);
 				
 				Dataset[] itemsToKeep = null;
 
@@ -1801,7 +1897,7 @@ namespace ECGConversion.DICOM
 			
 				if (element == null)
 				{
-					element = _DICOMData.PutSQ(Tags.AnnotationSeq);
+					element = _DICOMData.PutSQ(Tags.WaveformAnnotationSequence);
 				}
 				else
 				{
@@ -1839,8 +1935,8 @@ namespace ECGConversion.DICOM
 				
 				if (itemsToKeep != null)
 				{
-					_DICOMData.Remove(Tags.AnnotationSeq);
-					element = _DICOMData.PutSQ(Tags.AnnotationSeq);
+					_DICOMData.Remove(Tags.WaveformAnnotationSequence);
+					element = _DICOMData.PutSQ(Tags.WaveformAnnotationSequence);
 					
 					for (int i=0,nr = itemsToKeep.Length;i < nr;i++)
 					{
@@ -1855,10 +1951,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 0], "UCUM", "1.4", s_AvgRRPPUnits[1, 0]);
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 0], "SCPECG", "1.3", s_AvgRRPPItems[1, 0]);
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, s_AvgRRPPUnits[0, 0], "UCUM", "1.4", s_AvgRRPPUnits[1, 0]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_AvgRRPPItems[0, 0], "SCPECG", "1.3", s_AvgRRPPItems[1, 0]);
 
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.AvgRR);
 				}
@@ -1867,10 +1963,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 1], "UCUM", "1.4", s_AvgRRPPUnits[1, 1]);
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 1], "SCPECG", "1.3", s_AvgRRPPItems[1, 1]);
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, s_AvgRRPPUnits[0, 1], "UCUM", "1.4", s_AvgRRPPUnits[1, 1]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_AvgRRPPItems[0, 1], "SCPECG", "1.3", s_AvgRRPPItems[1, 1]);
 
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.AvgPP);
 				}
@@ -1879,10 +1975,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 3], "UCUM", "1.4", s_AvgRRPPUnits[1, 3]);
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 3], "SCPECG", "1.3", s_AvgRRPPItems[1, 3]);
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, s_AvgRRPPUnits[0, 3], "UCUM", "1.4", s_AvgRRPPUnits[1, 3]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_AvgRRPPItems[0, 3], "SCPECG", "1.3", s_AvgRRPPItems[1, 3]);
 
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.VentRate);
 				}
@@ -1891,10 +1987,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 4], "UCUM", "1.4", s_AvgRRPPUnits[1, 4]);
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 4], "SCPECG", "1.3", s_AvgRRPPItems[1, 4]);
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, s_AvgRRPPUnits[0, 4], "UCUM", "1.4", s_AvgRRPPUnits[1, 4]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_AvgRRPPItems[0, 4], "SCPECG", "1.3", s_AvgRRPPItems[1, 4]);
 					
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.PRint);
 				}
@@ -1903,10 +1999,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 5], "UCUM", "1.4", s_AvgRRPPUnits[1, 5]);
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 5], "SCPECG", "1.3", s_AvgRRPPItems[1, 5]);
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, s_AvgRRPPUnits[0, 5], "UCUM", "1.4", s_AvgRRPPUnits[1, 5]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_AvgRRPPItems[0, 5], "SCPECG", "1.3", s_AvgRRPPItems[1, 5]);
 					
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.QRSdur);
 				}
@@ -1915,10 +2011,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, s_AvgRRPPUnits[0, 6], "UCUM", "1.4", s_AvgRRPPUnits[1, 6]);
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_AvgRRPPItems[0, 6], "SCPECG", "1.3", s_AvgRRPPItems[1, 6]);
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, s_AvgRRPPUnits[0, 6], "UCUM", "1.4", s_AvgRRPPUnits[1, 6]);
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_AvgRRPPItems[0, 6], "SCPECG", "1.3", s_AvgRRPPItems[1, 6]);
 					
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.QTdur);
 				}
@@ -1927,10 +2023,10 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-					MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.10.2.5-5", "SCPECG", "1.3", "QTc Interval");
+					MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+					MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.2.5-5", "SCPECG", "1.3", "QTc Interval");
 					
-					ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 					ds.PutDS(Tags.NumericValue, mes.QTc);
 				}
@@ -1941,7 +2037,7 @@ namespace ECGConversion.DICOM
 
 					try
 					{
-						MortaraCompat = ParseInt(_DICOMData.Get(Tags.WaveformSeq).GetItem(0).GetString(Tags.SamplingFrequency));
+						MortaraCompat = ParseInt(_DICOMData.Get(Tags.WaveformSequence).GetItem(0).GetString(Tags.SamplingFrequency));
 					}
 					catch {}
 				
@@ -1951,10 +2047,10 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.10.3-11", "SCPECG", "1.3", "P Axis");
+							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.3-11", "SCPECG", "1.3", "P Axis");
 
-							ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							ds.PutDS(Tags.NumericValue, mes.measurment[0].Paxis);
 						}
@@ -1963,10 +2059,10 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.10.3-13", "SCPECG", "1.3", "QRS Axis");
+							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.3-13", "SCPECG", "1.3", "QRS Axis");
 
-							ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							ds.PutDS(Tags.NumericValue, mes.measurment[0].QRSaxis);
 						}
@@ -1975,10 +2071,10 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, "ms", "UCUM", "1.4", "milliseconds");
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.10.3-15", "SCPECG", "1.3", "T Axis");
+							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.3-15", "SCPECG", "1.3", "T Axis");
 
-							ds.PutUS(Tags.RefWaveformChannels, s_MeasurementRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							ds.PutDS(Tags.NumericValue, mes.measurment[0].Taxis);
 						}
@@ -1991,39 +2087,39 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_MeasurementItems[0, 0], "SCPECG", "1.3", s_MeasurementItems[1, 0]);
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_MeasurementItems[0, 0], "SCPECG", "1.3", s_MeasurementItems[1, 0]);
 
-							ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 
 							ds.PutCS(Tags.TemporalRangeType, s_MeasurementUnitsPoints[0, 0]);
-							ds.PutUL(Tags.RefSamplePositions, (mes.measurment[0].Ponset * MortaraCompat) / 1000);
+							ds.PutUL(Tags.ReferencedSamplePositions, (mes.measurment[0].Ponset * MortaraCompat) / 1000);
 						}
 
 						if (mes.measurment[0].Poffset != GlobalMeasurement.NoValue)
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_MeasurementItems[0, 1], "SCPECG", "1.3", s_MeasurementItems[1, 1]);
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_MeasurementItems[0, 1], "SCPECG", "1.3", s_MeasurementItems[1, 1]);
 
-							ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							
 							ds.PutCS(Tags.TemporalRangeType, s_MeasurementUnitsPoints[0, 1]);
-							ds.PutUL(Tags.RefSamplePositions, (mes.measurment[0].Poffset * MortaraCompat) / 1000);
+							ds.PutUL(Tags.ReferencedSamplePositions, (mes.measurment[0].Poffset * MortaraCompat) / 1000);
 						}
 
 						if (mes.measurment[0].QRSonset != GlobalMeasurement.NoValue)
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_MeasurementItems[0, 2], "SCPECG", "1.3", s_MeasurementItems[1, 2]);
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_MeasurementItems[0, 2], "SCPECG", "1.3", s_MeasurementItems[1, 2]);
 
-							ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							
 							ds.PutCS(Tags.TemporalRangeType, s_MeasurementUnitsPoints[0, 2]);
-							ds.PutUL(Tags.RefSamplePositions, (mes.measurment[0].QRSonset * MortaraCompat) / 1000);
+							ds.PutUL(Tags.ReferencedSamplePositions, (mes.measurment[0].QRSonset * MortaraCompat) / 1000);
 						}
 
 						if (_FiducialPoint != 0)
@@ -2032,39 +2128,39 @@ namespace ECGConversion.DICOM
 
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, "5.7.1-3", "SCPECG", "1.3", "Fiducial Point");
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.7.1-3", "SCPECG", "1.3", "Fiducial Point");
 
-							ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							
 							ds.PutCS(Tags.TemporalRangeType, "POINT");
-							ds.PutUL(Tags.RefSamplePositions, _FiducialPoint);
+							ds.PutUL(Tags.ReferencedSamplePositions, _FiducialPoint);
 						}
 
 						if (mes.measurment[0].QRSoffset != GlobalMeasurement.NoValue)
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_MeasurementItems[0, 3], "SCPECG", "1.3", s_MeasurementItems[1, 3]);
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_MeasurementItems[0, 3], "SCPECG", "1.3", s_MeasurementItems[1, 3]);
 
-							ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							
 							ds.PutCS(Tags.TemporalRangeType, s_MeasurementUnitsPoints[0, 3]);
-							ds.PutUL(Tags.RefSamplePositions, (mes.measurment[0].QRSoffset * MortaraCompat) / 1000);
+							ds.PutUL(Tags.ReferencedSamplePositions, (mes.measurment[0].QRSoffset * MortaraCompat) / 1000);
 						}
 
 						if (mes.measurment[0].Toffset != GlobalMeasurement.NoValue)
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_MeasurementItems[0, 4], "SCPECG", "1.3", s_MeasurementItems[1, 4]);
+							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_MeasurementItems[0, 4], "SCPECG", "1.3", s_MeasurementItems[1, 4]);
 
-							ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+							ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 							ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							
 							ds.PutCS(Tags.TemporalRangeType, s_MeasurementUnitsPoints[0, 4]);
-							ds.PutUL(Tags.RefSamplePositions, (mes.measurment[0].Toffset * MortaraCompat) / 1000);
+							ds.PutUL(Tags.ReferencedSamplePositions, (mes.measurment[0].Toffset * MortaraCompat) / 1000);
 						}
 
 						annotationGroupNumber = _StartPerBeatMeasurement;
@@ -2106,18 +2202,18 @@ namespace ECGConversion.DICOM
 							{
 								if (tempMeasurementUnits[1, j] != null)
 								{
-									MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, tempMeasurementUnits[0, j], "UCUM", "1.4", tempMeasurementUnits[1, j]);
+									MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, tempMeasurementUnits[0, j], "UCUM", "1.4", tempMeasurementUnits[1, j]);
 									ds.PutDS(Tags.NumericValue, val);
 								}
 								else
 								{
 									ds.PutCS(Tags.TemporalRangeType, tempMeasurementUnits[0, j]);
-									ds.PutUL(Tags.RefSamplePositions, (MortaraCompat == 0) || (MortaraCompat == 1000) ? val : (val * MortaraCompat) / 1000);
+									ds.PutUL(Tags.ReferencedSamplePositions, (MortaraCompat == 0) || (MortaraCompat == 1000) ? val : (val * MortaraCompat) / 1000);
 								}
 
-								MakeCodeSequence(ds, Tags.ConceptNameCodeSeq, s_MeasurementItems[0, j], "SCPECG", "1.3", s_MeasurementItems[1, j]);
+								MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, s_MeasurementItems[0, j], "SCPECG", "1.3", s_MeasurementItems[1, j]);
 
-								ds.PutUS(Tags.RefWaveformChannels, tempRWC);
+								ds.PutUS(Tags.ReferencedWaveformChannels, tempRWC);
 								ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
 							}
 						}
@@ -2174,7 +2270,7 @@ namespace ECGConversion.DICOM
 
 					string itemName;
 
-					if (IsCodeSequence(ds, Tags.ConceptNameCodeSeq, out itemName, "SCPECG", "1.3"))
+					if (IsCodeSequence(ds, Tags.ConceptNameCodeSequence, out itemName, "SCPECG", "1.3"))
 					{
 						int nr = 0;
 
@@ -2191,14 +2287,14 @@ namespace ECGConversion.DICOM
 						if (units[1, nr] == null)
 						{
 							if (units[0, nr] == ds.GetString(Tags.TemporalRangeType))
-								val = ds.GetString(Tags.RefSamplePositions);
+								val = ds.GetString(Tags.ReferencedSamplePositions);
 						}
-						else if (IsCodeSequence(ds, Tags.MeasurementUnitsCodeSeq, out val, "UCUM", "1.4"))
+						else if (IsCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, out val, "UCUM", "1.4"))
 						{
 							val = ds.GetString(Tags.NumericValue);
 						}
 
-						int[] tempRWC = ds.GetInts(Tags.RefWaveformChannels);
+						int[] tempRWC = ds.GetInts(Tags.ReferencedWaveformChannels);
 
 						if ((val != null)
 						&&	(groupNr >= 0)
@@ -2279,7 +2375,7 @@ namespace ECGConversion.DICOM
 			{
 				string str = null;
 	
-				DcmElement ele = ds.Get(Tags.ChannelDefInitionSeq);
+				DcmElement ele = ds.Get(Tags.ChannelDefinitionSequence);
 	
 				for (int i=0;i < ele.vm();i++)
 				{
@@ -2413,7 +2509,7 @@ namespace ECGConversion.DICOM
 				ds.PutDS(Tags.SamplingFrequency, median ? sigs.MedianSamplesPerSecond : sigs.RhythmSamplesPerSecond);
 				ds.PutSH(Tags.MultiplexGroupLabel, (median ? "MEDIAN BEAT" : "RHYTHM"));
 
-				ret = SetChannelInfo(ds.PutSQ(Tags.ChannelDefInitionSeq), sigs, median);
+				ret = SetChannelInfo(ds.PutSQ(Tags.ChannelDefinitionSequence), sigs, median);
 
 				if (ret != 0)
 					return ret > 0 ? 1 + ret : ret;
@@ -2507,7 +2603,7 @@ namespace ECGConversion.DICOM
 
 			try
 			{
-				DcmElement el = ds.Get(Tags.ChannelSensitivityUnitsSeq);
+				DcmElement el = ds.Get(Tags.ChannelSensitivityUnitsSequence);
 
 				switch (el.GetItem(0).GetString(Tags.CodeValue))
 				{
@@ -2553,7 +2649,7 @@ namespace ECGConversion.DICOM
 
 			try
 			{
-				Dataset ds2 = ds.Get(Tags.ChannelSourceSeq).GetItem(0);
+				Dataset ds2 = ds.Get(Tags.ChannelSourceSequence).GetItem(0);
 
 				switch (ds2.GetString(Tags.CodingSchemeDesignator))
 				{
@@ -2583,11 +2679,11 @@ namespace ECGConversion.DICOM
 				{
 					Dataset ds = element.AddNewItem();
 
-					MakeCodeSequence(ds, Tags.ChannelSourceSeq, "5.6.3-9-" + ((int)sigs[i].Type).ToString(), "SCPECG", "1.3", "Lead " + sigs[i].Type.ToString());
+					MakeCodeSequence(ds, Tags.ChannelSourceSequence, "5.6.3-9-" + ((int)sigs[i].Type).ToString(), "SCPECG", "1.3", "Lead " + sigs[i].Type.ToString());
 
 					ds.PutDS(Tags.ChannelSensitivity, (float) (median ? sigs.MedianAVM : sigs.RhythmAVM));
 
-					MakeCodeSequence(ds, Tags.ChannelSensitivityUnitsSeq, "uV", "UCUM", "1.4", "microvolt");
+					MakeCodeSequence(ds, Tags.ChannelSensitivityUnitsSequence, "uV", "UCUM", "1.4", "microvolt");
 
 					ds.PutDS(Tags.ChannelSensitivityCorrectionFactor, 1);
 					ds.PutDS(Tags.ChannelBaseline, 0);

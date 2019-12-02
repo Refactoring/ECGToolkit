@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -31,20 +31,16 @@
     <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="DICOM\" />
-    <Folder Include="libs\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="DICOM\DICOMFormat.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="DICOMReader.cs" />
+    <Compile Include="DICOM\DICOMPDFFormat.cs" />
     <Compile Include="ECGLoad.cs" />
     <Compile Include="PACS.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="libs\1.1\dicomcs.dll" />
-    <None Include="libs\1.1\log4net.dll" />
     <None Include="libs\2.0\dicomcs.dll" />
     <None Include="libs\2.0\log4net.dll" />
   </ItemGroup>
@@ -55,10 +51,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="dicomcs">
+    <Reference Include="dicomcs, Version=0.3.0.0, Culture=neutral, PublicKeyToken=bc2de4c18607e924, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\2.0\dicomcs.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\2.0\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />

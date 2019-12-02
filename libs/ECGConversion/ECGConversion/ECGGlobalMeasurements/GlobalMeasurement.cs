@@ -45,7 +45,9 @@ namespace ECGConversion.ECGGlobalMeasurements
 				if ((value > 0)
 				&&	(value != NoValue))
 				{
-					Ponset = 100;
+                    if (Ponset == NoValue)
+						Ponset = 100;
+
 					Poffset = (ushort) (value + Ponset);
 				}
 				else

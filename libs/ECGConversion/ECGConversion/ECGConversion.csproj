@@ -11,6 +11,8 @@
     <AssemblyName>ECGConversion</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <ReleaseVersion>2.2</ReleaseVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -97,18 +99,7 @@
     <Compile Include="ECGSignals\BufferedSignals.cs" />
     <Compile Include="ECGSignals\IBufferedSource.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ECGDemographics\" />
-    <Folder Include="ECGDiagnostic\" />
-    <Folder Include="ECGGlobalMeasurements\" />
-    <Folder Include="ECGLeadMeasurements\" />
-    <Folder Include="ECGManagementSysteem\" />
-    <Folder Include="ECGSignals\" />
-    <Folder Include="RawFormat\" />
-    <Folder Include="SCP\" />
-    <Folder Include="Tools\" />
-    <Folder Include="CSV\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Reference Include="System.Xml" />
     <Reference Include="System.Drawing" />

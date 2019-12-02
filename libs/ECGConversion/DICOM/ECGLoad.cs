@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008,2017,2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,7 +31,10 @@ namespace ECGConversion
 		/// <returns>list of all plugin formats</returns>
 		public static ECGPlugin[] LoadPlugin()
 		{
-			return new ECGPlugin[] {new ECGPlugin("DICOM", "dcm", typeof(DICOMFormat), typeof(DICOMReader), true)};
+			return new ECGPlugin[] {
+                new ECGPlugin("DICOM", "dcm", typeof(DICOMFormat), typeof(DICOMReader), true),
+                new ECGPlugin("DICOM-PDF", "dcm", typeof(DICOMPDFFormat), null, false)
+            };
 		}
 
 		/// <summary>

@@ -36,9 +36,33 @@ namespace ECGConversion.CSV
 		public Signals _Sigs =  null;
 		public GlobalMeasurements _Mes = null;
 
+        private bool _UseBufferedStream
+		{
+			get
+			{
+				return (_Config["Use Buffered Stream"] != null)
+					&& (String.Compare(_Config["Use Buffered Stream"], "true", true) == 0);
+			}
+		}
+
 		public CSVFormat()
 		{
+			string[]
+				poss = new string[]{"Use Buffered Stream"};
+
+			_Config = new ECGConfig(null, poss, null);
+			
+			_Config["Use Buffered Stream"] = "false";
+
 			Empty();
+		}
+
+		public override bool SupportsBufferedStream
+		{
+			get
+			{
+				return _UseBufferedStream;
+			}
 		}
 
 		public override int Read(Stream input, int offset)
@@ -82,7 +106,7 @@ namespace ECGConversion.CSV
 			{
 				System.IO.StreamWriter sw = new StreamWriter(output);
 
-				int ret = ECGConverter.ToExcelTxt(this, sw, '\t');
+				int ret = ECGConverter.ToExcelTxt(this, sw, '\t', _UseBufferedStream);
 
 				sw.Flush();
 

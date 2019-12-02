@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -362,20 +363,20 @@ namespace ECGConversion.PDF
 			}
 		}
 
-/*		private bool _UseBufferedStream
+		private bool _UseBufferedStream
 		{
 			get
 			{
 				return (_Config["Use Buffered Stream"] != null)
 					&& (String.Compare(_Config["Use Buffered Stream"], "true", true) == 0);
 			}
-		}*/
+		}
 
 		public PDFFormat()
 		{
 			string[]
 				must = new string[]{"Lead Format", "Paper Type", "Gain", "Speed", "Grid"},
-				poss = new string[]{"Extra Leads", "Document Title", "Document Creator", "Document Author", "Header Image", "Free Text"/*, "Use Buffered Stream"*/};
+				poss = new string[]{"Extra Leads", "Document Title", "Document Creator", "Document Author", "Header Image", "Free Text", "Use Buffered Stream"};
 
 			_Config = new ECGConfig(must, poss, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			
@@ -384,18 +385,18 @@ namespace ECGConversion.PDF
 			_Config["Gain"] = "10";
 			_Config["Speed"] = "25";
 			_Config["Grid"] = "true";
-//			_Config["Use Buffered Stream"] = "false";
+			_Config["Use Buffered Stream"] = "false";
 
 			Empty();
 		}
 
-/*		public override bool SupportsBufferedStream
+		public override bool SupportsBufferedStream
 		{
 			get
 			{
 				return _UseBufferedStream;
 			}
-		}*/
+		}
 
 		private bool _ConfigurationWorks()
 		{
@@ -470,9 +471,14 @@ namespace ECGConversion.PDF
 			&&	Works())
 			{
 				Signals sigs = _Signals.CalculateTwelveLeads();
-/*				BufferedSignals bs = null;
+                if (sigs == null)
+                    sigs =_Signals.CalculateFifteenLeads();
+
+				BufferedSignals bs = null;
 				int nrSecs = 7,
-					rhythmPos = 0;*/
+					signalPos = 0,
+                    signalEnd = 0,
+                    signalMulti = 1;
 
 				int[] extra = FindExtraLeads(sigs, _ExtraLeads);
 
@@ -481,7 +487,7 @@ namespace ECGConversion.PDF
 				if (sigs == null)
 					sigs = _Signals;
 
-/*				if (_UseBufferedStream)
+				if (_UseBufferedStream)
 					bs = sigs.AsBufferedSignals;
 
 				if (bs != null)
@@ -500,18 +506,35 @@ namespace ECGConversion.PDF
 					{
 						if (bs.TemplateNrMedian > 0)
 						{
-							if (!bs.LoadTemplate(0))
+							if (!bs.LoadTemplate(signalPos++))
 								return 4;
+
+                            signalEnd = bs.TemplateNrMedian;
 						}
 					}
 					else
 					{
-						rhythmPos = bs.RealRhythmStart;
+                        if (_DrawType == ECGDraw.ECGDrawType.Regular)
+                        {
+                            if (bs.NrLeads == 1)
+                                signalMulti = 6;
+                            else if (bs.NrLeads == 2)
+                                signalMulti = 5;
+                            else if (bs.NrLeads == 3)
+                                signalMulti = 3;
+                            else if (bs.NrLeads <= 6)
+                                signalMulti = 2;
+                        }
 
-						if (!bs.LoadSignal(rhythmPos, rhythmPos + (nrSecs * sigs.NrLeads)))
+						signalPos = bs.RealRhythmStart;
+
+						if (!bs.LoadSignal(signalPos, signalPos + (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti)))
 							return 4;
+
+                        signalPos += (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti);
+                        signalEnd = bs.RealRhythmEnd;
 					}
-				}*/
+					}
 
 				if ((_DrawType & ECGDraw.PossibleDrawTypes(sigs)) != 0)
 				{
@@ -537,6 +560,7 @@ namespace ECGConversion.PDF
 					try
 					{
 						PdfWriter writer = PdfWriter.GetInstance(document, output);
+                        bool bFirstA = true;
 
 						document.AddTitle(_DocumentTitle);
 						document.AddCreator(_DocumentCreator);
@@ -544,7 +568,32 @@ namespace ECGConversion.PDF
 
 						document.Open();
 
-						PdfContentByte cb = writer.DirectContent;
+                        do
+                        {
+                            PdfContentByte cb = null;
+                            if (bFirstA)
+                            {
+                                bFirstA = false;
+                            }
+                            else
+                            {
+                                document.NewPage();
+
+                                if (_DrawType == ECGDraw.ECGDrawType.Median)
+                                {
+                                    if (!bs.LoadTemplate(signalPos++))
+                                        return 4;
+                                }
+                                else
+                                {
+                                    if (!bs.LoadSignal(signalPos, signalPos + (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti)))
+                                        return 4;
+
+                                    signalPos += (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti);
+                                }
+                            }
+
+                            cb = writer.DirectContent;
 
 						cb.Transform(new System.Drawing.Drawing2D.Matrix(1, 0, 0, 1, 0, writer.PageSize.Height));
 
@@ -583,14 +632,15 @@ namespace ECGConversion.PDF
 								case ECGDraw.ECGDrawType.Regular:
 								{
 									point.Y += 15.0f;
+                                            float fJump = sigs.IsFifteenLeads ? 10.0f : 12.5f;
 
-									for (int i=0;i < 12;i++)
+                                            for (int i = 0,e = sigs.IsFifteenLeads ? 15 : 12; i < e; i++)
 									{
 										int nrSamples = 0;
 
 										nrSamples = PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, nrSamples, 10.0f, true);
 
-										point.Y += 12.5f;
+                                                point.Y += fJump;
 									}
 								}
 								break;
@@ -598,6 +648,33 @@ namespace ECGConversion.PDF
 								{
 									point.Y += 25.0f;
 
+                                            if (sigs.IsFifteenLeads)
+                                            {
+                                                PointF
+                                                    point2 = new PointF(point.X + 60.0f, point.Y),
+                                                    point3 = new PointF(point.X + 110.0f, point.Y),
+                                                    point4 = new PointF(point.X + 160.0f, point.Y),
+                                                    point5 = new PointF(point.X + 210.0f, point.Y);
+
+                                                for (int i = 0; i < 3; i++)
+                                                {
+                                                    int nrSample = 0;
+
+                                                    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
+
+                                                    point.Y += 55.0f;
+                                                    point2.Y += 55.0f;
+                                                    point3.Y += 55.0f;
+                                                    point4.Y += 55.0f;
+                                                    point5.Y += 55.0f;
+                                                }
+                                            }
+                                            else
+                                            {
 									PointF
 										point2 = new PointF(point.X +  72.5f, point.Y),
 										point3 = new PointF(point.X + 135.0f, point.Y),
@@ -618,11 +695,39 @@ namespace ECGConversion.PDF
 										point4.Y += 55.0f;
 									}
 								}
+                                        }
 								break;
 								case ECGDraw.ECGDrawType.ThreeXFourPlusOne:
 								{
 									point.Y += 20.0f;
 
+                                            if (sigs.IsFifteenLeads)
+                                            {
+                                                PointF
+                                                    point2 = new PointF(point.X + 60.0f, point.Y),
+                                                    point3 = new PointF(point.X + 110.0f, point.Y),
+                                                    point4 = new PointF(point.X + 160.0f, point.Y),
+                                                    point5 = new PointF(point.X + 210.0f, point.Y);
+
+                                                for (int i = 0; i < 3; i++)
+                                                {
+                                                    int nrSample = 0;
+
+                                                    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
+
+                                                    point.Y += 40.0f;
+                                                    point2.Y += 40.0f;
+                                                    point3.Y += 40.0f;
+                                                    point4.Y += 40.0f;
+                                                    point5.Y += 40.0f;
+                                                }
+                                            }
+                                            else
+                                            {
 									PointF
 										point2 = new PointF(point.X +  72.5f, point.Y),
 										point3 = new PointF(point.X + 135.0f, point.Y),
@@ -642,6 +747,7 @@ namespace ECGConversion.PDF
 										point3.Y += 40.0f;
 										point4.Y += 40.0f;
 									}
+                                            }
 
 									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
 								}
@@ -650,6 +756,33 @@ namespace ECGConversion.PDF
 								{
 									point.Y += 12.5f;
 
+                                            if (sigs.IsFifteenLeads)
+                                            {
+                                                PointF
+                                                    point2 = new PointF(point.X + 60.0f, point.Y),
+                                                    point3 = new PointF(point.X + 110.0f, point.Y),
+                                                    point4 = new PointF(point.X + 160.0f, point.Y),
+                                                    point5 = new PointF(point.X + 210.0f, point.Y);
+
+                                                for (int i = 0; i < 3; i++)
+                                                {
+                                                    int nrSample = 0;
+
+                                                    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+                                                    nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
+
+                                                    point.Y += 27.5f;
+                                                    point2.Y += 27.5f;
+                                                    point3.Y += 27.5f;
+                                                    point4.Y += 27.5f;
+                                                    point5.Y += 27.5f;
+                                                }
+                                            }
+                                            else
+                                            {
 									PointF
 										point2 = new PointF(point.X +  72.5f, point.Y),
 										point3 = new PointF(point.X + 135.0f, point.Y),
@@ -669,6 +802,7 @@ namespace ECGConversion.PDF
 										point3.Y += 27.5f;
 										point4.Y += 27.5f;
 									}
+                                            }
 
 									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
 									point.Y += 25.0f;
@@ -701,6 +835,37 @@ namespace ECGConversion.PDF
 									point.X += 20.0f;
 									point.Y += 25.0f;
 
+                                            if (sigs.IsFifteenLeads)
+                                            {
+                                                PointF
+                                                    point2 = new PointF(point.X + 50f, point.Y),
+                                                    point3 = new PointF(point.X + 100f, point.Y),
+                                                    point4 = new PointF(point.X + 150f, point.Y),
+                                                    point5 = new PointF(point.X + 200f, point.Y);
+
+                                                for (int i = -1; i > -4; i--)
+                                                {
+                                                    point.X -= 20.0f;
+
+                                                    PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
+
+                                                    point.X += 20.0f;
+
+                                                    PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, 0, 0, true);
+                                                    PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i - 3, 0, 0, true);
+                                                    PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i - 6, 0, 0, true);
+                                                    PDFTool.DrawSignal(cb, point4, (point5.X - point4.X), 25.0f, _Gain, sigs, i - 9, 0, 0, true);
+                                                    PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i - 12, 0, 0, true);
+
+                                                    point.Y += 55.0f;
+                                                    point2.Y += 55.0f;
+                                                    point3.Y += 55.0f;
+                                                    point4.Y += 55.0f;
+                                                    point5.Y += 55.0f;
+                                                }
+                                            }
+                                            else
+                                            {
 									PointF
 										point2 = new PointF(point.X +  65f, point.Y),
 										point3 = new PointF(point.X + 130f, point.Y),
@@ -725,6 +890,7 @@ namespace ECGConversion.PDF
 										point4.Y += 55.0f;
 									}
 								}
+                                        }
 								break;
 								default:
 									return 2;
@@ -762,11 +928,17 @@ namespace ECGConversion.PDF
 							cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
 							PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
 
+                                float fJump = sigs.IsFifteenLeads ? 16f : 20f;
+
+                                if ((_PaperType == SupportedPaper.LETTER)
+                                || (_PaperType == SupportedPaper.LETTER_Portrait))
+                                    fJump = sigs.IsFifteenLeads ? 12f : 15f;
+
 							for (int i=0;i < sigs.NrLeads;i++)
 							{
 								PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, 0, 0.0f, false);
 
-								point.Y += ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? 15.0f : 20.0f ;
+                                    point.Y += fJump;
 							}
 
 							point.X = gridRect.X + 5.0f;
@@ -777,7 +949,7 @@ namespace ECGConversion.PDF
 						else
 						{
 							int start, end, prev = -1;
-							bool bFirst = true;
+                                bool bFirstB = true;
 
 							sigs.CalculateStartAndEnd(out start, out end);
 
@@ -808,8 +980,8 @@ namespace ECGConversion.PDF
 							{
 								if (gridRect.Bottom > (height - 5.0f))
 								{
-									if (bFirst)
-										bFirst = false;
+                                        if (bFirstB)
+                                            bFirstB = false;
 									else
 									{
 										document.NewPage();
@@ -862,6 +1034,8 @@ namespace ECGConversion.PDF
 								gridRect.Y += gridRect.Height + 5.0f;
 							}
 						}
+                        }
+                        while (signalPos < signalEnd);
 
 						return 0;
 					}
@@ -1077,7 +1251,8 @@ namespace ECGConversion.PDF
 			point.Y = fTempY;
 
 			if ((_Diagnostic != null)
-			&&	(_Diagnostic.statement != null))
+			&&	(_Diagnostic.statement != null)
+            &&  (_Diagnostic.statement.Length > 0))
 			{
 				sb = new StringBuilder();
 

@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -906,6 +907,19 @@ namespace ECGConversion
 		/// <returns>0 on success</returns>
 		public static int ToExcelTxt(IECGFormat src, TextWriter output, char hSeperator)
 		{
+            return ToExcelTxt(src, output, hSeperator, false);
+        }
+
+        /// <summary>
+        /// Function to write an ECG to Txt file that can be read with Excel.
+        /// </summary>
+        /// <param name="src">an ECG file to convert</param>
+        /// <param name="output">stream to write Txt in.</param>
+        /// <param name="hSeperator">Horizontal seperator to use</param>
+        /// <param name="useBufferedStream">true if entire buffered stream must be writen</param>
+        /// <returns>0 on success</returns>
+        public static int ToExcelTxt(IECGFormat src, TextWriter output, char hSeperator, bool useBufferedStream)
+		{
 			if ((src != null)
 			&&	(output != null))
 			{
@@ -916,18 +930,51 @@ namespace ECGConversion
 					if (src.GlobalMeasurements != null)
 						src.GlobalMeasurements.getGlobalMeasurements(out mes);
 
+                    BufferedSignals bs = null;
+                    int rhythmPos = 0,
+                        rhythmEnd = 0,
+                        stepSize = 0;
+
 					Signals data;
 					sigread.getSignals(out data);
+
+
+                    if (useBufferedStream
+                    &&  (data != null)
+                    &&  (data.AsBufferedSignals != null))
+                    {
+                        bs = data.AsBufferedSignals;
+                        rhythmPos = bs.RealRhythmStart;
+                        rhythmEnd = bs.RealRhythmEnd;
+                        stepSize = 60 * bs.RealRhythmSamplesPerSecond;
+                    }
+
 
 					if ((data != null)
 					&&	(data.NrLeads != 0))
 					{
+                        bool bFirst = true;
+
+                        do
+                        {
+                            int sampleOffset = rhythmPos;
+
+                            if (bs != null)
+                            {
+                                if (!bs.LoadSignal(rhythmPos, rhythmPos + stepSize))
+                                    return 8;
+
+                                rhythmPos += stepSize;
+                            }
+
 						// Determine minimum start and maximum end.
 						int minstart = int.MaxValue;
 						int maxend = int.MinValue;
 
 						data.CalculateStartAndEnd(out minstart, out maxend);
 
+                            if (bFirst)
+                            {
 						output.Write("samplenr");
 						for (int lead=0;lead < data.NrLeads;lead++)
 						{
@@ -945,10 +992,18 @@ namespace ECGConversion
 							output.Write("{0}measurement", hSeperator);
 
 						output.WriteLine();
+                                bFirst = false;
+                            }
+
+                            if (minstart == sampleOffset)
+                                sampleOffset = 0;
+                            else if ((minstart > 0)
+                                &&   (minstart < sampleOffset))
+                                sampleOffset -= minstart;
 
 						for (int sample=minstart;sample < maxend;sample++)
 						{
-							output.Write("{0}", sample);
+                                output.Write("{0}", sample + sampleOffset);
 							for (int lead=0;lead < data.NrLeads;lead++)
 							{
 								if ((data[lead] != null)
@@ -975,35 +1030,31 @@ namespace ECGConversion
 									bWrite = false;
 
 									if ((mes.measurment[i].Ponset != GlobalMeasurement.NoValue)
-									&&	(mes.measurment[i].Ponset == sample))
+                                        &&  (mes.measurment[i].Ponset == (sample + sampleOffset)))
 									{
 										output.Write("{0}1000{0}P+{1}", hSeperator, i);
 										break;
 									}
-
-									if ((mes.measurment[i].Poffset != GlobalMeasurement.NoValue)
-									&&	(mes.measurment[i].Poffset == sample))
+                                        else if ((mes.measurment[i].Poffset != GlobalMeasurement.NoValue)
+                                            &&   (mes.measurment[i].Poffset == (sample + sampleOffset)))
 									{
 										output.Write("{0}-1000{0}P-{1}", hSeperator, i);
 										break;
 									}
-
-									if ((mes.measurment[i].QRSonset != GlobalMeasurement.NoValue)
-									&&	(mes.measurment[i].QRSonset == sample))
+                                        else if ((mes.measurment[i].QRSonset != GlobalMeasurement.NoValue)
+                                            &&   (mes.measurment[i].QRSonset == (sample + sampleOffset)))
 									{
 										output.Write("{0}1500{0}QRS+{1}", hSeperator, i);
 										break;
 									}
-
-									if ((mes.measurment[i].QRSoffset != GlobalMeasurement.NoValue)
-									&&	(mes.measurment[i].QRSoffset == sample))
+                                        else if ((mes.measurment[i].QRSoffset != GlobalMeasurement.NoValue)
+                                            &&   (mes.measurment[i].QRSoffset == (sample + sampleOffset)))
 									{
 										output.Write("{0}-1500{0}QRS-{1}", hSeperator, i);
 										break;
 									}
-
-									if ((mes.measurment[i].Toffset != GlobalMeasurement.NoValue)
-									&&	(mes.measurment[i].Toffset == sample))
+                                        else if ((mes.measurment[i].Toffset != GlobalMeasurement.NoValue)
+                                            &&   (mes.measurment[i].Toffset == (sample + sampleOffset)))
 									{
 										output.Write("{0}-1250{0}T-{1}", hSeperator, i);
 										break;
@@ -1020,6 +1071,7 @@ namespace ECGConversion
 
 							output.WriteLine();
 						}
+                        } while (rhythmPos < rhythmEnd);
 
 						return 0;
 					}

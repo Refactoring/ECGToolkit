@@ -1,5 +1,5 @@
 @echo off
-REM Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+REM Copyright 2004,2008,2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 REM 
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.

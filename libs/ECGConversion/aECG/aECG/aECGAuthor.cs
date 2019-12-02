@@ -51,6 +51,10 @@ namespace ECGConversion.aECG
 		{
 			int sequence = 0;
 
+            if ((reader.NodeType == XmlNodeType.Element)
+            &&  reader.IsEmptyElement)
+                return 0;
+
 			while (reader.Read())
 			{
 				if ((reader.NodeType == XmlNodeType.Comment)

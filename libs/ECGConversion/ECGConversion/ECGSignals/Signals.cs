@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012-1014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -387,12 +388,14 @@ namespace ECGConversion.ECGSignals
 												  LeadType.V1, LeadType.V2, LeadType.V3,
 												  LeadType.V4, LeadType.V5, LeadType.V6};
 
+                
+
 				int nrSim = NrSimultaneosly();			
 
 				if (nrSim != _Lead.Length)
 					return false;
 
-				if (nrSim == 12)
+				if (nrSim == lt.Length)
 				{
 					for (int i=0;i < nrSim;i++)
 						if (_Lead[i].Type != lt[i])
@@ -400,6 +403,71 @@ namespace ECGConversion.ECGSignals
 
 					return true;
 				}
+                else if (nrSim == 15)
+                {
+                    int i = 0;
+
+                    for (; i < lt.Length; i++)
+                        if (_Lead[i].Type != lt[i])
+                            return false;
+
+                    LeadType[][] extra = new LeadType[][] { new LeadType[]{ LeadType.V7, LeadType.V3R, LeadType.V4R }, new LeadType[]{ LeadType.V7, LeadType.V8, LeadType.V9 } };
+                    bool[] check = new bool[extra.Length];
+
+                    for (int c=0;c<check.Length;c++)
+                        check[c] = true;
+
+                    for (int j = 0; i < nrSim; i++, j++)
+                        for (int c = 0; c < extra.Length; c++)
+                            check[c] &= _Lead[i].Type == extra[c][j];
+
+                    for (i = 0; i < check.Length; i++)
+                        if (check[i])
+                            return true;
+                }
+
+				return false;
+			}
+		}
+        /// <summary>
+        /// Determine whether this is fifteen lead signal.
+        /// </summary>
+        /// <returns>true if twelve lead signal.</returns>
+        public bool IsFifteenLeads
+        {
+            get
+            {
+                LeadType[][] lts = new LeadType[][] { new LeadType[] { LeadType.I, LeadType.II, LeadType.III,
+												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
+												  LeadType.V1, LeadType.V2, LeadType.V3,
+												  LeadType.V4, LeadType.V5, LeadType.V6, 
+                                                  LeadType.V7, LeadType.V3R, LeadType.V4R },
+                                                  new LeadType[] { LeadType.I, LeadType.II, LeadType.III,
+												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
+												  LeadType.V1, LeadType.V2, LeadType.V3,
+												  LeadType.V4, LeadType.V5, LeadType.V6,
+                                                  LeadType.V7, LeadType.V8, LeadType.V9 } };
+
+                int nrSim = NrSimultaneosly();
+
+                if (nrSim != _Lead.Length)
+                    return false;
+
+                if (nrSim == 15)
+                {
+                    bool[] check = new bool[lts.Length];
+
+                    for (int c = 0; c < check.Length; c++)
+                        check[c] = true;
+
+                    for (int i = 0; i < nrSim; i++)
+                        for (int c = 0; c < lts.Length; c++)
+                            check[c] &= _Lead[i].Type == lts[c][i];
+
+                    for (int i = 0; i < check.Length; i++)
+                        if (check[i])
+                            return true;
+                }
 
 				return false;
 			}
@@ -586,5 +654,278 @@ namespace ECGConversion.ECGSignals
 
 			return null;
 		}
+
+        /// <summary>
+        /// Function to make a fifteen leads signals object.
+        /// </summary>
+        /// <returns>returns fifteen leads signals object or null</returns>
+        public Signals CalculateFifteenLeads()
+        {
+            LeadType[] lt1 = new LeadType[] { LeadType.I, LeadType.II, LeadType.III,
+												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
+												  LeadType.V1, LeadType.V2, LeadType.V3,
+												  LeadType.V4, LeadType.V5, LeadType.V6, 
+                                                  LeadType.V7, LeadType.V3R, LeadType.V4R };
+            LeadType[] lt2 =  new LeadType[] { LeadType.I, LeadType.II, LeadType.III,
+												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
+												  LeadType.V1, LeadType.V2, LeadType.V3,
+												  LeadType.V4, LeadType.V5, LeadType.V6,
+                                                  LeadType.V7, LeadType.V8, LeadType.V9 };
+
+            int nrSim = NrSimultaneosly();
+
+            if (nrSim != _Lead.Length)
+                return null;
+
+            Signal[] leads = null;
+
+            if (nrSim == lt1.Length)
+            {
+                ArrayList pos_list1 = new ArrayList(lt1);
+                ArrayList pos_list2 = new ArrayList(lt2);
+
+                int check_one1 = 0;
+                int check_one2 = 0;
+                ArrayList check_two1 = new ArrayList(lt1);
+                ArrayList check_two2 = new ArrayList(lt2);
+                Signal[] pos1 = new Signal[lt1.Length];
+                Signal[] pos2 = new Signal[lt2.Length];
+
+                for (int i = 0; i < nrSim; i++)
+                {
+                    if (_Lead[i].Type == lt1[i])
+                        check_one1++;
+
+                    if (_Lead[i].Type == lt2[i])
+                        check_one2++;
+
+                    int temp = check_two1.IndexOf(_Lead[i].Type);
+                    if (temp >= 0)
+                    {
+                        check_two1.RemoveAt(temp);
+
+                        pos1[pos_list1.IndexOf(_Lead[i].Type)] = _Lead[i];
+                    }
+                    temp = check_two2.IndexOf(_Lead[i].Type);
+                    if (temp >= 0)
+                    {
+                        check_two2.RemoveAt(temp);
+
+                        pos2[pos_list2.IndexOf(_Lead[i].Type)] = _Lead[i];
+                    }
+                }
+
+                if (check_one1 == lt1.Length)
+                    return this;
+                if (check_one2 == lt2.Length)
+                    return this;
+
+                if (check_two1.Count == 0)
+                {
+                    for (int i = 0; i < pos1.Length; i++)
+                        if (pos1[i] != null)
+                            pos1[i] = pos1[i].Clone();
+
+                    leads = pos1;
+                }
+                else if (check_two2.Count == 0)
+                {
+                    for (int i = 0; i < pos2.Length; i++)
+                        if (pos2[i] != null)
+                            pos2[i] = pos2[i].Clone();
+
+                    leads = pos2;
+                }
+            }
+            else
+            {
+                LeadType[] lt = null;
+
+                short[][]
+                    tempRhythm = null,
+                    tempMedian = null;
+
+                Signal[] pos = null;
+
+                if (nrSim == 11)
+                {
+                    Signal[] pos1 = new Signal[lt1.Length];
+                    Signal[] pos2 = new Signal[lt2.Length];
+
+                    ArrayList pos_list1 = new ArrayList(lt1);
+                    ArrayList pos_list2 = new ArrayList(lt2);
+
+                    ArrayList check1 = new ArrayList(
+                        new LeadType[]{	LeadType.I, LeadType.II,
+										LeadType.V1, LeadType.V2, LeadType.V3,
+										LeadType.V4, LeadType.V5, LeadType.V6,
+                                        LeadType.V7, LeadType.V3R, LeadType.V4R});
+
+                    ArrayList check2 = new ArrayList(
+                        new LeadType[]{	LeadType.I, LeadType.II,
+										LeadType.V1, LeadType.V2, LeadType.V3,
+										LeadType.V4, LeadType.V5, LeadType.V6,
+                                        LeadType.V7, LeadType.V8, LeadType.V9});
+
+                    for (int i = 0; i < nrSim; i++)
+                    {
+                        int temp = check1.IndexOf(_Lead[i].Type);
+                        if (temp >= 0)
+                        {
+                            check1.RemoveAt(temp);
+    
+                            pos1[pos_list1.IndexOf(_Lead[i].Type)] = _Lead[i];
+                        }
+                        temp = check2.IndexOf(_Lead[i].Type);
+                        if (temp >= 0)
+                        {
+                            check2.RemoveAt(temp);
+
+                            pos2[pos_list2.IndexOf(_Lead[i].Type)] = _Lead[i];
+                        }
+                    }
+
+                    if (check1.Count == 0)
+                    {
+                        pos = pos1;
+                        lt = lt1;
+                    }
+                    else if (check2.Count == 0)
+                    {
+                        pos = pos2;
+                        lt = lt2;
+                    }
+
+                    if (pos != null)
+                    {
+                        for (int i = 0; i < pos.Length; i++)
+                            if (pos[i] != null)
+                                pos[i] = pos[i].Clone();
+
+                        tempRhythm = new short[2][];
+                        tempRhythm[0] = pos1[0].Rhythm;
+                        tempRhythm[1] = pos1[1].Rhythm;
+
+                        tempMedian = new short[2][];
+                        tempMedian[0] = pos1[0].Median;
+                        tempMedian[1] = pos1[1].Median;
+                    }
+                }
+                else if (nrSim == 12)
+                {
+                    Signal[] pos1 = new Signal[lt1.Length];
+                    Signal[] pos2 = new Signal[lt2.Length];
+
+                    ArrayList pos_list1 = new ArrayList(lt1);
+                    ArrayList pos_list2 = new ArrayList(lt2);
+
+                    ArrayList check1 = new ArrayList(
+                        new LeadType[]{	LeadType.I, LeadType.II, LeadType.III,
+										LeadType.V1, LeadType.V2, LeadType.V3,
+										LeadType.V4, LeadType.V5, LeadType.V6,
+                                        LeadType.V7, LeadType.V3R, LeadType.V4R});
+
+                    ArrayList check2 = new ArrayList(
+                        new LeadType[]{	LeadType.I, LeadType.II, LeadType.III,
+										LeadType.V1, LeadType.V2, LeadType.V3,
+										LeadType.V4, LeadType.V5, LeadType.V6,
+                                        LeadType.V7, LeadType.V8, LeadType.V9});
+
+                    for (int i = 0; i < nrSim; i++)
+                    {
+                        int temp = check1.IndexOf(_Lead[i].Type);
+                        if (temp >= 0)
+                        {
+                            check1.RemoveAt(temp);
+    
+                            pos1[pos_list1.IndexOf(_Lead[i].Type)] = _Lead[i];
+                        }
+                        temp = check2.IndexOf(_Lead[i].Type);
+                        if (temp >= 0)
+                        {
+                            check2.RemoveAt(temp);
+
+                            pos2[pos_list2.IndexOf(_Lead[i].Type)] = _Lead[i];
+                        }
+                    }
+
+                    if (check1.Count == 0)
+                    {
+                        pos = pos1;
+                        lt = lt1;
+                    }
+                    else if (check2.Count == 0)
+                    {
+                        pos = pos2;
+                        lt = lt2;
+                    }
+
+                    if (pos != null)
+                    {
+                        for (int i = 0; i < pos.Length; i++)
+                            if (pos[i] != null)
+                                pos[i] = pos[i].Clone();
+
+                        tempRhythm = new short[3][];
+                        tempRhythm[0] = pos[0].Rhythm;
+                        tempRhythm[1] = pos[1].Rhythm;
+                        tempRhythm[2] = pos[2].Rhythm;
+
+                        tempMedian = new short[3][];
+                        tempMedian[0] = pos[0].Median;
+                        tempMedian[1] = pos[1].Median;
+                        tempMedian[2] = pos[2].Median;
+                    }
+                }
+
+                if ((tempRhythm != null)
+                ||  (tempMedian != null))
+                {
+                    short[][] calcLeads;
+
+                    if ((tempRhythm != null)
+                    &&  (tempRhythm[0] != null)
+                    &&  ECGTool.CalculateLeads(tempRhythm, tempRhythm[0].Length, out calcLeads) == 0)
+                    {
+                        for (int i = 0; i < calcLeads.Length; i++)
+                        {
+                            Signal sig = new Signal();
+                            sig.Type = lt[i + tempRhythm.Length];
+                            sig.RhythmStart = pos[0].RhythmStart;
+                            sig.RhythmEnd = pos[0].RhythmEnd;
+                            sig.Rhythm = calcLeads[i];
+
+                            pos[i + tempRhythm.Length] = sig;
+                        }
+
+                        if ((tempMedian != null)
+                        && (tempMedian[0] != null)
+                        && (ECGTool.CalculateLeads(tempMedian, tempMedian[0].Length, out calcLeads) == 0))
+                        {
+                            for (int i = 0; i < calcLeads.Length; i++)
+                            {
+                                pos[i + tempRhythm.Length].Median = calcLeads[i];
+                            }
+                        }
+
+                        leads = pos;
+                    }
+                }
+            }
+
+            if (leads != null)
+            {
+                Signals sigs = this.Clone();
+
+                sigs.NrLeads = (byte)leads.Length;
+
+                for (int i = 0; i < leads.Length; i++)
+                    sigs._Lead[i] = leads[i];
+
+                return sigs;
+            }
+
+            return null;
+        }
 	}
 }

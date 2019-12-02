@@ -1,5 +1,6 @@
 /***************************************************************************
-Copyright 2012-2013, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2012-2015, van Ettinger Information Technology, Lopik, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -299,8 +300,8 @@ namespace ECGConversion.ISHNE
 
 		public string FirstName
 		{
-			get {return PatientLastName;}
-			set {PatientLastName = value;}
+			get {return PatientFirstName;}
+			set {PatientFirstName = value;}
 		}
 		
 		public string PatientID
