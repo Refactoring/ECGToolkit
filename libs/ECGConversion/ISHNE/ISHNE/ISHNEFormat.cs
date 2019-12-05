@@ -177,6 +177,17 @@ namespace ECGConversion.ISHNE
 							if (!_CRCValidation
 							||	(crc == tool.CalcCRCITT(_HeaderAndVarBlock, BYTES_BEFORE_HEADER, _HeaderAndVarBlock.Length - BYTES_BEFORE_HEADER)))
 							{
+                                if (input.CanSeek)
+                                {
+                                    long nrSamples = (input.Length - _Header.ECGOffset) / 2;
+
+                                    if ((nrSamples > _Header.ECGNrSamples)
+                                    &&  (nrSamples <= int.MaxValue))
+                                    {
+                                        _Header.ECGNrSamples = (int) nrSamples;
+                                    }
+                                }
+
 								BufferedSignals sigs = new BufferedSignals(this, (byte)_Header.ECGNrLeads);
 
 								// Begin: code that handles overriding of AVM
