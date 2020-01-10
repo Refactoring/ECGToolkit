@@ -1707,7 +1707,7 @@ namespace ECGConversion.aECG
 
 				aECGAnnotationSet
 					aset = series.Annotation[0],
-					asetMedian = seriesMedian.Annotation[0];
+					asetMedian = seriesMedian != null && seriesMedian.Annotation != null && seriesMedian.Annotation.Length > 0 ? seriesMedian.Annotation[0] : null;
 
 				int n =	1;
 
@@ -1998,10 +1998,11 @@ namespace ECGConversion.aECG
 					}
 				}
 
-				if (aset.Annotation[0] != null)
+                if (aset != null)
 					series.Add(aset);
 
-				if (asetMedian.Annotation[0] != null)
+				if ((seriesMedian != null)
+                &&  (asetMedian != null))
 					seriesMedian.Add(asetMedian);
 
 				return 0;
