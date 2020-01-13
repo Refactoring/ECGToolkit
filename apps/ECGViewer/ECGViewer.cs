@@ -71,11 +71,8 @@ namespace ECGViewer
 		private System.Windows.Forms.MenuItem menuGain2;
 		private System.Windows.Forms.MenuItem menuGain1;
 		private System.Windows.Forms.MenuItem menuOpenSystems;
-		private System.Windows.Forms.MenuItem menuSaveSystems;
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container components = null;
+        private System.Windows.Forms.MenuItem menuSaveSystems;
+        private IContainer components;
 
 		private UnknownECGReader _ECGReader = null;
 		private IECGFormat _CurrentECG = null;
@@ -236,6 +233,13 @@ namespace ECGViewer
 		private System.Windows.Forms.MenuItem menuCaliperOff;
 		private System.Windows.Forms.MenuItem menuCaliperDuration;
 		private System.Windows.Forms.MenuItem menuCaliperBoth;
+        private MenuItem menuFilter;
+        private MenuItem menuFilterNone;
+        private MenuItem menuFilter40Hz;
+        private MenuItem menuFilterMuscle;
+        private double _BottomCutoff = double.NaN;
+        private double _TopCutoff = double.NaN;
+
 	
 		private float Gain
 		{
@@ -367,501 +371,535 @@ namespace ECGViewer
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(ECGViewer));
-			this.mainMenu = new System.Windows.Forms.MainMenu();
-			this.menuOpen = new System.Windows.Forms.MenuItem();
-			this.menuOpenFile = new System.Windows.Forms.MenuItem();
-			this.menuOpenSystems = new System.Windows.Forms.MenuItem();
-			this.menuView = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormat = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormatRegular = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormatThreeXFour = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormatThreeXFourPlusOne = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormatThreeXFourPlusThree = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormatSixXTwo = new System.Windows.Forms.MenuItem();
-			this.menuLeadFormatMedian = new System.Windows.Forms.MenuItem();
-			this.menuGain = new System.Windows.Forms.MenuItem();
-			this.menuGain4 = new System.Windows.Forms.MenuItem();
-			this.menuGain3 = new System.Windows.Forms.MenuItem();
-			this.menuGain2 = new System.Windows.Forms.MenuItem();
-			this.menuGain1 = new System.Windows.Forms.MenuItem();
-			this.menuGridType = new System.Windows.Forms.MenuItem();
-			this.menuGridNone = new System.Windows.Forms.MenuItem();
-			this.menuGridOne = new System.Windows.Forms.MenuItem();
-			this.menuGridFive = new System.Windows.Forms.MenuItem();
-			this.menuColor = new System.Windows.Forms.MenuItem();
-			this.menuColor1 = new System.Windows.Forms.MenuItem();
-			this.menuColor2 = new System.Windows.Forms.MenuItem();
-			this.menuColor3 = new System.Windows.Forms.MenuItem();
-			this.menuColor4 = new System.Windows.Forms.MenuItem();
-			this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
-			this.menuAnnonymize = new System.Windows.Forms.MenuItem();
-			this.menuZoom = new System.Windows.Forms.MenuItem();
-			this.menuZoomOut = new System.Windows.Forms.MenuItem();
-			this.menuZoomIn = new System.Windows.Forms.MenuItem();
-			this.menuCaliper = new System.Windows.Forms.MenuItem();
-			this.menuCaliperOff = new System.Windows.Forms.MenuItem();
-			this.menuCaliperDuration = new System.Windows.Forms.MenuItem();
-			this.menuCaliperBoth = new System.Windows.Forms.MenuItem();
-			this.menuSave = new System.Windows.Forms.MenuItem();
-			this.menuSaveFile = new System.Windows.Forms.MenuItem();
-			this.menuSaveSystems = new System.Windows.Forms.MenuItem();
-			this.menuClose = new System.Windows.Forms.MenuItem();
-			this.menuPlugin = new System.Windows.Forms.MenuItem();
-			this.menuAddPluginFile = new System.Windows.Forms.MenuItem();
-			this.menuAddPluginDir = new System.Windows.Forms.MenuItem();
-			this.ECGPanel = new System.Windows.Forms.Panel();
-			this.InnerECGPanel = new System.Windows.Forms.Panel();
-			this.labelPatientSecond = new System.Windows.Forms.Label();
-			this.labelDiagnostic = new System.Windows.Forms.TextBox();
-			this.labelTime = new System.Windows.Forms.Label();
-			this.labelPatient = new System.Windows.Forms.Label();
-			this.statusBar = new System.Windows.Forms.StatusBar();
-			this.openECGFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
-			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-			this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
-			this.ECGPanel.SuspendLayout();
-			this.SuspendLayout();
-			// 
-			// mainMenu
-			// 
-			this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					 this.menuOpen,
-																					 this.menuView,
-																					 this.menuSave,
-																					 this.menuClose,
-																					 this.menuPlugin});
-			// 
-			// menuOpen
-			// 
-			this.menuOpen.Index = 0;
-			this.menuOpen.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					 this.menuOpenFile,
-																					 this.menuOpenSystems});
-			this.menuOpen.Text = "Open";
-			// 
-			// menuOpenFile
-			// 
-			this.menuOpenFile.Index = 0;
-			this.menuOpenFile.Shortcut = System.Windows.Forms.Shortcut.CtrlO;
-			this.menuOpenFile.Text = "File ...";
-			this.menuOpenFile.Click += new System.EventHandler(this.menuOpenFile_Click);
-			// 
-			// menuOpenSystems
-			// 
-			this.menuOpenSystems.Enabled = false;
-			this.menuOpenSystems.Index = 1;
-			this.menuOpenSystems.Text = "ECG System";
-			// 
-			// menuView
-			// 
-			this.menuView.Enabled = false;
-			this.menuView.Index = 1;
-			this.menuView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					 this.menuLeadFormat,
-																					 this.menuGain,
-																					 this.menuGridType,
-																					 this.menuColor,
-																					 this.menuCaliper,
-																					 this.menuZoom,
-																					 this.menuDisplayInfo,
-																					 this.menuAnnonymize});
-			this.menuView.Text = "View";
-			// 
-			// menuLeadFormat
-			// 
-			this.menuLeadFormat.Index = 0;
-			this.menuLeadFormat.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																						   this.menuLeadFormatRegular,
-																						   this.menuLeadFormatThreeXFour,
-																						   this.menuLeadFormatThreeXFourPlusOne,
-																						   this.menuLeadFormatThreeXFourPlusThree,
-																						   this.menuLeadFormatSixXTwo,
-																						   this.menuLeadFormatMedian});
-			this.menuLeadFormat.Text = "Lead Format";
-			// 
-			// menuLeadFormatRegular
-			// 
-			this.menuLeadFormatRegular.Checked = true;
-			this.menuLeadFormatRegular.Index = 0;
-			this.menuLeadFormatRegular.RadioCheck = true;
-			this.menuLeadFormatRegular.Shortcut = System.Windows.Forms.Shortcut.Ctrl1;
-			this.menuLeadFormatRegular.Text = "Regular";
-			this.menuLeadFormatRegular.Click += new System.EventHandler(this.menuLeadFormatRegular_Click);
-			// 
-			// menuLeadFormatThreeXFour
-			// 
-			this.menuLeadFormatThreeXFour.Index = 1;
-			this.menuLeadFormatThreeXFour.RadioCheck = true;
-			this.menuLeadFormatThreeXFour.Shortcut = System.Windows.Forms.Shortcut.Ctrl2;
-			this.menuLeadFormatThreeXFour.Text = "3x4";
-			this.menuLeadFormatThreeXFour.Click += new System.EventHandler(this.menuLeadFormatFourXThree_Click);
-			// 
-			// menuLeadFormatThreeXFourPlusOne
-			// 
-			this.menuLeadFormatThreeXFourPlusOne.Index = 2;
-			this.menuLeadFormatThreeXFourPlusOne.RadioCheck = true;
-			this.menuLeadFormatThreeXFourPlusOne.Shortcut = System.Windows.Forms.Shortcut.Ctrl3;
-			this.menuLeadFormatThreeXFourPlusOne.Text = "3x4+1";
-			this.menuLeadFormatThreeXFourPlusOne.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusOne_Click);
-			// 
-			// menuLeadFormatThreeXFourPlusThree
-			// 
-			this.menuLeadFormatThreeXFourPlusThree.Index = 3;
-			this.menuLeadFormatThreeXFourPlusThree.RadioCheck = true;
-			this.menuLeadFormatThreeXFourPlusThree.Shortcut = System.Windows.Forms.Shortcut.Ctrl4;
-			this.menuLeadFormatThreeXFourPlusThree.Text = "3x4+3";
-			this.menuLeadFormatThreeXFourPlusThree.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusThree_Click);
-			// 
-			// menuLeadFormatSixXTwo
-			// 
-			this.menuLeadFormatSixXTwo.Index = 4;
-			this.menuLeadFormatSixXTwo.RadioCheck = true;
-			this.menuLeadFormatSixXTwo.Shortcut = System.Windows.Forms.Shortcut.Ctrl5;
-			this.menuLeadFormatSixXTwo.Text = "6x2";
-			this.menuLeadFormatSixXTwo.Click += new System.EventHandler(this.menuLeadFormatSixXTwo_Click);
-			// 
-			// menuLeadFormatMedian
-			// 
-			this.menuLeadFormatMedian.Index = 5;
-			this.menuLeadFormatMedian.Shortcut = System.Windows.Forms.Shortcut.CtrlM;
-			this.menuLeadFormatMedian.Text = "Average Complex";
-			this.menuLeadFormatMedian.Click += new System.EventHandler(this.menuLeadFormatMedian_Click);
-			// 
-			// menuGain
-			// 
-			this.menuGain.Index = 1;
-			this.menuGain.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					 this.menuGain4,
-																					 this.menuGain3,
-																					 this.menuGain2,
-																					 this.menuGain1});
-			this.menuGain.Text = "Gain";
-			// 
-			// menuGain4
-			// 
-			this.menuGain4.Index = 0;
-			this.menuGain4.RadioCheck = true;
-			this.menuGain4.Text = "40 mm/mV";
-			this.menuGain4.Click += new System.EventHandler(this.menuGain4_Click);
-			// 
-			// menuGain3
-			// 
-			this.menuGain3.Index = 1;
-			this.menuGain3.RadioCheck = true;
-			this.menuGain3.Text = "20 mm/mV";
-			this.menuGain3.Click += new System.EventHandler(this.menuGain3_Click);
-			// 
-			// menuGain2
-			// 
-			this.menuGain2.Checked = true;
-			this.menuGain2.Index = 2;
-			this.menuGain2.RadioCheck = true;
-			this.menuGain2.Text = "10 mm/mV";
-			this.menuGain2.Click += new System.EventHandler(this.menuGain2_Click);
-			// 
-			// menuGain1
-			// 
-			this.menuGain1.Index = 3;
-			this.menuGain1.RadioCheck = true;
-			this.menuGain1.Text = "5   mm/mV";
-			this.menuGain1.Click += new System.EventHandler(this.menuGain1_Click);
-			// 
-			// menuGridType
-			// 
-			this.menuGridType.Index = 2;
-			this.menuGridType.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																						 this.menuGridNone,
-																						 this.menuGridOne,
-																						 this.menuGridFive});
-			this.menuGridType.Text = "Grid Type";
-			// 
-			// menuGridNone
-			// 
-			this.menuGridNone.Index = 0;
-			this.menuGridNone.RadioCheck = true;
-			this.menuGridNone.Text = "None";
-			this.menuGridNone.Click += new System.EventHandler(this.menuGridNone_Click);
-			// 
-			// menuGridOne
-			// 
-			this.menuGridOne.Index = 1;
-			this.menuGridOne.RadioCheck = true;
-			this.menuGridOne.Text = "1 mm";
-			this.menuGridOne.Click += new System.EventHandler(this.menuGridOne_Click);
-			// 
-			// menuGridFive
-			// 
-			this.menuGridFive.Index = 2;
-			this.menuGridFive.RadioCheck = true;
-			this.menuGridFive.Text = "5 mm";
-			this.menuGridFive.Click += new System.EventHandler(this.menuGridFive_Click);
-			// 
-			// menuColor
-			// 
-			this.menuColor.Index = 3;
-			this.menuColor.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					  this.menuColor1,
-																					  this.menuColor2,
-																					  this.menuColor3,
-																					  this.menuColor4});
-			this.menuColor.Text = "Color";
-			// 
-			// menuColor1
-			// 
-			this.menuColor1.Index = 0;
-			this.menuColor1.RadioCheck = true;
-			this.menuColor1.Text = "Red / Black";
-			this.menuColor1.Click += new System.EventHandler(this.menuColor1_Click);
-			// 
-			// menuColor2
-			// 
-			this.menuColor2.Index = 1;
-			this.menuColor2.RadioCheck = true;
-			this.menuColor2.Text = "Blue / Black";
-			this.menuColor2.Click += new System.EventHandler(this.menuColor2_Click);
-			// 
-			// menuColor3
-			// 
-			this.menuColor3.Index = 2;
-			this.menuColor3.RadioCheck = true;
-			this.menuColor3.Text = "Green / Black";
-			this.menuColor3.Click += new System.EventHandler(this.menuColor3_Click);
-			// 
-			// menuColor4
-			// 
-			this.menuColor4.Index = 3;
-			this.menuColor4.RadioCheck = true;
-			this.menuColor4.Text = "Gray / Green";
-			this.menuColor4.Click += new System.EventHandler(this.menuColor4_Click);
-			// 
-			// menuDisplayInfo
-			// 
-			this.menuDisplayInfo.Checked = true;
-			this.menuDisplayInfo.Index = 6;
-			this.menuDisplayInfo.Shortcut = System.Windows.Forms.Shortcut.CtrlI;
-			this.menuDisplayInfo.Text = "Display Info";
-			this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
-			// 
-			// menuAnnonymize
-			// 
-			this.menuAnnonymize.Index = 7;
-			this.menuAnnonymize.Shortcut = System.Windows.Forms.Shortcut.CtrlA;
-			this.menuAnnonymize.Text = "Annonymize";
-			this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
-			// 
-			// menuZoom
-			// 
-			this.menuZoom.Index = 5;
-			this.menuZoom.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					 this.menuZoomOut,
-																					 this.menuZoomIn});
-			this.menuZoom.Text = "Zoom";
-			// 
-			// menuZoomOut
-			// 
-			this.menuZoomOut.Index = 0;
-			this.menuZoomOut.Shortcut = System.Windows.Forms.Shortcut.Ctrl9;
-			this.menuZoomOut.Text = "Zoom Out";
-			this.menuZoomOut.Click += new System.EventHandler(this.menuZoomOut_Click);
-			// 
-			// menuZoomIn
-			// 
-			this.menuZoomIn.Index = 1;
-			this.menuZoomIn.Shortcut = System.Windows.Forms.Shortcut.Ctrl0;
-			this.menuZoomIn.Text = "Zoom In";
-			this.menuZoomIn.Click += new System.EventHandler(this.menuZoomIn_Click);
-			// 
-			// menuCaliper
-			// 
-			this.menuCaliper.Index = 4;
-			this.menuCaliper.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																						this.menuCaliperOff,
-																						this.menuCaliperDuration,
-																						this.menuCaliperBoth});
-			this.menuCaliper.Text = "Caliper";
-			// 
-			// menuCaliperOff
-			// 
-			this.menuCaliperOff.Checked = true;
-			this.menuCaliperOff.Index = 0;
-			this.menuCaliperOff.RadioCheck = true;
-			this.menuCaliperOff.Shortcut = System.Windows.Forms.Shortcut.CtrlQ;
-			this.menuCaliperOff.Text = "Off";
-			this.menuCaliperOff.Click += new System.EventHandler(this.menuCaliperOff_Click);
-			// 
-			// menuCaliperDuration
-			// 
-			this.menuCaliperDuration.Index = 1;
-			this.menuCaliperDuration.RadioCheck = true;
-			this.menuCaliperDuration.Shortcut = System.Windows.Forms.Shortcut.CtrlW;
-			this.menuCaliperDuration.Text = "Duration";
-			this.menuCaliperDuration.Click += new System.EventHandler(this.menuCaliperDuration_Click);
-			// 
-			// menuCaliperBoth
-			// 
-			this.menuCaliperBoth.Index = 2;
-			this.menuCaliperBoth.RadioCheck = true;
-			this.menuCaliperBoth.Shortcut = System.Windows.Forms.Shortcut.CtrlE;
-			this.menuCaliperBoth.Text = "Duration + uV";
-			this.menuCaliperBoth.Click += new System.EventHandler(this.menuCaliperBoth_Click);
-			// 
-			// menuSave
-			// 
-			this.menuSave.Enabled = false;
-			this.menuSave.Index = 2;
-			this.menuSave.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					 this.menuSaveFile,
-																					 this.menuSaveSystems});
-			this.menuSave.Text = "Save";
-			// 
-			// menuSaveFile
-			// 
-			this.menuSaveFile.Index = 0;
-			this.menuSaveFile.Shortcut = System.Windows.Forms.Shortcut.CtrlS;
-			this.menuSaveFile.Text = "File ...";
-			this.menuSaveFile.Click += new System.EventHandler(this.menuSaveFile_Click);
-			// 
-			// menuSaveSystems
-			// 
-			this.menuSaveSystems.Enabled = false;
-			this.menuSaveSystems.Index = 1;
-			this.menuSaveSystems.Text = "ECG System";
-			// 
-			// menuClose
-			// 
-			this.menuClose.Enabled = false;
-			this.menuClose.Index = 3;
-			this.menuClose.Shortcut = System.Windows.Forms.Shortcut.CtrlL;
-			this.menuClose.Text = "Close";
-			this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
-			// 
-			// menuPlugin
-			// 
-			this.menuPlugin.Index = 4;
-			this.menuPlugin.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-																					   this.menuAddPluginFile,
-																					   this.menuAddPluginDir});
-			this.menuPlugin.Text = "Plugins";
-			// 
-			// menuAddPluginFile
-			// 
-			this.menuAddPluginFile.Index = 0;
-			this.menuAddPluginFile.Shortcut = System.Windows.Forms.Shortcut.CtrlP;
-			this.menuAddPluginFile.Text = "File ...";
-			this.menuAddPluginFile.Click += new System.EventHandler(this.menuAddPluginFile_Click);
-			// 
-			// menuAddPluginDir
-			// 
-			this.menuAddPluginDir.Index = 1;
-			this.menuAddPluginDir.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftP;
-			this.menuAddPluginDir.Text = "Dir ...";
-			this.menuAddPluginDir.Click += new System.EventHandler(this.menuAddPluginDir_Click);
-			// 
-			// ECGPanel
-			// 
-			this.ECGPanel.BackColor = System.Drawing.Color.White;
-			this.ECGPanel.Controls.Add(this.InnerECGPanel);
-			this.ECGPanel.Controls.Add(this.labelPatientSecond);
-			this.ECGPanel.Controls.Add(this.labelDiagnostic);
-			this.ECGPanel.Controls.Add(this.labelTime);
-			this.ECGPanel.Controls.Add(this.labelPatient);
-			this.ECGPanel.Location = new System.Drawing.Point(0, 0);
-			this.ECGPanel.Name = "ECGPanel";
-			this.ECGPanel.Size = new System.Drawing.Size(684, 449);
-			this.ECGPanel.TabIndex = 0;
-			// 
-			// InnerECGPanel
-			// 
-			this.InnerECGPanel.BackColor = System.Drawing.Color.Transparent;
-			this.InnerECGPanel.Location = new System.Drawing.Point(0, 105);
-			this.InnerECGPanel.Name = "InnerECGPanel";
-			this.InnerECGPanel.Size = new System.Drawing.Size(175, 90);
-			this.InnerECGPanel.TabIndex = 0;
-			this.InnerECGPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.InnerECGPanel_Paint);
-			this.InnerECGPanel.DoubleClick += new System.EventHandler(this.InnerECGPanel_DoubleClick);
-			this.InnerECGPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.InnerECGPanel_MouseMove);
-			this.InnerECGPanel.MouseLeave += new System.EventHandler(this.InnerECGPanel_MouseLeave);
-			this.InnerECGPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.InnerECGPanel_MouseDown);
-			// 
-			// labelPatientSecond
-			// 
-			this.labelPatientSecond.BackColor = System.Drawing.Color.Transparent;
-			this.labelPatientSecond.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-			this.labelPatientSecond.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.labelPatientSecond.Location = new System.Drawing.Point(222, 29);
-			this.labelPatientSecond.Name = "labelPatientSecond";
-			this.labelPatientSecond.Size = new System.Drawing.Size(123, 66);
-			this.labelPatientSecond.TabIndex = 4;
-			// 
-			// labelDiagnostic
-			// 
-			this.labelDiagnostic.BackColor = System.Drawing.Color.White;
-			this.labelDiagnostic.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-			this.labelDiagnostic.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.labelDiagnostic.Location = new System.Drawing.Point(365, 5);
-			this.labelDiagnostic.Multiline = true;
-			this.labelDiagnostic.Name = "labelDiagnostic";
-			this.labelDiagnostic.ReadOnly = true;
-			this.labelDiagnostic.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.labelDiagnostic.Size = new System.Drawing.Size(310, 98);
-			this.labelDiagnostic.TabIndex = 3;
-			this.labelDiagnostic.Text = "";
-			this.labelDiagnostic.Visible = false;
-			// 
-			// labelTime
-			// 
-			this.labelTime.BackColor = System.Drawing.Color.Transparent;
-			this.labelTime.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-			this.labelTime.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.labelTime.Location = new System.Drawing.Point(210, 5);
-			this.labelTime.Name = "labelTime";
-			this.labelTime.Size = new System.Drawing.Size(145, 15);
-			this.labelTime.TabIndex = 2;
-			// 
-			// labelPatient
-			// 
-			this.labelPatient.BackColor = System.Drawing.Color.Transparent;
-			this.labelPatient.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-			this.labelPatient.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.labelPatient.Location = new System.Drawing.Point(5, 5);
-			this.labelPatient.Name = "labelPatient";
-			this.labelPatient.Size = new System.Drawing.Size(200, 98);
-			this.labelPatient.TabIndex = 1;
-			// 
-			// statusBar
-			// 
-			this.statusBar.Location = new System.Drawing.Point(0, 485);
-			this.statusBar.Name = "statusBar";
-			this.statusBar.Size = new System.Drawing.Size(686, 22);
-			this.statusBar.TabIndex = 1;
-			// 
-			// ECGTimeScrollbar
-			// 
-			this.ECGTimeScrollbar.Enabled = false;
-			this.ECGTimeScrollbar.Location = new System.Drawing.Point(0, 449);
-			this.ECGTimeScrollbar.Name = "ECGTimeScrollbar";
-			this.ECGTimeScrollbar.Size = new System.Drawing.Size(683, 16);
-			this.ECGTimeScrollbar.TabIndex = 5;
-			this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
-			// 
-			// ECGViewer
-			// 
-			this.ClientSize = new System.Drawing.Size(686, 507);
-			this.Controls.Add(this.statusBar);
-			this.Controls.Add(this.ECGPanel);
-			this.Controls.Add(this.ECGTimeScrollbar);
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-			this.Menu = this.mainMenu;
-			this.MinimumSize = new System.Drawing.Size(534, 534);
-			this.Name = "ECGViewer";
-			this.Text = "ECGViewer";
-			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-			this.Resize += new System.EventHandler(this.ECGViewer_Resize);
-			this.Load += new System.EventHandler(this.ECGViewer_Load);
-			this.ECGPanel.ResumeLayout(false);
-			this.ResumeLayout(false);
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ECGViewer));
+            this.mainMenu = new System.Windows.Forms.MainMenu(this.components);
+            this.menuOpen = new System.Windows.Forms.MenuItem();
+            this.menuOpenFile = new System.Windows.Forms.MenuItem();
+            this.menuOpenSystems = new System.Windows.Forms.MenuItem();
+            this.menuView = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormat = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormatRegular = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormatThreeXFour = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormatThreeXFourPlusOne = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormatThreeXFourPlusThree = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormatSixXTwo = new System.Windows.Forms.MenuItem();
+            this.menuLeadFormatMedian = new System.Windows.Forms.MenuItem();
+            this.menuGain = new System.Windows.Forms.MenuItem();
+            this.menuGain4 = new System.Windows.Forms.MenuItem();
+            this.menuGain3 = new System.Windows.Forms.MenuItem();
+            this.menuGain2 = new System.Windows.Forms.MenuItem();
+            this.menuGain1 = new System.Windows.Forms.MenuItem();
+            this.menuGridType = new System.Windows.Forms.MenuItem();
+            this.menuGridNone = new System.Windows.Forms.MenuItem();
+            this.menuGridOne = new System.Windows.Forms.MenuItem();
+            this.menuGridFive = new System.Windows.Forms.MenuItem();
+            this.menuColor = new System.Windows.Forms.MenuItem();
+            this.menuColor1 = new System.Windows.Forms.MenuItem();
+            this.menuColor2 = new System.Windows.Forms.MenuItem();
+            this.menuColor3 = new System.Windows.Forms.MenuItem();
+            this.menuColor4 = new System.Windows.Forms.MenuItem();
+            this.menuCaliper = new System.Windows.Forms.MenuItem();
+            this.menuCaliperOff = new System.Windows.Forms.MenuItem();
+            this.menuCaliperDuration = new System.Windows.Forms.MenuItem();
+            this.menuCaliperBoth = new System.Windows.Forms.MenuItem();
+            this.menuZoom = new System.Windows.Forms.MenuItem();
+            this.menuZoomOut = new System.Windows.Forms.MenuItem();
+            this.menuZoomIn = new System.Windows.Forms.MenuItem();
+            this.menuDisplayInfo = new System.Windows.Forms.MenuItem();
+            this.menuAnnonymize = new System.Windows.Forms.MenuItem();
+            this.menuSave = new System.Windows.Forms.MenuItem();
+            this.menuSaveFile = new System.Windows.Forms.MenuItem();
+            this.menuSaveSystems = new System.Windows.Forms.MenuItem();
+            this.menuClose = new System.Windows.Forms.MenuItem();
+            this.menuPlugin = new System.Windows.Forms.MenuItem();
+            this.menuAddPluginFile = new System.Windows.Forms.MenuItem();
+            this.menuAddPluginDir = new System.Windows.Forms.MenuItem();
+            this.ECGPanel = new System.Windows.Forms.Panel();
+            this.InnerECGPanel = new System.Windows.Forms.Panel();
+            this.labelPatientSecond = new System.Windows.Forms.Label();
+            this.labelDiagnostic = new System.Windows.Forms.TextBox();
+            this.labelTime = new System.Windows.Forms.Label();
+            this.labelPatient = new System.Windows.Forms.Label();
+            this.statusBar = new System.Windows.Forms.StatusBar();
+            this.openECGFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
+            this.menuFilter = new System.Windows.Forms.MenuItem();
+            this.menuFilterNone = new System.Windows.Forms.MenuItem();
+            this.menuFilter40Hz = new System.Windows.Forms.MenuItem();
+            this.menuFilterMuscle = new System.Windows.Forms.MenuItem();
+            this.ECGPanel.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // mainMenu
+            // 
+            this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuOpen,
+            this.menuView,
+            this.menuSave,
+            this.menuClose,
+            this.menuPlugin});
+            // 
+            // menuOpen
+            // 
+            this.menuOpen.Index = 0;
+            this.menuOpen.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuOpenFile,
+            this.menuOpenSystems});
+            this.menuOpen.Text = "Open";
+            // 
+            // menuOpenFile
+            // 
+            this.menuOpenFile.Index = 0;
+            this.menuOpenFile.Shortcut = System.Windows.Forms.Shortcut.CtrlO;
+            this.menuOpenFile.Text = "File ...";
+            this.menuOpenFile.Click += new System.EventHandler(this.menuOpenFile_Click);
+            // 
+            // menuOpenSystems
+            // 
+            this.menuOpenSystems.Enabled = false;
+            this.menuOpenSystems.Index = 1;
+            this.menuOpenSystems.Text = "ECG System";
+            // 
+            // menuView
+            // 
+            this.menuView.Enabled = false;
+            this.menuView.Index = 1;
+            this.menuView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuLeadFormat,
+            this.menuFilter,
+            this.menuGain,
+            this.menuGridType,
+            this.menuColor,
+            this.menuCaliper,
+            this.menuZoom,
+            this.menuDisplayInfo,
+            this.menuAnnonymize});
+            this.menuView.Text = "View";
+            // 
+            // menuLeadFormat
+            // 
+            this.menuLeadFormat.Index = 0;
+            this.menuLeadFormat.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuLeadFormatRegular,
+            this.menuLeadFormatThreeXFour,
+            this.menuLeadFormatThreeXFourPlusOne,
+            this.menuLeadFormatThreeXFourPlusThree,
+            this.menuLeadFormatSixXTwo,
+            this.menuLeadFormatMedian});
+            this.menuLeadFormat.Text = "Lead Format";
+            // 
+            // menuLeadFormatRegular
+            // 
+            this.menuLeadFormatRegular.Checked = true;
+            this.menuLeadFormatRegular.Index = 0;
+            this.menuLeadFormatRegular.RadioCheck = true;
+            this.menuLeadFormatRegular.Shortcut = System.Windows.Forms.Shortcut.Ctrl1;
+            this.menuLeadFormatRegular.Text = "Regular";
+            this.menuLeadFormatRegular.Click += new System.EventHandler(this.menuLeadFormatRegular_Click);
+            // 
+            // menuLeadFormatThreeXFour
+            // 
+            this.menuLeadFormatThreeXFour.Index = 1;
+            this.menuLeadFormatThreeXFour.RadioCheck = true;
+            this.menuLeadFormatThreeXFour.Shortcut = System.Windows.Forms.Shortcut.Ctrl2;
+            this.menuLeadFormatThreeXFour.Text = "3x4";
+            this.menuLeadFormatThreeXFour.Click += new System.EventHandler(this.menuLeadFormatFourXThree_Click);
+            // 
+            // menuLeadFormatThreeXFourPlusOne
+            // 
+            this.menuLeadFormatThreeXFourPlusOne.Index = 2;
+            this.menuLeadFormatThreeXFourPlusOne.RadioCheck = true;
+            this.menuLeadFormatThreeXFourPlusOne.Shortcut = System.Windows.Forms.Shortcut.Ctrl3;
+            this.menuLeadFormatThreeXFourPlusOne.Text = "3x4+1";
+            this.menuLeadFormatThreeXFourPlusOne.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusOne_Click);
+            // 
+            // menuLeadFormatThreeXFourPlusThree
+            // 
+            this.menuLeadFormatThreeXFourPlusThree.Index = 3;
+            this.menuLeadFormatThreeXFourPlusThree.RadioCheck = true;
+            this.menuLeadFormatThreeXFourPlusThree.Shortcut = System.Windows.Forms.Shortcut.Ctrl4;
+            this.menuLeadFormatThreeXFourPlusThree.Text = "3x4+3";
+            this.menuLeadFormatThreeXFourPlusThree.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusThree_Click);
+            // 
+            // menuLeadFormatSixXTwo
+            // 
+            this.menuLeadFormatSixXTwo.Index = 4;
+            this.menuLeadFormatSixXTwo.RadioCheck = true;
+            this.menuLeadFormatSixXTwo.Shortcut = System.Windows.Forms.Shortcut.Ctrl5;
+            this.menuLeadFormatSixXTwo.Text = "6x2";
+            this.menuLeadFormatSixXTwo.Click += new System.EventHandler(this.menuLeadFormatSixXTwo_Click);
+            // 
+            // menuLeadFormatMedian
+            // 
+            this.menuLeadFormatMedian.Index = 5;
+            this.menuLeadFormatMedian.Shortcut = System.Windows.Forms.Shortcut.CtrlM;
+            this.menuLeadFormatMedian.Text = "Average Complex";
+            this.menuLeadFormatMedian.Click += new System.EventHandler(this.menuLeadFormatMedian_Click);
+            // 
+            // menuGain
+            // 
+            this.menuGain.Index = 2;
+            this.menuGain.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuGain4,
+            this.menuGain3,
+            this.menuGain2,
+            this.menuGain1});
+            this.menuGain.Text = "Gain";
+            // 
+            // menuGain4
+            // 
+            this.menuGain4.Index = 0;
+            this.menuGain4.RadioCheck = true;
+            this.menuGain4.Text = "40 mm/mV";
+            this.menuGain4.Click += new System.EventHandler(this.menuGain4_Click);
+            // 
+            // menuGain3
+            // 
+            this.menuGain3.Index = 1;
+            this.menuGain3.RadioCheck = true;
+            this.menuGain3.Text = "20 mm/mV";
+            this.menuGain3.Click += new System.EventHandler(this.menuGain3_Click);
+            // 
+            // menuGain2
+            // 
+            this.menuGain2.Checked = true;
+            this.menuGain2.Index = 2;
+            this.menuGain2.RadioCheck = true;
+            this.menuGain2.Text = "10 mm/mV";
+            this.menuGain2.Click += new System.EventHandler(this.menuGain2_Click);
+            // 
+            // menuGain1
+            // 
+            this.menuGain1.Index = 3;
+            this.menuGain1.RadioCheck = true;
+            this.menuGain1.Text = "5   mm/mV";
+            this.menuGain1.Click += new System.EventHandler(this.menuGain1_Click);
+            // 
+            // menuGridType
+            // 
+            this.menuGridType.Index = 3;
+            this.menuGridType.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuGridNone,
+            this.menuGridOne,
+            this.menuGridFive});
+            this.menuGridType.Text = "Grid Type";
+            // 
+            // menuGridNone
+            // 
+            this.menuGridNone.Index = 0;
+            this.menuGridNone.RadioCheck = true;
+            this.menuGridNone.Text = "None";
+            this.menuGridNone.Click += new System.EventHandler(this.menuGridNone_Click);
+            // 
+            // menuGridOne
+            // 
+            this.menuGridOne.Index = 1;
+            this.menuGridOne.RadioCheck = true;
+            this.menuGridOne.Text = "1 mm";
+            this.menuGridOne.Click += new System.EventHandler(this.menuGridOne_Click);
+            // 
+            // menuGridFive
+            // 
+            this.menuGridFive.Index = 2;
+            this.menuGridFive.RadioCheck = true;
+            this.menuGridFive.Text = "5 mm";
+            this.menuGridFive.Click += new System.EventHandler(this.menuGridFive_Click);
+            // 
+            // menuColor
+            // 
+            this.menuColor.Index = 4;
+            this.menuColor.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuColor1,
+            this.menuColor2,
+            this.menuColor3,
+            this.menuColor4});
+            this.menuColor.Text = "Color";
+            // 
+            // menuColor1
+            // 
+            this.menuColor1.Index = 0;
+            this.menuColor1.RadioCheck = true;
+            this.menuColor1.Text = "Red / Black";
+            this.menuColor1.Click += new System.EventHandler(this.menuColor1_Click);
+            // 
+            // menuColor2
+            // 
+            this.menuColor2.Index = 1;
+            this.menuColor2.RadioCheck = true;
+            this.menuColor2.Text = "Blue / Black";
+            this.menuColor2.Click += new System.EventHandler(this.menuColor2_Click);
+            // 
+            // menuColor3
+            // 
+            this.menuColor3.Index = 2;
+            this.menuColor3.RadioCheck = true;
+            this.menuColor3.Text = "Green / Black";
+            this.menuColor3.Click += new System.EventHandler(this.menuColor3_Click);
+            // 
+            // menuColor4
+            // 
+            this.menuColor4.Index = 3;
+            this.menuColor4.RadioCheck = true;
+            this.menuColor4.Text = "Gray / Green";
+            this.menuColor4.Click += new System.EventHandler(this.menuColor4_Click);
+            // 
+            // menuCaliper
+            // 
+            this.menuCaliper.Index = 5;
+            this.menuCaliper.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuCaliperOff,
+            this.menuCaliperDuration,
+            this.menuCaliperBoth});
+            this.menuCaliper.Text = "Caliper";
+            // 
+            // menuCaliperOff
+            // 
+            this.menuCaliperOff.Checked = true;
+            this.menuCaliperOff.Index = 0;
+            this.menuCaliperOff.RadioCheck = true;
+            this.menuCaliperOff.Shortcut = System.Windows.Forms.Shortcut.CtrlQ;
+            this.menuCaliperOff.Text = "Off";
+            this.menuCaliperOff.Click += new System.EventHandler(this.menuCaliperOff_Click);
+            // 
+            // menuCaliperDuration
+            // 
+            this.menuCaliperDuration.Index = 1;
+            this.menuCaliperDuration.RadioCheck = true;
+            this.menuCaliperDuration.Shortcut = System.Windows.Forms.Shortcut.CtrlW;
+            this.menuCaliperDuration.Text = "Duration";
+            this.menuCaliperDuration.Click += new System.EventHandler(this.menuCaliperDuration_Click);
+            // 
+            // menuCaliperBoth
+            // 
+            this.menuCaliperBoth.Index = 2;
+            this.menuCaliperBoth.RadioCheck = true;
+            this.menuCaliperBoth.Shortcut = System.Windows.Forms.Shortcut.CtrlE;
+            this.menuCaliperBoth.Text = "Duration + uV";
+            this.menuCaliperBoth.Click += new System.EventHandler(this.menuCaliperBoth_Click);
+            // 
+            // menuZoom
+            // 
+            this.menuZoom.Index = 6;
+            this.menuZoom.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuZoomOut,
+            this.menuZoomIn});
+            this.menuZoom.Text = "Zoom";
+            // 
+            // menuZoomOut
+            // 
+            this.menuZoomOut.Index = 0;
+            this.menuZoomOut.Shortcut = System.Windows.Forms.Shortcut.Ctrl9;
+            this.menuZoomOut.Text = "Zoom Out";
+            this.menuZoomOut.Click += new System.EventHandler(this.menuZoomOut_Click);
+            // 
+            // menuZoomIn
+            // 
+            this.menuZoomIn.Index = 1;
+            this.menuZoomIn.Shortcut = System.Windows.Forms.Shortcut.Ctrl0;
+            this.menuZoomIn.Text = "Zoom In";
+            this.menuZoomIn.Click += new System.EventHandler(this.menuZoomIn_Click);
+            // 
+            // menuDisplayInfo
+            // 
+            this.menuDisplayInfo.Checked = true;
+            this.menuDisplayInfo.Index = 7;
+            this.menuDisplayInfo.Shortcut = System.Windows.Forms.Shortcut.CtrlI;
+            this.menuDisplayInfo.Text = "Display Info";
+            this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
+            // 
+            // menuAnnonymize
+            // 
+            this.menuAnnonymize.Index = 8;
+            this.menuAnnonymize.Shortcut = System.Windows.Forms.Shortcut.CtrlA;
+            this.menuAnnonymize.Text = "Annonymize";
+            this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
+            // 
+            // menuSave
+            // 
+            this.menuSave.Enabled = false;
+            this.menuSave.Index = 2;
+            this.menuSave.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuSaveFile,
+            this.menuSaveSystems});
+            this.menuSave.Text = "Save";
+            // 
+            // menuSaveFile
+            // 
+            this.menuSaveFile.Index = 0;
+            this.menuSaveFile.Shortcut = System.Windows.Forms.Shortcut.CtrlS;
+            this.menuSaveFile.Text = "File ...";
+            this.menuSaveFile.Click += new System.EventHandler(this.menuSaveFile_Click);
+            // 
+            // menuSaveSystems
+            // 
+            this.menuSaveSystems.Enabled = false;
+            this.menuSaveSystems.Index = 1;
+            this.menuSaveSystems.Text = "ECG System";
+            // 
+            // menuClose
+            // 
+            this.menuClose.Enabled = false;
+            this.menuClose.Index = 3;
+            this.menuClose.Shortcut = System.Windows.Forms.Shortcut.CtrlL;
+            this.menuClose.Text = "Close";
+            this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
+            // 
+            // menuPlugin
+            // 
+            this.menuPlugin.Index = 4;
+            this.menuPlugin.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuAddPluginFile,
+            this.menuAddPluginDir});
+            this.menuPlugin.Text = "Plugins";
+            // 
+            // menuAddPluginFile
+            // 
+            this.menuAddPluginFile.Index = 0;
+            this.menuAddPluginFile.Shortcut = System.Windows.Forms.Shortcut.CtrlP;
+            this.menuAddPluginFile.Text = "File ...";
+            this.menuAddPluginFile.Click += new System.EventHandler(this.menuAddPluginFile_Click);
+            // 
+            // menuAddPluginDir
+            // 
+            this.menuAddPluginDir.Index = 1;
+            this.menuAddPluginDir.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftP;
+            this.menuAddPluginDir.Text = "Dir ...";
+            this.menuAddPluginDir.Click += new System.EventHandler(this.menuAddPluginDir_Click);
+            // 
+            // ECGPanel
+            // 
+            this.ECGPanel.BackColor = System.Drawing.Color.White;
+            this.ECGPanel.Controls.Add(this.InnerECGPanel);
+            this.ECGPanel.Controls.Add(this.labelPatientSecond);
+            this.ECGPanel.Controls.Add(this.labelDiagnostic);
+            this.ECGPanel.Controls.Add(this.labelTime);
+            this.ECGPanel.Controls.Add(this.labelPatient);
+            this.ECGPanel.Location = new System.Drawing.Point(0, 0);
+            this.ECGPanel.Name = "ECGPanel";
+            this.ECGPanel.Size = new System.Drawing.Size(684, 449);
+            this.ECGPanel.TabIndex = 0;
+            // 
+            // InnerECGPanel
+            // 
+            this.InnerECGPanel.BackColor = System.Drawing.Color.Transparent;
+            this.InnerECGPanel.Location = new System.Drawing.Point(0, 105);
+            this.InnerECGPanel.Name = "InnerECGPanel";
+            this.InnerECGPanel.Size = new System.Drawing.Size(175, 90);
+            this.InnerECGPanel.TabIndex = 0;
+            this.InnerECGPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.InnerECGPanel_Paint);
+            this.InnerECGPanel.DoubleClick += new System.EventHandler(this.InnerECGPanel_DoubleClick);
+            this.InnerECGPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.InnerECGPanel_MouseDown);
+            this.InnerECGPanel.MouseLeave += new System.EventHandler(this.InnerECGPanel_MouseLeave);
+            this.InnerECGPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.InnerECGPanel_MouseMove);
+            // 
+            // labelPatientSecond
+            // 
+            this.labelPatientSecond.BackColor = System.Drawing.Color.Transparent;
+            this.labelPatientSecond.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelPatientSecond.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.labelPatientSecond.Location = new System.Drawing.Point(222, 29);
+            this.labelPatientSecond.Name = "labelPatientSecond";
+            this.labelPatientSecond.Size = new System.Drawing.Size(123, 66);
+            this.labelPatientSecond.TabIndex = 4;
+            // 
+            // labelDiagnostic
+            // 
+            this.labelDiagnostic.BackColor = System.Drawing.Color.White;
+            this.labelDiagnostic.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelDiagnostic.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.labelDiagnostic.Location = new System.Drawing.Point(365, 5);
+            this.labelDiagnostic.Multiline = true;
+            this.labelDiagnostic.Name = "labelDiagnostic";
+            this.labelDiagnostic.ReadOnly = true;
+            this.labelDiagnostic.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.labelDiagnostic.Size = new System.Drawing.Size(310, 98);
+            this.labelDiagnostic.TabIndex = 3;
+            this.labelDiagnostic.Visible = false;
+            // 
+            // labelTime
+            // 
+            this.labelTime.BackColor = System.Drawing.Color.Transparent;
+            this.labelTime.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelTime.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.labelTime.Location = new System.Drawing.Point(210, 5);
+            this.labelTime.Name = "labelTime";
+            this.labelTime.Size = new System.Drawing.Size(145, 15);
+            this.labelTime.TabIndex = 2;
+            // 
+            // labelPatient
+            // 
+            this.labelPatient.BackColor = System.Drawing.Color.Transparent;
+            this.labelPatient.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelPatient.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.labelPatient.Location = new System.Drawing.Point(5, 5);
+            this.labelPatient.Name = "labelPatient";
+            this.labelPatient.Size = new System.Drawing.Size(200, 98);
+            this.labelPatient.TabIndex = 1;
+            // 
+            // statusBar
+            // 
+            this.statusBar.Location = new System.Drawing.Point(0, 485);
+            this.statusBar.Name = "statusBar";
+            this.statusBar.Size = new System.Drawing.Size(686, 22);
+            this.statusBar.TabIndex = 1;
+            // 
+            // ECGTimeScrollbar
+            // 
+            this.ECGTimeScrollbar.Enabled = false;
+            this.ECGTimeScrollbar.Location = new System.Drawing.Point(0, 449);
+            this.ECGTimeScrollbar.Name = "ECGTimeScrollbar";
+            this.ECGTimeScrollbar.Size = new System.Drawing.Size(683, 16);
+            this.ECGTimeScrollbar.TabIndex = 5;
+            this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
+            // 
+            // menuFilter
+            // 
+            this.menuFilter.Index = 1;
+            this.menuFilter.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuFilterNone,
+            this.menuFilter40Hz,
+            this.menuFilterMuscle});
+            this.menuFilter.Text = "Filter";
+            // 
+            // menuFilterNone
+            // 
+            this.menuFilterNone.Checked = true;
+            this.menuFilterNone.Index = 0;
+            this.menuFilterNone.Text = "None";
+            this.menuFilterNone.Click += new System.EventHandler(this.menuFilterNone_Click);
+            // 
+            // menuFilter40Hz
+            // 
+            this.menuFilter40Hz.Index = 1;
+            this.menuFilter40Hz.Text = "40 Hz (0.05-40 Hz)";
+            this.menuFilter40Hz.Click += new System.EventHandler(this.menuFilter40Hz_Click);
+            // 
+            // menuFilterMuscle
+            // 
+            this.menuFilterMuscle.Index = 2;
+            this.menuFilterMuscle.Text = "Muscle (0.05-35 Hz)";
+            this.menuFilterMuscle.Click += new System.EventHandler(this.menuFilterMuscle_Click);
+            // 
+            // ECGViewer
+            // 
+            this.ClientSize = new System.Drawing.Size(686, 507);
+            this.Controls.Add(this.statusBar);
+            this.Controls.Add(this.ECGPanel);
+            this.Controls.Add(this.ECGTimeScrollbar);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Menu = this.mainMenu;
+            this.MinimumSize = new System.Drawing.Size(534, 534);
+            this.Name = "ECGViewer";
+            this.Text = "ECGViewer";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.ECGViewer_Load);
+            this.Resize += new System.EventHandler(this.ECGViewer_Resize);
+            this.ECGPanel.ResumeLayout(false);
+            this.ECGPanel.PerformLayout();
+            this.ResumeLayout(false);
 
 		}
 		#endregion
@@ -1300,7 +1338,6 @@ namespace ECGViewer
 					int w = (int)e.Graphics.VisibleClipBounds.Width,
 						h = (int)e.Graphics.VisibleClipBounds.Height;
 
-
 					int n = 0;
 					int[,] s = {{782, 492}, {1042, 657}, {1302, 822}};
 
@@ -1350,15 +1387,36 @@ namespace ECGViewer
 				
 					ECGConversion.ECGDraw.DpiX = ECGConversion.ECGDraw.DpiY = 25.4f * n;
 
+                    ECGConversion.ECGSignals.Signals drawSignal = _CurrentSignal;
+
+                    if (drawSignal != null)
+                    {
+                        if (!double.IsNaN(_BottomCutoff))
+                        {
+                            if (!double.IsNaN(_TopCutoff))
+                            {
+                                drawSignal = drawSignal.ApplyBandpassFilter(_BottomCutoff, _TopCutoff);
+                            }
+                            else
+                            {
+                                drawSignal = drawSignal.ApplyHighpassFilter(_BottomCutoff);
+                            }
+                        }
+                        else if (!double.IsNaN(_TopCutoff))
+                        {
+                            drawSignal = drawSignal.ApplyLowpassFilter(_TopCutoff);
+                        }
+                    }
+
 					int
 						oldSPS = _CurrentSignal.RhythmSamplesPerSecond,
-						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), _CurrentSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain);
+						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), drawSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain);
 
 					if (ret < 0)
 					{
 						Graphics g = Graphics.FromImage(_DrawBuffer);
 
-						ret = ECGDraw.DrawECG(g, _CurrentSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain);
+                        ret = ECGDraw.DrawECG(g, drawSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain);
 					}
 
 					if (_DrawType != ECGDraw.ECGDrawType.Median)
@@ -2223,5 +2281,44 @@ namespace ECGViewer
 				Refresh();
 			}
 		}
+
+        private void menuFilterNone_Click(object sender, EventArgs e)
+        {
+            menuFilterNone.Checked = true;
+            menuFilter40Hz.Checked = false;
+            menuFilterMuscle.Checked = false;
+
+            _BottomCutoff = double.NaN;
+            _TopCutoff = double.NaN;
+
+            DrawBuffer = null;
+            Refresh();
+        }
+
+        private void menuFilter40Hz_Click(object sender, EventArgs e)
+        {
+            menuFilterNone.Checked = false;
+            menuFilter40Hz.Checked = true;
+            menuFilterMuscle.Checked = false;
+
+            _BottomCutoff = 0.05;
+            _TopCutoff = 40.0;
+
+            DrawBuffer = null;
+            Refresh();
+        }
+
+        private void menuFilterMuscle_Click(object sender, EventArgs e)
+        {
+            menuFilterNone.Checked = false;
+            menuFilter40Hz.Checked = false;
+            menuFilterMuscle.Checked = true;
+
+            _BottomCutoff = 0.05;
+            _TopCutoff = 35.0;
+
+            DrawBuffer = null;
+            Refresh();
+        }
 	}
 }

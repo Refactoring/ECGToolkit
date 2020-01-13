@@ -5,20 +5,25 @@
 
 ECG Conversion Toolkit
 
+Copyright 2016-2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2011, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 This product includes software developed at
-Thoraxcentrum, Erasmus MC (http://www.erasmusmc.nl/thoraxcentrum/).
+Thoraxcentrum, Erasmus MC (https://www.erasmusmc.nl/thoraxcentrum/).
 
 DICOM support is based on the DICOM# library which is open source
 software, available under the GNU Library or Lesser General Public
 License (LGPL). Written by Fang Yang. The library is available from:
-   http://sourceforge.net/projects/dicom-cs/
+   https://sourceforge.net/projects/dicom-cs/
 
 PDF support is based on the iTextSharp library which is open source
 software, available under the GNU Library or Lesser General Public
 License (LGPL). Written by Bruno Lowagie and Paulo Soares. The library
 is available from:
-   http://sourceforge.net/projects/itextsharp/
+   https://sourceforge.net/projects/itextsharp/
+
+namespace ECGConversion.DSP is mostly licensed under CPOL 1.02 available
+from:
+   https://www.codeproject.com/info/cpol10.aspx
 

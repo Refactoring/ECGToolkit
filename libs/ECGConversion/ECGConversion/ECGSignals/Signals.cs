@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2019-2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012-1014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -264,6 +264,213 @@ namespace ECGConversion.ECGSignals
 
 			return sigs;
 		}
+
+        /// <summary>
+        /// Apply bandpass filter to Signal object
+        /// </summary>
+        /// <param name="bottom">bottom frequency of bandpass filter</param>
+        /// <param name="top">top frequency of bandpass filter</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyBandpassFilter(double bottom, double top)
+        {
+            return ApplyBandpassFilter(bottom, top, 2);
+        }
+
+        /// <summary>
+        /// Apply bandpass filter to Signal object
+        /// </summary>
+        /// <param name="bottom">bottom frequency of bandpass filter</param>
+        /// <param name="top">top frequency of bandpass filter</param>
+        /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyBandpassFilter(double bottom, double top, int numSections)
+        {
+            Signals sigs = new Signals();
+
+            sigs.RhythmAVM = this.RhythmAVM;
+            sigs.RhythmSamplesPerSecond = this.RhythmSamplesPerSecond;
+
+            sigs.MedianAVM = this.MedianAVM;
+            sigs.MedianLength = this.MedianLength;
+            sigs.MedianSamplesPerSecond = this.MedianSamplesPerSecond;
+            sigs.MedianFiducialPoint = this.MedianFiducialPoint;
+
+            if (this.QRSZone != null)
+            {
+                sigs.QRSZone = new QRSZone[this.QRSZone.Length];
+
+                for (int i = 0; i < sigs.QRSZone.Length; i++)
+                    sigs.QRSZone[i] = this.QRSZone[i].Clone();
+            }
+
+            if (this._Lead != null)
+            {
+                sigs.NrLeads = this.NrLeads;
+
+                for (int i = 0; i < sigs._Lead.Length; i++)
+                {
+                    DSP.IFilter
+                        rhythmFilter = null,
+                        medianFilter = null;
+
+                    if ((_Lead[i].Rhythm != null)
+                    &&  (this.RhythmSamplesPerSecond > 0))
+                    {
+                        rhythmFilter = new DSP.BandpassFilterButterworthImplementation(bottom, top, numSections, sigs.RhythmSamplesPerSecond); 
+                    }
+
+                    if ((_Lead[i].Median != null)
+                    &&  (this.MedianSamplesPerSecond > 0))
+                    {
+                        medianFilter = new DSP.BandpassFilterButterworthImplementation(bottom, top, numSections, sigs.MedianSamplesPerSecond);
+                    }
+
+                    sigs._Lead[i] = this._Lead[i].ApplyFilter(rhythmFilter, medianFilter);
+
+                    if (sigs._Lead[i] == null)
+                        return null;
+                }
+            }
+
+            return sigs;
+        }
+
+        /// <summary>
+        /// Apply lowpass filter to Signal object
+        /// </summary>
+        /// <param name="cutoff">top frequency of bandpass filter</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyLowpassFilter(double cutoff)
+        {
+            return ApplyLowpassFilter(cutoff, 2);
+        }
+
+        /// <summary>
+        /// Apply lowpass filter to Signal object
+        /// </summary>
+        /// <param name="cutoff">top frequency of bandpass filter</param>
+        /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyLowpassFilter(double cutoff, int numSections)
+        {
+            Signals sigs = new Signals();
+
+            sigs.RhythmAVM = this.RhythmAVM;
+            sigs.RhythmSamplesPerSecond = this.RhythmSamplesPerSecond;
+
+            sigs.MedianAVM = this.MedianAVM;
+            sigs.MedianLength = this.MedianLength;
+            sigs.MedianSamplesPerSecond = this.MedianSamplesPerSecond;
+            sigs.MedianFiducialPoint = this.MedianFiducialPoint;
+
+            if (this.QRSZone != null)
+            {
+                sigs.QRSZone = new QRSZone[this.QRSZone.Length];
+
+                for (int i = 0; i < sigs.QRSZone.Length; i++)
+                    sigs.QRSZone[i] = this.QRSZone[i].Clone();
+            }
+
+            if (this._Lead != null)
+            {
+                sigs.NrLeads = this.NrLeads;
+
+                for (int i = 0; i < sigs._Lead.Length; i++)
+                {
+                    DSP.IFilter
+                        rhythmFilter = null,
+                        medianFilter = null;
+
+                    if ((_Lead[i].Rhythm != null)
+                    && (this.RhythmSamplesPerSecond > 0))
+                    {
+                        rhythmFilter = new DSP.LowpassFilterButterworthImplementation(cutoff, numSections, sigs.RhythmSamplesPerSecond);
+                    }
+
+                    if ((_Lead[i].Median != null)
+                    && (this.MedianSamplesPerSecond > 0))
+                    {
+                        medianFilter = new DSP.LowpassFilterButterworthImplementation(cutoff, numSections, sigs.MedianSamplesPerSecond);
+                    }
+
+                    sigs._Lead[i] = this._Lead[i].ApplyFilter(rhythmFilter, medianFilter);
+
+                    if (sigs._Lead[i] == null)
+                        return null;
+                }
+            }
+
+            return sigs;
+        }
+
+        /// <summary>
+        /// Apply highpass filter to Signal object
+        /// </summary>
+        /// <param name="cutoff">top frequency of bandpass filter</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyHighpassFilter(double cutoff)
+        {
+            return ApplyHighpassFilter(cutoff, 2);
+        }
+
+        /// <summary>
+        /// Apply highpass filter to Signal object
+        /// </summary>
+        /// <param name="cutoff">top frequency of bandpass filter</param>
+        /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyHighpassFilter(double cutoff, int numSections)
+        {
+            Signals sigs = new Signals();
+
+            sigs.RhythmAVM = this.RhythmAVM;
+            sigs.RhythmSamplesPerSecond = this.RhythmSamplesPerSecond;
+
+            sigs.MedianAVM = this.MedianAVM;
+            sigs.MedianLength = this.MedianLength;
+            sigs.MedianSamplesPerSecond = this.MedianSamplesPerSecond;
+            sigs.MedianFiducialPoint = this.MedianFiducialPoint;
+
+            if (this.QRSZone != null)
+            {
+                sigs.QRSZone = new QRSZone[this.QRSZone.Length];
+
+                for (int i = 0; i < sigs.QRSZone.Length; i++)
+                    sigs.QRSZone[i] = this.QRSZone[i].Clone();
+            }
+
+            if (this._Lead != null)
+            {
+                sigs.NrLeads = this.NrLeads;
+
+                for (int i = 0; i < sigs._Lead.Length; i++)
+                {
+                    DSP.IFilter
+                        rhythmFilter = null,
+                        medianFilter = null;
+
+                    if ((_Lead[i].Rhythm != null)
+                    && (this.RhythmSamplesPerSecond > 0))
+                    {
+                        rhythmFilter = new DSP.HighpassFilterButterworthImplementation(cutoff, numSections, sigs.RhythmSamplesPerSecond);
+                    }
+
+                    if ((_Lead[i].Median != null)
+                    && (this.MedianSamplesPerSecond > 0))
+                    {
+                        medianFilter = new DSP.HighpassFilterButterworthImplementation(cutoff, numSections, sigs.MedianSamplesPerSecond);
+                    }
+
+                    sigs._Lead[i] = this._Lead[i].ApplyFilter(rhythmFilter, medianFilter);
+
+                    if (sigs._Lead[i] == null)
+                        return null;
+                }
+            }
+
+            return sigs;
+        }
+
 		/// <summary>
 		/// Function to make leads a certain length.
 		/// </summary>

@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -59,6 +60,49 @@ namespace ECGConversion.ECGSignals
 
 			return sig;
 		}
+
+        /// <summary>
+        /// Function to apply a bandpass filter on Signal object
+        /// </summary>
+        /// <param name="rhythmFilter">Provide filter for rhythm data</param>
+        /// <param name="medianFilter">Provide filter for median data</param>
+        /// <returns>a filtered copy of object</returns>
+        public Signal ApplyFilter(DSP.IFilter rhythmFilter, DSP.IFilter medianFilter)
+        {
+            Signal sig = new Signal();
+
+            sig.Type = this.Type;
+            sig.RhythmStart = this.RhythmStart;
+            sig.RhythmEnd = this.RhythmEnd;
+
+            if (this.Rhythm != null)
+            {
+                if (rhythmFilter == null)
+                    return null;
+
+                rhythmFilter.compute(this.Rhythm[0]);
+                rhythmFilter.compute(this.Rhythm[0]);
+
+                sig.Rhythm = new short[this.Rhythm.Length];
+                for (int i = 0; i < sig.Rhythm.Length; i++)
+                    sig.Rhythm[i] = (short) Math.Round(rhythmFilter.compute(this.Rhythm[i]));
+            }
+
+            if (this.Median != null)
+            {
+                if (medianFilter == null)
+                    return null;
+
+                medianFilter.compute(this.Median[0]);
+                medianFilter.compute(this.Median[0]);
+
+                sig.Median = new short[this.Median.Length];
+                for (int i = 0; i < sig.Median.Length; i++)
+                    sig.Median[i] = (short) Math.Round(medianFilter.compute(this.Median[i]));
+            }
+
+            return sig;
+        }
 		/// <summary>
 		/// Function to determine if the first eigth leads are as expected (I, II, V1 - V6).
 		/// </summary>
