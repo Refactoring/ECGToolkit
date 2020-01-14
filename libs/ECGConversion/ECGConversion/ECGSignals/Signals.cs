@@ -264,7 +264,40 @@ namespace ECGConversion.ECGSignals
 
 			return sigs;
 		}
+        /// <summary>
+        /// Function to get a copy of a signals object.
+        /// </summary>
+        /// <returns>copy to basic signals object</returns>
+        public Signals GetCopy()
+        {
+            Signals sigs = new Signals();
 
+            sigs.RhythmAVM = this.RhythmAVM;
+            sigs.RhythmSamplesPerSecond = this.RhythmSamplesPerSecond;
+
+            sigs.MedianAVM = this.MedianAVM;
+            sigs.MedianLength = this.MedianLength;
+            sigs.MedianSamplesPerSecond = this.MedianSamplesPerSecond;
+            sigs.MedianFiducialPoint = this.MedianFiducialPoint;
+
+            if (this.QRSZone != null)
+            {
+                sigs.QRSZone = new QRSZone[this.QRSZone.Length];
+
+                for (int i = 0; i < sigs.QRSZone.Length; i++)
+                    sigs.QRSZone[i] = this.QRSZone[i].Clone();
+            }
+
+            if (this._Lead != null)
+            {
+                sigs.NrLeads = this.NrLeads;
+
+                for (int i = 0; i < sigs._Lead.Length; i++)
+                    sigs._Lead[i] = this._Lead[i].Clone();
+            }
+
+            return sigs;
+        }
         /// <summary>
         /// Apply bandpass filter to Signal object
         /// </summary>
@@ -275,7 +308,6 @@ namespace ECGConversion.ECGSignals
         {
             return ApplyBandpassFilter(bottom, top, 2);
         }
-
         /// <summary>
         /// Apply bandpass filter to Signal object
         /// </summary>
@@ -334,7 +366,6 @@ namespace ECGConversion.ECGSignals
 
             return sigs;
         }
-
         /// <summary>
         /// Apply lowpass filter to Signal object
         /// </summary>
@@ -344,7 +375,6 @@ namespace ECGConversion.ECGSignals
         {
             return ApplyLowpassFilter(cutoff, 2);
         }
-
         /// <summary>
         /// Apply lowpass filter to Signal object
         /// </summary>
@@ -402,7 +432,6 @@ namespace ECGConversion.ECGSignals
 
             return sigs;
         }
-
         /// <summary>
         /// Apply highpass filter to Signal object
         /// </summary>
@@ -412,7 +441,6 @@ namespace ECGConversion.ECGSignals
         {
             return ApplyHighpassFilter(cutoff, 2);
         }
-
         /// <summary>
         /// Apply highpass filter to Signal object
         /// </summary>
@@ -470,7 +498,6 @@ namespace ECGConversion.ECGSignals
 
             return sigs;
         }
-
 		/// <summary>
 		/// Function to make leads a certain length.
 		/// </summary>

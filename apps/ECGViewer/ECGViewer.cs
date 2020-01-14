@@ -1384,10 +1384,33 @@ namespace ECGViewer
 					}
 
 					_DrawBuffer = new Bitmap(w, h);
-				
-					ECGConversion.ECGDraw.DpiX = ECGConversion.ECGDraw.DpiY = 25.4f * n;
 
                     ECGConversion.ECGSignals.Signals drawSignal = _CurrentSignal;
+                    int nTime = ECGTimeScrollbar.Value;
+					ECGDraw.DpiX = ECGDraw.DpiY = 25.4f * n;
+
+                    if (drawSignal.IsBuffered)
+                    {
+                        float fPixel_Per_s = (float)Math.Round(25.0f * ECGDraw.DpiX * ECGDraw.Inch_Per_mm);
+
+                        ECGConversion.ECGSignals.BufferedSignals bs = drawSignal.AsBufferedSignals;
+
+                        int nrSamplesToLoad = 10 * bs.RealRhythmSamplesPerSecond,
+                            value = bs.RealRhythmStart + ECGTimeScrollbar.Value;
+
+                        if (_DrawType == ECGConversion.ECGDraw.ECGDrawType.Regular)
+                        {
+                            nrSamplesToLoad = (int)((_DrawBuffer.Width * bs.RealRhythmSamplesPerSecond) / fPixel_Per_s);
+                        }
+
+                        bs.LoadSignal(value, value + nrSamplesToLoad);
+
+                        nTime -= value;
+
+                        drawSignal = drawSignal.GetCopy();
+                    }
+
+                    
 
                     if (drawSignal != null)
                     {
@@ -1406,17 +1429,21 @@ namespace ECGViewer
                         {
                             drawSignal = drawSignal.ApplyLowpassFilter(_TopCutoff);
                         }
+                        else
+                        {
+                            //drawSignal = drawSignal.Clone();
+                        }
                     }
 
 					int
 						oldSPS = _CurrentSignal.RhythmSamplesPerSecond,
-						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), drawSignal, _DrawType, ECGTimeScrollbar.Value, 25.0f, _Gain);
+						ret = ECGDraw.DrawECG(Graphics.FromImage(_DrawBuffer), drawSignal, _DrawType, nTime, 25.0f, _Gain);
 
 					if (ret < 0)
 					{
 						Graphics g = Graphics.FromImage(_DrawBuffer);
 
-                        ret = ECGDraw.DrawECG(g, drawSignal, ECGDraw.ECGDrawType.Regular, ECGTimeScrollbar.Value, 25.0f, _Gain);
+                        ret = ECGDraw.DrawECG(g, drawSignal, ECGDraw.ECGDrawType.Regular, nTime, 25.0f, _Gain);
 					}
 
 					if (_DrawType != ECGDraw.ECGDrawType.Median)

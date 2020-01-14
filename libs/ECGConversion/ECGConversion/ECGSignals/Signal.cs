@@ -60,7 +60,6 @@ namespace ECGConversion.ECGSignals
 
 			return sig;
 		}
-
         /// <summary>
         /// Function to apply a bandpass filter on Signal object
         /// </summary>
