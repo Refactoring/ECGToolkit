@@ -238,43 +238,63 @@ namespace ECGConversion
 		/// <param name="dtTimeStamp">Time stamp of the beginning of the signal</param>
 		/// <param name="mm_Per_s">mm per second</param>
 		/// <param name="mm_Per_mV">mm per milliVolt</param>
-		public static void DrawGridHeader(PdfContentByte cb, RectangleF location, DateTime dtTimeStamp, float mm_Per_s, float mm_Per_mV)
-		{
-			try
-			{
-				float
-					fX = (location.X * PdfDocumentDpi) / mm_Per_Inch,
-					fY = (-location.Y * PdfDocumentDpi) / mm_Per_Inch;
+        public static void DrawGridHeader(PdfContentByte cb, RectangleF location, DateTime dtTimeStamp, float mm_Per_s, float mm_Per_mV, double bottomCutoff, double topCutoff)
+        {
+            try
+            {
+                float
+                    fX = (location.X * PdfDocumentDpi) / mm_Per_Inch,
+                    fY = (-location.Y * PdfDocumentDpi) / mm_Per_Inch;
 
-				string sText = dtTimeStamp.ToLongTimeString();
+                string sText = dtTimeStamp.ToLongTimeString();
 
-				cb.BeginText();
+                cb.BeginText();
 
-				if (dtTimeStamp.Year >= 1500)
-					sText = dtTimeStamp.ToShortDateString() + " " + sText;
+                if (dtTimeStamp.Year >= 1500)
+                    sText = dtTimeStamp.ToShortDateString() + " " + sText;
 
-				cb.ShowTextAligned(
-					PdfContentByte.ALIGN_LEFT,
-					sText,
-					fX,
-					fY,
-					0);
+                cb.ShowTextAligned(
+                    PdfContentByte.ALIGN_LEFT,
+                    sText,
+                    fX,
+                    fY,
+                    0);
 
-				fX = (location.Right * PdfDocumentDpi) / mm_Per_Inch;
+                fX = (location.Right * PdfDocumentDpi) / mm_Per_Inch;
 
-				sText = mm_Per_s.ToString("0") + " mm/s, " + mm_Per_mV.ToString("0") + " mm/mV";
+                System.Text.StringBuilder sbText = new System.Text.StringBuilder();
 
-				cb.ShowTextAligned(
-					PdfContentByte.ALIGN_RIGHT,
-					sText,
-					fX,
-					fY,
-					0);
+                if (!double.IsNaN(bottomCutoff))
+                {
+                    if (!double.IsNaN(topCutoff))
+                    {
+                        sbText.AppendFormat("{0}-{1} Hz, ", bottomCutoff, topCutoff);
+                    }
+                    else
+                    {
+                        sbText.AppendFormat("{0}-inf Hz, ", bottomCutoff);
+                    }
+                }
+                else if (!double.IsNaN(topCutoff))
+                {
+                    sbText.AppendFormat("0-{0} Hz, ", topCutoff);
+                }
 
-				cb.EndText();
-			}
-			catch {}
-		}
+                sbText.AppendFormat("{0:0} mm/s, {1:0} mm/mV ", mm_Per_s, mm_Per_mV);
+
+                sText = sbText.ToString();
+
+                cb.ShowTextAligned(
+                    PdfContentByte.ALIGN_RIGHT,
+                    sText,
+                    fX,
+                    fY,
+                    0);
+
+                cb.EndText();
+            }
+            catch { }
+        }
 		/// <summary>
 		/// Draw the header of the grid.
 		/// </summary>
@@ -282,25 +302,47 @@ namespace ECGConversion
 		/// <param name="location">location (rectangle in mm) of the grid</param>
 		/// <param name="mm_Per_s">mm per second</param>
 		/// <param name="mm_Per_mV">mm per milliVolt</param>
-		public static void DrawGridHeader(PdfContentByte cb, RectangleF location, float mm_Per_s, float mm_Per_mV)
-		{
-			try
-			{
-				cb.BeginText();
+        /// <param name="bottomCuttoff">bottom cutoff of used filter</param>
+        /// <param name="topCutoff">top butoff of used filter</param>
+        public static void DrawGridHeader(PdfContentByte cb, RectangleF location, float mm_Per_s, float mm_Per_mV, double bottomCutoff, double topCutoff)
+        {
+            try
+            {
+                cb.BeginText();
 
-				string sText = mm_Per_s.ToString("0") + " mm/s, " + mm_Per_mV.ToString("0") + " mm/mV";
+                System.Text.StringBuilder sbText = new System.Text.StringBuilder();
 
-				cb.ShowTextAligned(
-					PdfContentByte.ALIGN_RIGHT,
-					sText,
-					(location.Right * PdfDocumentDpi) / mm_Per_Inch,
-					(-(location.Bottom + 2.0f) * PdfDocumentDpi) / mm_Per_Inch,
-					0);
+                if (!double.IsNaN(bottomCutoff))
+                {
+                    if (!double.IsNaN(topCutoff))
+                    {
+                        sbText.AppendFormat("{0}-{1} Hz, ", bottomCutoff, topCutoff);
+                    }
+                    else
+                    {
+                        sbText.AppendFormat("{0}-inf Hz, ", bottomCutoff);
+                    }
+                }
+                else if (!double.IsNaN(topCutoff))
+                {
+                    sbText.AppendFormat("0-{0} Hz, ", topCutoff);
+                }
 
-				cb.EndText();
-			}
-			catch {}
-		}
+                sbText.AppendFormat("{0:0} mm/s, {1:0} mm/mV ", mm_Per_s, mm_Per_mV);
+
+                string sText = sbText.ToString();
+
+                cb.ShowTextAligned(
+                    PdfContentByte.ALIGN_RIGHT,
+                    sText,
+                    (location.Right * PdfDocumentDpi) / mm_Per_Inch,
+                    (-(location.Bottom + 2.0f) * PdfDocumentDpi) / mm_Per_Inch,
+                    0);
+
+                cb.EndText();
+            }
+            catch { }
+        }
 		/// <summary>
 		/// Look for the end of a pdf document.
 		/// </summary>

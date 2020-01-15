@@ -728,7 +728,7 @@ namespace ECGConversion.PDF
 							    cb.SetRGBColorStroke(0, 0, 0);
 
 							    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-							    PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
+							    PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain, _FilterBottomCutoff, _FilterTopCutoff);
 
 							    switch (_DrawType)
 							    {
@@ -1029,7 +1029,7 @@ namespace ECGConversion.PDF
 							    cb.SetRGBColorStroke(0, 0, 0);
 
 							    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-							    PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
+							    PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain, _FilterBottomCutoff, _FilterTopCutoff);
 
                                 float fJump = sigs.IsFifteenLeads ? 16f : 20f;
 
@@ -1121,7 +1121,7 @@ namespace ECGConversion.PDF
 								    cb.SetRGBColorStroke(0, 0, 0);
 
 								    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-								    PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), _DrawSpeed, _Gain);
+								    PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), _DrawSpeed, _Gain, _FilterBottomCutoff, _FilterTopCutoff);
 
 								    int temp = 0;
 
