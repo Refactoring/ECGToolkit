@@ -372,11 +372,74 @@ namespace ECGConversion.PDF
 			}
 		}
 
+        private double _FilterBottomCutoff
+        {
+            get
+            {
+                double ret = double.NaN;
+
+                if (double.TryParse(_Config["Filter Bottom Cutoff"], out ret))
+                    return ret;
+
+                return double.NaN;
+            }
+        }
+
+        private double _FilterTopCutoff
+        {
+            get
+            {
+                double ret = double.NaN;
+
+                if (double.TryParse(_Config["Filter Top Cutoff"], out ret))
+                    return ret;
+
+                return double.NaN;
+            }
+        }
+
+        private int _FilterNumberSections
+        {
+            get
+            {
+                int ret = 2;
+
+                if (int.TryParse(_Config["Filter Number of Sections"], out ret))
+                    return ret;
+
+                return 2;
+            }
+        }
+
+        private Signals _ApplyFilter(Signals sigs)
+        {
+            if (sigs != null)
+            {
+                if (!double.IsNaN(_FilterBottomCutoff))
+                {
+                    if (!double.IsNaN(_FilterTopCutoff))
+                    {
+                        sigs = sigs.ApplyBandpassFilter(_FilterBottomCutoff, _FilterTopCutoff, _FilterNumberSections);
+                    }
+                    else
+                    {
+                        sigs = sigs.ApplyHighpassFilter(_FilterBottomCutoff, _FilterNumberSections);
+                    }
+                }
+                else if (!double.IsNaN(_FilterTopCutoff))
+                {
+                    sigs = sigs.ApplyLowpassFilter(_FilterTopCutoff, _FilterNumberSections);
+                }
+            }
+
+            return sigs;
+        }
+
 		public PDFFormat()
 		{
 			string[]
 				must = new string[]{"Lead Format", "Paper Type", "Gain", "Speed", "Grid"},
-				poss = new string[]{"Extra Leads", "Document Title", "Document Creator", "Document Author", "Header Image", "Free Text", "Use Buffered Stream"};
+				poss = new string[]{"Extra Leads", "Document Title", "Document Creator", "Document Author", "Header Image", "Free Text", "Use Buffered Stream", "Filter Bottom Cutoff", "Filter Top Cutoff", "Filter Number of Sections"};
 
 			_Config = new ECGConfig(must, poss, new ECGConfig.CheckConfigFunction(this._ConfigurationWorks));
 			
@@ -416,6 +479,38 @@ namespace ECGConversion.PDF
 					&&	 (_ExtraLeads != null)
 					&&	 (_ExtraLeads.Length != 3))
 					return false;
+
+                string sVal;
+                double
+                    fValA = double.NaN,
+                    fValB = double.NaN;
+                int nVal;
+
+                sVal = _Config["Filter Bottom Cutoff"];
+                if ((sVal != null)
+                &&  (sVal.Length > 0)
+                && (!double.TryParse(sVal, out fValA)
+                ||  (fValA <= 0.0)))
+                    return false;
+
+                sVal = _Config["Filter Top Cutoff"];
+                if ((sVal != null)
+                &&  (sVal.Length > 0)
+                &&  (!double.TryParse(sVal, out fValB)
+                ||   (fValB <= 0.0)))
+                    return false;
+
+                if (!double.IsNaN(fValA)
+                &&  !double.IsNaN(fValB)
+                &&  (fValA >= fValB))
+                    return false;
+
+                sVal = _Config["Filter Number of Sections"];
+                if ((sVal != null)
+                &&  (sVal.Length > 0)
+                &&  (!int.TryParse(sVal, out nVal)
+                ||   (nVal <= 0)))
+                    return false;
 
 				return!(((fts == null)
 				    ||	 (fts.Length > 0))
@@ -490,30 +585,30 @@ namespace ECGConversion.PDF
 				if (_UseBufferedStream)
 					bs = sigs.AsBufferedSignals;
 
-				if (bs != null)
-				{
-					if (bTwelveLeadECG)
-					{
-						nrSecs = 10;
+                if (bs != null)
+                {
+                    if (bTwelveLeadECG)
+                    {
+                        nrSecs = 10;
 
-						if ((_DrawType == ECGDraw.ECGDrawType.Regular)
-						&&	((_PaperType == SupportedPaper.A4_Portrait)
-						||	 (_PaperType == SupportedPaper.LETTER_Portrait)))
-							nrSecs = 8;
-					}
+                        if ((_DrawType == ECGDraw.ECGDrawType.Regular)
+                        && ((_PaperType == SupportedPaper.A4_Portrait)
+                        || (_PaperType == SupportedPaper.LETTER_Portrait)))
+                            nrSecs = 8;
+                    }
 
-					if (_DrawType == ECGDraw.ECGDrawType.Median)
-					{
-						if (bs.TemplateNrMedian > 0)
-						{
-							if (!bs.LoadTemplate(signalPos++))
-								return 4;
+                    if (_DrawType == ECGDraw.ECGDrawType.Median)
+                    {
+                        if (bs.TemplateNrMedian > 0)
+                        {
+                            if (!bs.LoadTemplate(signalPos++))
+                                return 4;
 
                             signalEnd = bs.TemplateNrMedian;
-						}
-					}
-					else
-					{
+                        }
+                    }
+                    else
+                    {
                         if (_DrawType == ECGDraw.ECGDrawType.Regular)
                         {
                             if (bs.NrLeads == 1)
@@ -526,15 +621,18 @@ namespace ECGConversion.PDF
                                 signalMulti = 2;
                         }
 
-						signalPos = bs.RealRhythmStart;
+                        signalPos = bs.RealRhythmStart;
 
-						if (!bs.LoadSignal(signalPos, signalPos + (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti)))
-							return 4;
+                        if (!bs.LoadSignal(signalPos, signalPos + (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti)))
+                            return 4;
 
                         signalPos += (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti);
                         signalEnd = bs.RealRhythmEnd;
-					}
-					}
+                    }
+                }
+
+                // apply filter for first draw
+                sigs = _ApplyFilter(sigs);
 
 				if ((_DrawType & ECGDraw.PossibleDrawTypes(sigs)) != 0)
 				{
@@ -583,6 +681,8 @@ namespace ECGConversion.PDF
                                 {
                                     if (!bs.LoadTemplate(signalPos++))
                                         return 4;
+
+                                    
                                 }
                                 else
                                 {
@@ -591,342 +691,345 @@ namespace ECGConversion.PDF
 
                                     signalPos += (nrSecs * sigs.RhythmSamplesPerSecond * signalMulti);
                                 }
+
+                                // apply filter for first draw
+                                sigs = _ApplyFilter(bs);
                             }
 
                             cb = writer.DirectContent;
 
-						cb.Transform(new System.Drawing.Drawing2D.Matrix(1, 0, 0, 1, 0, writer.PageSize.Height));
+						    cb.Transform(new System.Drawing.Drawing2D.Matrix(1, 0, 0, 1, 0, writer.PageSize.Height));
 
-						cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
+						    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
 
-						if (bRotated)
-						{
-							RectangleF gridRect = PDFTool.CreateRectangle(width, height, 260.0f, 160.0f, 165.0f);
+						    if (bRotated)
+						    {
+							    RectangleF gridRect = PDFTool.CreateRectangle(width, height, 260.0f, 160.0f, 165.0f);
 
-							cb.SetLineWidth(0.5f);
-							cb.SetRGBColorStroke(0, 0, 0);
+							    cb.SetLineWidth(0.5f);
+							    cb.SetRGBColorStroke(0, 0, 0);
 
-							DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
+							    DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
 
-							if (_DrawGrid)
-							{
-								cb.SetLineWidth(0.25f);
-								cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
-								PDFTool.DrawGrid(cb, 1.0f, gridRect);
+							    if (_DrawGrid)
+							    {
+								    cb.SetLineWidth(0.25f);
+								    cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
+								    PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
-								cb.SetLineWidth(0.5f);
-								cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
-								PDFTool.DrawGrid(cb, 5.0f, gridRect);
-							}
+								    cb.SetLineWidth(0.5f);
+								    cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
+								    PDFTool.DrawGrid(cb, 5.0f, gridRect);
+							    }
 
-							PointF point = new PointF(gridRect.X, gridRect.Y);
+							    PointF point = new PointF(gridRect.X, gridRect.Y);
 
-							cb.SetLineWidth(0.5f);
-							cb.SetRGBColorStroke(0, 0, 0);
+							    cb.SetLineWidth(0.5f);
+							    cb.SetRGBColorStroke(0, 0, 0);
 
-							cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-							PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
+							    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
+							    PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
 
-							switch (_DrawType)
-							{
-								case ECGDraw.ECGDrawType.Regular:
-								{
-									point.Y += 15.0f;
-                                            float fJump = sigs.IsFifteenLeads ? 10.0f : 12.5f;
+							    switch (_DrawType)
+							    {
+								    case ECGDraw.ECGDrawType.Regular:
+								    {
+									    point.Y += 15.0f;
+                                        float fJump = sigs.IsFifteenLeads ? 10.0f : 12.5f;
 
-                                            for (int i = 0,e = sigs.IsFifteenLeads ? 15 : 12; i < e; i++)
-									{
-										int nrSamples = 0;
+                                        for (int i = 0,e = sigs.IsFifteenLeads ? 15 : 12; i < e; i++)
+									    {
+										    int nrSamples = 0;
 
-										nrSamples = PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, nrSamples, 10.0f, true);
+										    nrSamples = PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, nrSamples, 10.0f, true);
 
-                                                point.Y += fJump;
-									}
-								}
-								break;
-								case ECGDraw.ECGDrawType.ThreeXFour:
-								{
-									point.Y += 25.0f;
+                                            point.Y += fJump;
+									    }
+								    }
+								    break;
+								    case ECGDraw.ECGDrawType.ThreeXFour:
+								    {
+    									point.Y += 25.0f;
 
-                                            if (sigs.IsFifteenLeads)
+                                        if (sigs.IsFifteenLeads)
+                                        {
+                                            PointF
+                                                point2 = new PointF(point.X + 60.0f, point.Y),
+                                                point3 = new PointF(point.X + 110.0f, point.Y),
+                                                point4 = new PointF(point.X + 160.0f, point.Y),
+                                                point5 = new PointF(point.X + 210.0f, point.Y);
+
+                                            for (int i = 0; i < 3; i++)
                                             {
-                                                PointF
-                                                    point2 = new PointF(point.X + 60.0f, point.Y),
-                                                    point3 = new PointF(point.X + 110.0f, point.Y),
-                                                    point4 = new PointF(point.X + 160.0f, point.Y),
-                                                    point5 = new PointF(point.X + 210.0f, point.Y);
+                                                int nrSample = 0;
 
-                                                for (int i = 0; i < 3; i++)
-                                                {
-                                                    int nrSample = 0;
+                                                nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
 
-                                                    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
-
-                                                    point.Y += 55.0f;
-                                                    point2.Y += 55.0f;
-                                                    point3.Y += 55.0f;
-                                                    point4.Y += 55.0f;
-                                                    point5.Y += 55.0f;
-                                                }
+                                                point.Y += 55.0f;
+                                                point2.Y += 55.0f;
+                                                point3.Y += 55.0f;
+                                                point4.Y += 55.0f;
+                                                point5.Y += 55.0f;
                                             }
-                                            else
-                                            {
-									PointF
-										point2 = new PointF(point.X +  72.5f, point.Y),
-										point3 = new PointF(point.X + 135.0f, point.Y),
-										point4 = new PointF(point.X + 197.5f, point.Y);
-
-									for (int i=0;i < 3;i++)
-									{
-										int nrSample = 0;
-
-										nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-										nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
-										nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-										nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
-
-										point.Y += 55.0f;
-										point2.Y += 55.0f;
-										point3.Y += 55.0f;
-										point4.Y += 55.0f;
-									}
-								}
                                         }
-								break;
-								case ECGDraw.ECGDrawType.ThreeXFourPlusOne:
-								{
-									point.Y += 20.0f;
+                                        else
+                                        {
+									        PointF
+										        point2 = new PointF(point.X +  72.5f, point.Y),
+										        point3 = new PointF(point.X + 135.0f, point.Y),
+										        point4 = new PointF(point.X + 197.5f, point.Y);
 
-                                            if (sigs.IsFifteenLeads)
+									        for (int i=0;i < 3;i++)
+									        {
+										        int nrSample = 0;
+
+										        nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+										        nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+										        nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+										        nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+
+										        point.Y += 55.0f;
+										        point2.Y += 55.0f;
+										        point3.Y += 55.0f;
+										        point4.Y += 55.0f;
+									        }
+								        }
+                                    }
+    						        break;
+								    case ECGDraw.ECGDrawType.ThreeXFourPlusOne:
+								    {
+									    point.Y += 20.0f;
+
+                                        if (sigs.IsFifteenLeads)
+                                        {
+                                            PointF
+                                                point2 = new PointF(point.X + 60.0f, point.Y),
+                                                point3 = new PointF(point.X + 110.0f, point.Y),
+                                                point4 = new PointF(point.X + 160.0f, point.Y),
+                                                point5 = new PointF(point.X + 210.0f, point.Y);
+
+                                            for (int i = 0; i < 3; i++)
                                             {
-                                                PointF
-                                                    point2 = new PointF(point.X + 60.0f, point.Y),
-                                                    point3 = new PointF(point.X + 110.0f, point.Y),
-                                                    point4 = new PointF(point.X + 160.0f, point.Y),
-                                                    point5 = new PointF(point.X + 210.0f, point.Y);
+                                                int nrSample = 0;
 
-                                                for (int i = 0; i < 3; i++)
-                                                {
-                                                    int nrSample = 0;
+                                                nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
 
-                                                    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
-
-                                                    point.Y += 40.0f;
-                                                    point2.Y += 40.0f;
-                                                    point3.Y += 40.0f;
-                                                    point4.Y += 40.0f;
-                                                    point5.Y += 40.0f;
-                                                }
+                                                point.Y += 40.0f;
+                                                point2.Y += 40.0f;
+                                                point3.Y += 40.0f;
+                                                point4.Y += 40.0f;
+                                                point5.Y += 40.0f;
                                             }
-                                            else
-                                            {
-									PointF
-										point2 = new PointF(point.X +  72.5f, point.Y),
-										point3 = new PointF(point.X + 135.0f, point.Y),
-										point4 = new PointF(point.X + 197.5f, point.Y);
-
-									for (int i=0;i < 3;i++)
-									{
-										int nrSample = 0;
-
-										nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-										nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
-										nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-										nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
-
-										point.Y += 40.0f;
-										point2.Y += 40.0f;
-										point3.Y += 40.0f;
-										point4.Y += 40.0f;
-									}
-                                            }
-
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
-								}
-								break;
-								case ECGDraw.ECGDrawType.ThreeXFourPlusThree:
-								{
-									point.Y += 12.5f;
-
-                                            if (sigs.IsFifteenLeads)
-                                            {
-                                                PointF
-                                                    point2 = new PointF(point.X + 60.0f, point.Y),
-                                                    point3 = new PointF(point.X + 110.0f, point.Y),
-                                                    point4 = new PointF(point.X + 160.0f, point.Y),
-                                                    point5 = new PointF(point.X + 210.0f, point.Y);
-
-                                                for (int i = 0; i < 3; i++)
-                                                {
-                                                    int nrSample = 0;
-
-                                                    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
-                                                    nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
-
-                                                    point.Y += 27.5f;
-                                                    point2.Y += 27.5f;
-                                                    point3.Y += 27.5f;
-                                                    point4.Y += 27.5f;
-                                                    point5.Y += 27.5f;
-                                                }
-                                            }
-                                            else
-                                            {
-									PointF
-										point2 = new PointF(point.X +  72.5f, point.Y),
-										point3 = new PointF(point.X + 135.0f, point.Y),
-										point4 = new PointF(point.X + 197.5f, point.Y);
-
-									for (int i=0;i < 3;i++)
-									{
-										int nrSample = 0;
-
-										nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-										nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
-										nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-										nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
-
-										point.Y += 27.5f;
-										point2.Y += 27.5f;
-										point3.Y += 27.5f;
-										point4.Y += 27.5f;
-									}
-                                            }
-
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
-									point.Y += 25.0f;
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[1] : 7, 0, 10.0f, true);
-									point.Y += 27.5f;
-									PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[2] : 10, 0, 10.0f, true);
-								}
-								break;
-								case ECGDraw.ECGDrawType.SixXTwo:
-								{
-									point.Y += 12.5f;
-
-									PointF point2 = new PointF(point.X + (gridRect.Width / 2.0f) + 5.0f, point.Y);
-
-									for (int i=0;i < 6;i++)
-									{
-										int nrSample = 0;
-
-										nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
-										nrSample = PDFTool.DrawSignal(cb, point2, gridRect.Width - (point2.X - gridRect.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
-
-										point.Y += 27.5f;
-										point2.Y += 27.5f;
-									}
-
-								}
-								break;
-								case ECGDraw.ECGDrawType.Median:
-								{
-									point.X += 20.0f;
-									point.Y += 25.0f;
-
-                                            if (sigs.IsFifteenLeads)
-                                            {
-                                                PointF
-                                                    point2 = new PointF(point.X + 50f, point.Y),
-                                                    point3 = new PointF(point.X + 100f, point.Y),
-                                                    point4 = new PointF(point.X + 150f, point.Y),
-                                                    point5 = new PointF(point.X + 200f, point.Y);
-
-                                                for (int i = -1; i > -4; i--)
-                                                {
-                                                    point.X -= 20.0f;
-
-                                                    PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
-
-                                                    point.X += 20.0f;
-
-                                                    PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, 0, 0, true);
-                                                    PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i - 3, 0, 0, true);
-                                                    PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i - 6, 0, 0, true);
-                                                    PDFTool.DrawSignal(cb, point4, (point5.X - point4.X), 25.0f, _Gain, sigs, i - 9, 0, 0, true);
-                                                    PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i - 12, 0, 0, true);
-
-                                                    point.Y += 55.0f;
-                                                    point2.Y += 55.0f;
-                                                    point3.Y += 55.0f;
-                                                    point4.Y += 55.0f;
-                                                    point5.Y += 55.0f;
-                                                }
-                                            }
-                                            else
-                                            {
-									PointF
-										point2 = new PointF(point.X +  65f, point.Y),
-										point3 = new PointF(point.X + 130f, point.Y),
-										point4 = new PointF(point.X + 195f, point.Y);
-
-									for (int i=-1;i > -4;i--)
-									{
-										point.X -= 20.0f;
-
-										PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
-
-										point.X += 20.0f;
-
-										PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, 0, 0, true);
-										PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i - 3, 0, 0, true);
-										PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i - 6, 0, 0, true);
-										PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i - 9, 0, 0, true);
-
-										point.Y += 55.0f;
-										point2.Y += 55.0f;
-										point3.Y += 55.0f;
-										point4.Y += 55.0f;
-									}
-								}
                                         }
-								break;
-								default:
-									return 2;
-							}
-						}
-						else if (((sigLength <= 8)
-							||	 (_PaperType == SupportedPaper.A4_Portrait)
-							||	 (_PaperType == SupportedPaper.LETTER_Portrait))
-							&&	 sigs.IsTwelveLeads
-							&&	 (_DrawSpeed == 25.0f))
-						{
-							RectangleF gridRect = ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? PDFTool.CreateRectangle(width, height, 200.0f, (15.0f * sigs.NrLeads) + 20.0f, 230.0f) : PDFTool.CreateRectangle(width, height, 200.0f, (20.0f * sigs.NrLeads) + 15.0f, 257.5f); 
+                                        else
+                                        {
+									        PointF
+										        point2 = new PointF(point.X +  72.5f, point.Y),
+										        point3 = new PointF(point.X + 135.0f, point.Y),
+										        point4 = new PointF(point.X + 197.5f, point.Y);
 
-							cb.SetLineWidth(0.5f);
-							cb.SetRGBColorStroke(0, 0, 0);
+									        for (int i=0;i < 3;i++)
+									        {
+										        int nrSample = 0;
 
-							DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
+        										nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+		        								nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+				        						nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+						        				nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
 
-							if (_DrawGrid)
-							{
-								cb.SetLineWidth(0.25f);
-								cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
-								PDFTool.DrawGrid(cb, 1.0f, gridRect);
+								        		point.Y += 40.0f;
+        										point2.Y += 40.0f;
+										        point3.Y += 40.0f;
+										        point4.Y += 40.0f;
+									        }
+                                        }
 
-								cb.SetLineWidth(0.5f);
-								cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
-								PDFTool.DrawGrid(cb, 5.0f, gridRect);
-							}
+									    PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
+								    }
+								    break;
+								    case ECGDraw.ECGDrawType.ThreeXFourPlusThree:
+								    {
+									    point.Y += 12.5f;
 
-							PointF point = new PointF(gridRect.X, gridRect.Y + 15.0f);
+                                        if (sigs.IsFifteenLeads)
+                                        {
+                                            PointF
+                                                point2 = new PointF(point.X + 60.0f, point.Y),
+                                                point3 = new PointF(point.X + 110.0f, point.Y),
+                                                point4 = new PointF(point.X + 160.0f, point.Y),
+                                                point5 = new PointF(point.X + 210.0f, point.Y);
 
-							cb.SetLineWidth(0.5f);
-							cb.SetRGBColorStroke(0, 0, 0);
+                                            for (int i = 0; i < 3; i++)
+                                            {
+                                                int nrSample = 0;
 
-							cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-							PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
+                                                nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+                                                nrSample = PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i + 12, nrSample, 0, true);
+
+                                                point.Y += 27.5f;
+                                                point2.Y += 27.5f;
+                                                point3.Y += 27.5f;
+                                                point4.Y += 27.5f;
+                                                point5.Y += 27.5f;
+                                            }
+                                        }
+                                        else
+                                        {
+									        PointF
+										        point2 = new PointF(point.X +  72.5f, point.Y),
+										        point3 = new PointF(point.X + 135.0f, point.Y),
+										        point4 = new PointF(point.X + 197.5f, point.Y);
+
+									        for (int i=0;i < 3;i++)
+									        {
+										        int nrSample = 0;
+
+										        nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+										        nrSample = PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i + 3, nrSample, 0, true);
+										        nrSample = PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+										        nrSample = PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i + 9, nrSample, 0, true);
+
+										        point.Y += 27.5f;
+										        point2.Y += 27.5f;
+										        point3.Y += 27.5f;
+										        point4.Y += 27.5f;
+									        }
+                                        }
+
+									    PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[0] : 1, 0, 10.0f, true);
+									    point.Y += 25.0f;
+									    PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[1] : 7, 0, 10.0f, true);
+									    point.Y += 27.5f;
+									    PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, extra != null ? extra[2] : 10, 0, 10.0f, true);
+								    }
+								    break;
+								    case ECGDraw.ECGDrawType.SixXTwo:
+								    {
+									    point.Y += 12.5f;
+
+									    PointF point2 = new PointF(point.X + (gridRect.Width / 2.0f) + 5.0f, point.Y);
+
+									    for (int i=0;i < 6;i++)
+									    {
+										    int nrSample = 0;
+
+										    nrSample = PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, nrSample, 10.0f, true);
+										    nrSample = PDFTool.DrawSignal(cb, point2, gridRect.Width - (point2.X - gridRect.X), 25.0f, _Gain, sigs, i + 6, nrSample, 0, true);
+
+										    point.Y += 27.5f;
+										    point2.Y += 27.5f;
+									    }
+
+								    }
+								    break;
+								    case ECGDraw.ECGDrawType.Median:
+								    {
+									    point.X += 20.0f;
+									    point.Y += 25.0f;
+
+                                        if (sigs.IsFifteenLeads)
+                                        {
+                                            PointF
+                                                point2 = new PointF(point.X + 50f, point.Y),
+                                                point3 = new PointF(point.X + 100f, point.Y),
+                                                point4 = new PointF(point.X + 150f, point.Y),
+                                                point5 = new PointF(point.X + 200f, point.Y);
+
+                                            for (int i = -1; i > -4; i--)
+                                            {
+                                                point.X -= 20.0f;
+
+                                                PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
+
+                                                point.X += 20.0f;
+
+                                                PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, 0, 0, true);
+                                                PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i - 3, 0, 0, true);
+                                                PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i - 6, 0, 0, true);
+                                                PDFTool.DrawSignal(cb, point4, (point5.X - point4.X), 25.0f, _Gain, sigs, i - 9, 0, 0, true);
+                                                PDFTool.DrawSignal(cb, point5, gridRect.Width - (point5.X - gridRect.X), 25.0f, _Gain, sigs, i - 12, 0, 0, true);
+
+                                                point.Y += 55.0f;
+                                                point2.Y += 55.0f;
+                                                point3.Y += 55.0f;
+                                                point4.Y += 55.0f;
+                                                point5.Y += 55.0f;
+                                            }
+                                        }
+                                        else
+                                        {
+									        PointF
+										        point2 = new PointF(point.X +  65f, point.Y),
+										        point3 = new PointF(point.X + 130f, point.Y),
+										        point4 = new PointF(point.X + 195f, point.Y);
+
+									        for (int i=-1;i > -4;i--)
+									        {
+										        point.X -= 20.0f;
+
+										        PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
+
+										        point.X += 20.0f;
+
+										        PDFTool.DrawSignal(cb, point, (point2.X - point.X), 25.0f, _Gain, sigs, i, 0, 0, true);
+										        PDFTool.DrawSignal(cb, point2, (point3.X - point2.X), 25.0f, _Gain, sigs, i - 3, 0, 0, true);
+										        PDFTool.DrawSignal(cb, point3, (point4.X - point3.X), 25.0f, _Gain, sigs, i - 6, 0, 0, true);
+										        PDFTool.DrawSignal(cb, point4, gridRect.Width - (point4.X - gridRect.X), 25.0f, _Gain, sigs, i - 9, 0, 0, true);
+
+										        point.Y += 55.0f;
+										        point2.Y += 55.0f;
+										        point3.Y += 55.0f;
+										        point4.Y += 55.0f;
+									        }
+								        }
+                                    }
+								    break;
+								    default:
+									    return 2;
+							    }
+						    }
+						    else if (((sigLength <= 8)
+							    ||	 (_PaperType == SupportedPaper.A4_Portrait)
+							    ||	 (_PaperType == SupportedPaper.LETTER_Portrait))
+							    &&	 sigs.IsTwelveLeads
+							    &&	 (_DrawSpeed == 25.0f))
+						    {
+							    RectangleF gridRect = ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? PDFTool.CreateRectangle(width, height, 200.0f, (15.0f * sigs.NrLeads) + 20.0f, 230.0f) : PDFTool.CreateRectangle(width, height, 200.0f, (20.0f * sigs.NrLeads) + 15.0f, 257.5f); 
+
+							    cb.SetLineWidth(0.5f);
+							    cb.SetRGBColorStroke(0, 0, 0);
+
+							    DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
+
+							    if (_DrawGrid)
+							    {
+								    cb.SetLineWidth(0.25f);
+								    cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
+								    PDFTool.DrawGrid(cb, 1.0f, gridRect);
+
+								    cb.SetLineWidth(0.5f);
+								    cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
+								    PDFTool.DrawGrid(cb, 5.0f, gridRect);
+							    }
+
+							    PointF point = new PointF(gridRect.X, gridRect.Y + 15.0f);
+
+							    cb.SetLineWidth(0.5f);
+							    cb.SetRGBColorStroke(0, 0, 0);
+
+							    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
+							    PDFTool.DrawGridHeader(cb, gridRect, 25.0f, _Gain);
 
                                 float fJump = sigs.IsFifteenLeads ? 16f : 20f;
 
@@ -934,106 +1037,106 @@ namespace ECGConversion.PDF
                                 || (_PaperType == SupportedPaper.LETTER_Portrait))
                                     fJump = sigs.IsFifteenLeads ? 12f : 15f;
 
-							for (int i=0;i < sigs.NrLeads;i++)
-							{
-								PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, 0, 0.0f, false);
+							    for (int i=0;i < sigs.NrLeads;i++)
+							    {
+								    PDFTool.DrawSignal(cb, point, gridRect.Width, 25.0f, _Gain, sigs, i, 0, 0.0f, false);
 
                                     point.Y += fJump;
-							}
+							    }
 
-							point.X = gridRect.X + 5.0f;
-							point.Y = gridRect.Bottom;
+							    point.X = gridRect.X + 5.0f;
+							    point.Y = gridRect.Bottom;
 
-							PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
-						}
-						else
-						{
-							int start, end, prev = -1;
+							    PDFTool.DrawCalibrationPulse(cb, point, 10.0f, _Gain);
+						    }
+						    else
+						    {
+							    int start, end, prev = -1;
                                 bool bFirstB = true;
 
-							sigs.CalculateStartAndEnd(out start, out end);
+							    sigs.CalculateStartAndEnd(out start, out end);
 
-//							if (start > 0)
-//								end -= start;
-//							start = 0;
-							end--;
+//							    if (start > 0)
+//								    end -= start;
+//							    start = 0;
+							    end--;
 
-							RectangleF gridRect = new RectangleF(0, 0, width, height);
+							    RectangleF gridRect = new RectangleF(0, 0, width, height);
 
-							DateTime dtStart = _Demographics.TimeAcquisition;
+							    DateTime dtStart = _Demographics.TimeAcquisition;
 
-							float
-								fStartY = 15.0f,
-								fIncrement = 20.0f;
+							    float
+								    fStartY = 15.0f,
+								    fIncrement = 20.0f;
 
-							if (sigs.NrLeads > 12)
-							{
-								float fMaxHeight = (((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? 240.0f : 255.0f) - 20.0f;
+							    if (sigs.NrLeads > 12)
+							    {
+								    float fMaxHeight = (((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? 240.0f : 255.0f) - 20.0f;
 
-								fStartY = 15.0f;
+								    fStartY = 15.0f;
 
-								fIncrement = (fMaxHeight / (sigs.NrLeads-1));
-							}
+								    fIncrement = (fMaxHeight / (sigs.NrLeads-1));
+							    }
 
-							while ((start < end)
-								&& (start != prev))
-							{
-								if (gridRect.Bottom > (height - 5.0f))
-								{
+							    while ((start < end)
+								    && (start != prev))
+							    {
+    								if (gridRect.Bottom > (height - 5.0f))
+	    							{
                                         if (bFirstB)
                                             bFirstB = false;
-									else
-									{
-										document.NewPage();
+									    else
+									    {
+										    document.NewPage();
 
-										cb = writer.DirectContent;
+										    cb = writer.DirectContent;
 
-										cb.Transform(new System.Drawing.Drawing2D.Matrix(1, 0, 0, 1, 0, writer.PageSize.Height));
+										    cb.Transform(new System.Drawing.Drawing2D.Matrix(1, 0, 0, 1, 0, writer.PageSize.Height));
 
-										cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-									}
+										    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
+									    }
 									
-									cb.SetLineWidth(0.5f);
-									cb.SetRGBColorStroke(0, 0, 0);
+									    cb.SetLineWidth(0.5f);
+									    cb.SetRGBColorStroke(0, 0, 0);
 
-									gridRect = ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? PDFTool.CreateRectangle(width, height, 205.0f, (20.0f * sigs.NrLeads), 240.0f) : PDFTool.CreateRectangle(width, height, 180.0f, (20.0f * sigs.NrLeads) + 5.0f, 255.0f); 
+									    gridRect = ((_PaperType == SupportedPaper.LETTER) || (_PaperType == SupportedPaper.LETTER_Portrait)) ? PDFTool.CreateRectangle(width, height, 205.0f, (20.0f * sigs.NrLeads), 240.0f) : PDFTool.CreateRectangle(width, height, 180.0f, (20.0f * sigs.NrLeads) + 5.0f, 255.0f); 
 
-									DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
-								}
+									    DrawPageHeader(cb, new RectangleF(gridRect.X, 5.0f, gridRect.Width, gridRect.Y - 5.0f), 3.5f);
+								    }
 
-								if (_DrawGrid)
-								{
-									cb.SetLineWidth(0.25f);
-									cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
-									PDFTool.DrawGrid(cb, 1.0f, gridRect);
+								    if (_DrawGrid)
+								    {
+									    cb.SetLineWidth(0.25f);
+									    cb.SetRGBColorStroke(0xff, 0xdd, 0xdd);
+									    PDFTool.DrawGrid(cb, 1.0f, gridRect);
 
-									cb.SetLineWidth(0.5f);
-									cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
-									PDFTool.DrawGrid(cb, 5.0f, gridRect);
-								}
+									    cb.SetLineWidth(0.5f);
+									    cb.SetRGBColorStroke(0xee, 0xbb, 0xbb);
+									    PDFTool.DrawGrid(cb, 5.0f, gridRect);
+								    }
 
-								PointF point = new PointF(gridRect.X, gridRect.Y + fStartY);
+								    PointF point = new PointF(gridRect.X, gridRect.Y + fStartY);
 
-								cb.SetLineWidth(0.5f);
-								cb.SetRGBColorStroke(0, 0, 0);
+								    cb.SetLineWidth(0.5f);
+								    cb.SetRGBColorStroke(0, 0, 0);
 
-								cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
-								PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), _DrawSpeed, _Gain);
+								    cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.COURIER, BaseFont.CP1252, false), 8.0f);
+								    PDFTool.DrawGridHeader(cb, gridRect, dtStart.AddMilliseconds((start * 1000.0) / sigs.RhythmSamplesPerSecond), _DrawSpeed, _Gain);
 
-								int temp = 0;
+								    int temp = 0;
 
-								for (int i=0;i < sigs.NrLeads;i++)
-								{
-									temp = Math.Max(temp, PDFTool.DrawSignal(cb, point, gridRect.Width, _DrawSpeed, _Gain, sigs, i, start, 5.0f, false));
+								    for (int i=0;i < sigs.NrLeads;i++)
+								    {
+									    temp = Math.Max(temp, PDFTool.DrawSignal(cb, point, gridRect.Width, _DrawSpeed, _Gain, sigs, i, start, 5.0f, false));
 
-									point.Y += fIncrement;
-								}
+									    point.Y += fIncrement;
+								    }
 
-								prev = start;
-								start = temp;
-								gridRect.Y += gridRect.Height + 5.0f;
-							}
-						}
+								    prev = start;
+								    start = temp;
+								    gridRect.Y += gridRect.Height + 5.0f;
+							    }
+						    }
                         }
                         while (signalPos < signalEnd);
 

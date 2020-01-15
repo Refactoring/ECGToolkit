@@ -1150,6 +1150,15 @@ namespace ECGViewer
 							cfg["Lead Format"] = _DrawType.ToString();
 							cfg["Gain"] = Gain.ToString();
 
+                            if (!double.IsNaN(_BottomCutoff))
+                                cfg["Filter Bottom Cutoff"] = _BottomCutoff.ToString();
+                            if (!double.IsNaN(_TopCutoff))
+                                cfg["Filter Top Cutoff"] = _TopCutoff.ToString();
+
+                            if (!double.IsNaN(_BottomCutoff)
+                            ||  !double.IsNaN(_TopCutoff))
+                                cfg["Filter Number of Sections"] = "2";
+
 							Config cfgScreen = new Config(supportedList[index], cfg);
 
 							dr = cfgScreen.ShowDialog(this);
@@ -1410,8 +1419,6 @@ namespace ECGViewer
                         drawSignal = drawSignal.GetCopy();
                     }
 
-                    
-
                     if (drawSignal != null)
                     {
                         if (!double.IsNaN(_BottomCutoff))
@@ -1428,10 +1435,6 @@ namespace ECGViewer
                         else if (!double.IsNaN(_TopCutoff))
                         {
                             drawSignal = drawSignal.ApplyLowpassFilter(_TopCutoff);
-                        }
-                        else
-                        {
-                            //drawSignal = drawSignal.Clone();
                         }
                     }
 
