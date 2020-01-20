@@ -306,7 +306,9 @@ namespace ECGConversion.ECGSignals
         /// <returns>a filtered copy of the signal object</returns>
         public Signals ApplyBandpassFilter(double bottom, double top)
         {
-            return ApplyBandpassFilter(bottom, top, 2);
+            DSP.IFilter[] tmp = null;
+
+            return ApplyBandpassFilter(bottom, top, 2, ref tmp);
         }
         /// <summary>
         /// Apply bandpass filter to Signal object
@@ -316,6 +318,20 @@ namespace ECGConversion.ECGSignals
         /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
         /// <returns>a filtered copy of the signal object</returns>
         public Signals ApplyBandpassFilter(double bottom, double top, int numSections)
+        {
+            DSP.IFilter[] tmp = null;
+
+            return ApplyBandpassFilter(bottom, top, numSections, ref tmp);
+        }
+        /// <summary>
+        /// Apply bandpass filter to Signal object
+        /// </summary>
+        /// <param name="bottom">bottom frequency of bandpass filter</param>
+        /// <param name="top">top frequency of bandpass filter</param>
+        /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
+        /// <param name="filters">provide filters that where used</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyBandpassFilter(double bottom, double top, int numSections, ref DSP.IFilter[] filters)
         {
             Signals sigs = new Signals();
 
@@ -339,6 +355,12 @@ namespace ECGConversion.ECGSignals
             {
                 sigs.NrLeads = this.NrLeads;
 
+                if (filters == null
+                ||  filters.Length != this.NrLeads)
+                {
+                    filters = new DSP.IFilter[this.NrLeads];
+                }
+
                 for (int i = 0; i < sigs._Lead.Length; i++)
                 {
                     DSP.IFilter
@@ -348,7 +370,13 @@ namespace ECGConversion.ECGSignals
                     if ((_Lead[i].Rhythm != null)
                     &&  (this.RhythmSamplesPerSecond > 0))
                     {
-                        rhythmFilter = new DSP.BandpassFilterButterworthImplementation(bottom, top, numSections, sigs.RhythmSamplesPerSecond); 
+                        if ((filters[i] == null)
+                        ||  !(filters[i] is DSP.BandpassFilterButterworthImplementation)) 
+                        {
+                            filters[i] = new DSP.BandpassFilterButterworthImplementation(bottom, top, numSections, sigs.RhythmSamplesPerSecond);
+                        }
+
+                        rhythmFilter = filters[i]; 
                     }
 
                     if ((_Lead[i].Median != null)
@@ -373,7 +401,9 @@ namespace ECGConversion.ECGSignals
         /// <returns>a filtered copy of the signal object</returns>
         public Signals ApplyLowpassFilter(double cutoff)
         {
-            return ApplyLowpassFilter(cutoff, 2);
+            DSP.IFilter[] tmp = null;
+
+            return ApplyLowpassFilter(cutoff, 2, ref tmp);
         }
         /// <summary>
         /// Apply lowpass filter to Signal object
@@ -382,6 +412,20 @@ namespace ECGConversion.ECGSignals
         /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
         /// <returns>a filtered copy of the signal object</returns>
         public Signals ApplyLowpassFilter(double cutoff, int numSections)
+        {
+            DSP.IFilter[] tmp = null;
+
+            return ApplyLowpassFilter(cutoff, numSections, ref tmp);
+        }
+
+        /// <summary>
+        /// Apply lowpass filter to Signal object
+        /// </summary>
+        /// <param name="cutoff">top frequency of bandpass filter</param>
+        /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
+        /// <param name="filters">provide filters that where used</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyLowpassFilter(double cutoff, int numSections, ref DSP.IFilter[] filters)
         {
             Signals sigs = new Signals();
 
@@ -405,6 +449,12 @@ namespace ECGConversion.ECGSignals
             {
                 sigs.NrLeads = this.NrLeads;
 
+                if (filters == null
+                || filters.Length != this.NrLeads)
+                {
+                    filters = new DSP.IFilter[this.NrLeads];
+                }
+
                 for (int i = 0; i < sigs._Lead.Length; i++)
                 {
                     DSP.IFilter
@@ -414,7 +464,13 @@ namespace ECGConversion.ECGSignals
                     if ((_Lead[i].Rhythm != null)
                     && (this.RhythmSamplesPerSecond > 0))
                     {
-                        rhythmFilter = new DSP.LowpassFilterButterworthImplementation(cutoff, numSections, sigs.RhythmSamplesPerSecond);
+                        if ((filters[i] == null)
+                        ||  !(filters[i] is DSP.LowpassFilterButterworthImplementation))
+                        {
+                            filters[i] = new DSP.LowpassFilterButterworthImplementation(cutoff, numSections, sigs.RhythmSamplesPerSecond);
+                        }
+
+                        rhythmFilter = filters[i];
                     }
 
                     if ((_Lead[i].Median != null)
@@ -439,7 +495,9 @@ namespace ECGConversion.ECGSignals
         /// <returns>a filtered copy of the signal object</returns>
         public Signals ApplyHighpassFilter(double cutoff)
         {
-            return ApplyHighpassFilter(cutoff, 2);
+            DSP.IFilter[] tmp = null;
+
+            return ApplyHighpassFilter(cutoff, 2, ref tmp);
         }
         /// <summary>
         /// Apply highpass filter to Signal object
@@ -448,6 +506,19 @@ namespace ECGConversion.ECGSignals
         /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
         /// <returns>a filtered copy of the signal object</returns>
         public Signals ApplyHighpassFilter(double cutoff, int numSections)
+        {
+            DSP.IFilter[] tmp = null;
+
+            return ApplyHighpassFilter(cutoff, numSections, ref tmp);
+        }
+        /// <summary>
+        /// Apply highpass filter to Signal object
+        /// </summary>
+        /// <param name="cutoff">top frequency of bandpass filter</param>
+        /// <param name="numSections">nr of sections to use in filter (default: 2)</param>
+        /// <param name="filters">provide filters that where used</param>
+        /// <returns>a filtered copy of the signal object</returns>
+        public Signals ApplyHighpassFilter(double cutoff, int numSections, ref DSP.IFilter[] filters)
         {
             Signals sigs = new Signals();
 
@@ -471,6 +542,12 @@ namespace ECGConversion.ECGSignals
             {
                 sigs.NrLeads = this.NrLeads;
 
+                if (filters == null
+                || filters.Length != this.NrLeads)
+                {
+                    filters = new DSP.IFilter[this.NrLeads];
+                }
+
                 for (int i = 0; i < sigs._Lead.Length; i++)
                 {
                     DSP.IFilter
@@ -480,7 +557,13 @@ namespace ECGConversion.ECGSignals
                     if ((_Lead[i].Rhythm != null)
                     && (this.RhythmSamplesPerSecond > 0))
                     {
-                        rhythmFilter = new DSP.HighpassFilterButterworthImplementation(cutoff, numSections, sigs.RhythmSamplesPerSecond);
+                        if ((filters[i] == null)
+                        || !(filters[i] is DSP.HighpassFilterButterworthImplementation))
+                        {
+                            filters[i] = new DSP.HighpassFilterButterworthImplementation(cutoff, numSections, sigs.RhythmSamplesPerSecond);
+                        }
+
+                        rhythmFilter = filters[i];
                     }
 
                     if ((_Lead[i].Median != null)

@@ -411,7 +411,7 @@ namespace ECGConversion.PDF
             }
         }
 
-        private Signals _ApplyFilter(Signals sigs)
+        private Signals _ApplyFilter(Signals sigs, ref DSP.IFilter[] filters)
         {
             if (sigs != null)
             {
@@ -419,16 +419,16 @@ namespace ECGConversion.PDF
                 {
                     if (!double.IsNaN(_FilterTopCutoff))
                     {
-                        sigs = sigs.ApplyBandpassFilter(_FilterBottomCutoff, _FilterTopCutoff, _FilterNumberSections);
+                        sigs = sigs.ApplyBandpassFilter(_FilterBottomCutoff, _FilterTopCutoff, _FilterNumberSections, ref filters);
                     }
                     else
                     {
-                        sigs = sigs.ApplyHighpassFilter(_FilterBottomCutoff, _FilterNumberSections);
+                        sigs = sigs.ApplyHighpassFilter(_FilterBottomCutoff, _FilterNumberSections, ref filters);
                     }
                 }
                 else if (!double.IsNaN(_FilterTopCutoff))
                 {
-                    sigs = sigs.ApplyLowpassFilter(_FilterTopCutoff, _FilterNumberSections);
+                    sigs = sigs.ApplyLowpassFilter(_FilterTopCutoff, _FilterNumberSections, ref filters);
                 }
             }
 
@@ -632,7 +632,8 @@ namespace ECGConversion.PDF
                 }
 
                 // apply filter for first draw
-                sigs = _ApplyFilter(sigs);
+                DSP.IFilter[] filters = null;
+                sigs = _ApplyFilter(sigs, ref filters);
 
 				if ((_DrawType & ECGDraw.PossibleDrawTypes(sigs)) != 0)
 				{
@@ -693,7 +694,7 @@ namespace ECGConversion.PDF
                                 }
 
                                 // apply filter for first draw
-                                sigs = _ApplyFilter(bs);
+                                sigs = _ApplyFilter(bs, ref filters);
                             }
 
                             cb = writer.DirectContent;
