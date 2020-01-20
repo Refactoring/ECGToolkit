@@ -385,6 +385,10 @@ namespace ECGViewer
             this.menuLeadFormatThreeXFourPlusThree = new System.Windows.Forms.MenuItem();
             this.menuLeadFormatSixXTwo = new System.Windows.Forms.MenuItem();
             this.menuLeadFormatMedian = new System.Windows.Forms.MenuItem();
+            this.menuFilter = new System.Windows.Forms.MenuItem();
+            this.menuFilterNone = new System.Windows.Forms.MenuItem();
+            this.menuFilter40Hz = new System.Windows.Forms.MenuItem();
+            this.menuFilterMuscle = new System.Windows.Forms.MenuItem();
             this.menuGain = new System.Windows.Forms.MenuItem();
             this.menuGain4 = new System.Windows.Forms.MenuItem();
             this.menuGain3 = new System.Windows.Forms.MenuItem();
@@ -426,10 +430,6 @@ namespace ECGViewer
             this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
-            this.menuFilter = new System.Windows.Forms.MenuItem();
-            this.menuFilterNone = new System.Windows.Forms.MenuItem();
-            this.menuFilter40Hz = new System.Windows.Forms.MenuItem();
-            this.menuFilterMuscle = new System.Windows.Forms.MenuItem();
             this.ECGPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -538,6 +538,34 @@ namespace ECGViewer
             this.menuLeadFormatMedian.Shortcut = System.Windows.Forms.Shortcut.CtrlM;
             this.menuLeadFormatMedian.Text = "Average Complex";
             this.menuLeadFormatMedian.Click += new System.EventHandler(this.menuLeadFormatMedian_Click);
+            // 
+            // menuFilter
+            // 
+            this.menuFilter.Index = 1;
+            this.menuFilter.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuFilterNone,
+            this.menuFilter40Hz,
+            this.menuFilterMuscle});
+            this.menuFilter.Text = "Filter";
+            // 
+            // menuFilterNone
+            // 
+            this.menuFilterNone.Checked = true;
+            this.menuFilterNone.Index = 0;
+            this.menuFilterNone.Text = "None";
+            this.menuFilterNone.Click += new System.EventHandler(this.menuFilterNone_Click);
+            // 
+            // menuFilter40Hz
+            // 
+            this.menuFilter40Hz.Index = 1;
+            this.menuFilter40Hz.Text = "40 Hz (0.05-40 Hz)";
+            this.menuFilter40Hz.Click += new System.EventHandler(this.menuFilter40Hz_Click);
+            // 
+            // menuFilterMuscle
+            // 
+            this.menuFilterMuscle.Index = 2;
+            this.menuFilterMuscle.Text = "Muscle (0.05-35 Hz)";
+            this.menuFilterMuscle.Click += new System.EventHandler(this.menuFilterMuscle_Click);
             // 
             // menuGain
             // 
@@ -854,34 +882,6 @@ namespace ECGViewer
             this.ECGTimeScrollbar.Size = new System.Drawing.Size(683, 16);
             this.ECGTimeScrollbar.TabIndex = 5;
             this.ECGTimeScrollbar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ECGTimeScrollbar_Scroll);
-            // 
-            // menuFilter
-            // 
-            this.menuFilter.Index = 1;
-            this.menuFilter.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuFilterNone,
-            this.menuFilter40Hz,
-            this.menuFilterMuscle});
-            this.menuFilter.Text = "Filter";
-            // 
-            // menuFilterNone
-            // 
-            this.menuFilterNone.Checked = true;
-            this.menuFilterNone.Index = 0;
-            this.menuFilterNone.Text = "None";
-            this.menuFilterNone.Click += new System.EventHandler(this.menuFilterNone_Click);
-            // 
-            // menuFilter40Hz
-            // 
-            this.menuFilter40Hz.Index = 1;
-            this.menuFilter40Hz.Text = "40 Hz (0.05-40 Hz)";
-            this.menuFilter40Hz.Click += new System.EventHandler(this.menuFilter40Hz_Click);
-            // 
-            // menuFilterMuscle
-            // 
-            this.menuFilterMuscle.Index = 2;
-            this.menuFilterMuscle.Text = "Muscle (0.05-35 Hz)";
-            this.menuFilterMuscle.Click += new System.EventHandler(this.menuFilterMuscle_Click);
             // 
             // ECGViewer
             // 
@@ -1410,6 +1410,11 @@ namespace ECGViewer
                         if (_DrawType == ECGConversion.ECGDraw.ECGDrawType.Regular)
                         {
                             nrSamplesToLoad = (int)((_DrawBuffer.Width * bs.RealRhythmSamplesPerSecond) / fPixel_Per_s);
+
+                            int multiple = (int)Math.Floor(_DrawBuffer.Height / (((5 * bs.NrLeads) + 3) * ECGDraw.DpiX * ECGDraw.Inch_Per_mm * 5));
+
+                            if (multiple > 1) 
+                                nrSamplesToLoad *= multiple;
                         }
 
                         bs.LoadSignal(value, value + nrSamplesToLoad);
