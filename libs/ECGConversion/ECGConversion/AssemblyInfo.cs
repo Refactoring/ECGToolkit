@@ -30,7 +30,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("van Ettinger Information Technology")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands")]
+[assembly: AssemblyCopyright("Copyright 2019-2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
@@ -45,7 +45,7 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("2.5.*")]
+[assembly: AssemblyVersion("2.6.*")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
