@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2019-2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
