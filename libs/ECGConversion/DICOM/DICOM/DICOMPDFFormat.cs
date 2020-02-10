@@ -1376,10 +1376,10 @@ namespace ECGConversion.DICOM
                     uid = _UIDPrefix + (_UIDPrefix.EndsWith(".") ? "" : ".") + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
 
                 // code to generate a sequence nr if not provided or always
-                if ((_GenerateSequenceNr == GenerateSequenceNr.Always)
-                || ((_GenerateSequenceNr == GenerateSequenceNr.True))
-                && ((val == null)
-                || (val.Length == 0)))
+                if (((_GenerateSequenceNr == GenerateSequenceNr.Always)
+                ||   (_GenerateSequenceNr == GenerateSequenceNr.True))
+                &&   ((val == null)
+                ||    (val.Length == 0)))
                 {
                     Random r = new Random();
 
@@ -1589,6 +1589,48 @@ namespace ECGConversion.DICOM
                 && (_InsideFormat.Demographics != null))
                 {
                     _InsideFormat.Demographics.RoomDescription = value;
+                }
+
+                // code to generate add uid using RoomDescription to make a unique id.
+                if ((_GenerateSequenceNr == GenerateSequenceNr.False)
+                &&  (value != null)
+                &&  (value.Length > 0)
+                &&  ((SequenceNr == null)
+                ||   (string.Compare(SequenceNr, "1") == 0)))
+                {
+                    byte[] buff = new byte[2 * (value.Length + 1)];
+                    BytesTool.writeString(Encoding.Unicode, value, buff, 0, buff.Length);
+
+                    CRCTool crc = new CRCTool();
+
+                    string
+                        val = crc.CalcCRCITT(buff, 0, buff.Length).ToString(),
+                        uid = _UIDPrefix + (_UIDPrefix.EndsWith(".") ? "" : ".") + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
+
+                    if ((val == null)
+                    || (val.Length == 0))
+                        uid += "1";
+                    else
+                        uid += val;
+
+                    FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
+                    if (fmi != null)
+                        fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
+
+                    _DICOMData.PutUI(Tags.SOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
+                    _DICOMData.PutUI(Tags.StudyInstanceUID, uid);
+                    _DICOMData.PutUI(Tags.SeriesInstanceUID, uid + (_SeriesUIDPostfix.StartsWith(".") ? "" : ".") + _SeriesUIDPostfix);
+
+                    if (_SOPUIDPostfix.Contains("."))
+                    {
+                        string[] tmp = _SOPUIDPostfix.Split('.');
+
+                        _DICOMData.PutIS(Tags.InstanceNumber, tmp[tmp.Length - 1]);
+                    }
+                    else
+                    {
+                        _DICOMData.PutIS(Tags.InstanceNumber, _SOPUIDPostfix);
+                    }
                 }
             }
         }
