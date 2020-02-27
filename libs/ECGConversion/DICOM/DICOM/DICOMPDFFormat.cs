@@ -1586,51 +1586,60 @@ namespace ECGConversion.DICOM
             set
             {
                 if ((_InsideFormat != null)
-                && (_InsideFormat.Demographics != null))
+                &&  (_InsideFormat.Demographics != null))
                 {
                     _InsideFormat.Demographics.RoomDescription = value;
                 }
 
-                // code to generate add uid using RoomDescription to make a unique id.
-                if ((_GenerateSequenceNr == GenerateSequenceNr.False)
-                &&  (value != null)
-                &&  (value.Length > 0)
-                &&  ((SequenceNr == null)
-                ||   (string.Compare(SequenceNr, "1") == 0)))
+                if (value != null)
                 {
-                    byte[] buff = new byte[2 * (value.Length + 1)];
-                    BytesTool.writeString(Encoding.Unicode, value, buff, 0, buff.Length);
+                    _DICOMData.PutLO(Tags.CurrentPatientLocation, value);
 
-                    CRCTool crc = new CRCTool();
-
-                    string
-                        val = crc.CalcCRCITT(buff, 0, buff.Length).ToString(),
-                        uid = _UIDPrefix + (_UIDPrefix.EndsWith(".") ? "" : ".") + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
-
-                    if ((val == null)
-                    || (val.Length == 0))
-                        uid += "1";
-                    else
-                        uid += val;
-
-                    FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
-                    if (fmi != null)
-                        fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
-
-                    _DICOMData.PutUI(Tags.SOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
-                    _DICOMData.PutUI(Tags.StudyInstanceUID, uid);
-                    _DICOMData.PutUI(Tags.SeriesInstanceUID, uid + (_SeriesUIDPostfix.StartsWith(".") ? "" : ".") + _SeriesUIDPostfix);
-
-                    if (_SOPUIDPostfix.Contains("."))
+                    // code to generate add uid using RoomDescription to make a unique id.
+                    if ((_GenerateSequenceNr == GenerateSequenceNr.False)
+                    && (value != null)
+                    && (value.Length > 0)
+                    && ((SequenceNr == null)
+                    || (string.Compare(SequenceNr, "1") == 0)))
                     {
-                        string[] tmp = _SOPUIDPostfix.Split('.');
+                        byte[] buff = new byte[2 * (value.Length + 1)];
+                        BytesTool.writeString(Encoding.Unicode, value, buff, 0, buff.Length);
 
-                        _DICOMData.PutIS(Tags.InstanceNumber, tmp[tmp.Length - 1]);
+                        CRCTool crc = new CRCTool();
+
+                        string
+                            val = crc.CalcCRCITT(buff, 0, buff.Length).ToString(),
+                            uid = _UIDPrefix + (_UIDPrefix.EndsWith(".") ? "" : ".") + TimeAcquisition.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat) + ".";
+
+                        if ((val == null)
+                        || (val.Length == 0))
+                            uid += "1";
+                        else
+                            uid += val;
+
+                        FileMetaInfo fmi = _DICOMData.GetFileMetaInfo();
+                        if (fmi != null)
+                            fmi.PutUI(Tags.MediaStorageSOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
+
+                        _DICOMData.PutUI(Tags.SOPInstanceUID, uid + (_SOPUIDPostfix.StartsWith(".") ? "" : ".") + _SOPUIDPostfix);
+                        _DICOMData.PutUI(Tags.StudyInstanceUID, uid);
+                        _DICOMData.PutUI(Tags.SeriesInstanceUID, uid + (_SeriesUIDPostfix.StartsWith(".") ? "" : ".") + _SeriesUIDPostfix);
+
+                        if (_SOPUIDPostfix.Contains("."))
+                        {
+                            string[] tmp = _SOPUIDPostfix.Split('.');
+
+                            _DICOMData.PutIS(Tags.InstanceNumber, tmp[tmp.Length - 1]);
+                        }
+                        else
+                        {
+                            _DICOMData.PutIS(Tags.InstanceNumber, _SOPUIDPostfix);
+                        }
                     }
-                    else
-                    {
-                        _DICOMData.PutIS(Tags.InstanceNumber, _SOPUIDPostfix);
-                    }
+                }
+                else if (_DICOMData.GetItem(Tags.CurrentPatientLocation) != null)
+                {
+                    _DICOMData.Remove(Tags.CurrentPatientLocation);
                 }
             }
         }
