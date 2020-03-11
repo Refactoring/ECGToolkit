@@ -973,8 +973,7 @@ namespace ECGConversion.DICOM
 				{
 					_DICOMData.PutDA(Tags.PatientBirthDate, new DateTime(value.Year, value.Month, value.Day));
 				}
-                else if ((value == null)
-                    &&   (_DICOMData.GetItem(Tags.PatientBirthDate) != null))
+                else if (_DICOMData.GetItem(Tags.PatientBirthDate) != null)
                 {
                     _DICOMData.Remove(Tags.PatientBirthDate);
                 }

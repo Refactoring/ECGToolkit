@@ -992,14 +992,27 @@ namespace ECGConversion.DICOM
             set
             {
                 if ((value != null)
-                &&  value.isExistingDate())
+                && value.isExistingDate())
                 {
                     _DICOMData.PutDA(Tags.PatientBirthDate, new DateTime(value.Year, value.Month, value.Day));
 
                     if ((_InsideFormat != null)
-                    &&  (_InsideFormat.Demographics != null))
+                    && (_InsideFormat.Demographics != null))
                     {
                         _InsideFormat.Demographics.PatientBirthDate = value;
+                    }
+                }
+                else
+                {
+                    if ((_InsideFormat != null)
+                    && (_InsideFormat.Demographics != null))
+                    {
+                        _InsideFormat.Demographics.PatientBirthDate = null;
+                    }
+
+                    if (_DICOMData.GetItem(Tags.PatientBirthDate) != null)
+                    {
+                        _DICOMData.Remove(Tags.PatientBirthDate);
                     }
                 }
             }

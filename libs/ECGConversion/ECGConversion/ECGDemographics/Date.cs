@@ -58,7 +58,8 @@ namespace ECGConversion.ECGDemographics
 		{
 			// The following check will most likely work for another 7000 years at least.
 			if ((Month > 0)
-			&&	(Month <= 12))
+			&&	(Month <= 12)
+            &&  (Year > 0))
 			{
 				if ((Month == _LeapMonth)
 				&&  ((Year % 4) == 0)
