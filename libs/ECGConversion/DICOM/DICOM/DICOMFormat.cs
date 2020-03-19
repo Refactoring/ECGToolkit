@@ -1670,14 +1670,18 @@ namespace ECGConversion.DICOM
 						{
 							if (itemsToKeep == null)
 							{
+
 								int temp = ds.GetInteger(Tags.AnnotationGroupNumber);
-								
-								if ((temp == 0)
-                                &&  (annotationGroupNumber == 0))
-                                    annotationGroupNumber = 5;
-                                else if ((temp >= 5)
-                                    &&   (annotationGroupNumber <= temp))
-									annotationGroupNumber = temp + 1;
+
+                                if (ds.Get(Tags.UnformattedTextValue) != null)
+                                {
+                                    if ((temp == 0)
+                                    && (annotationGroupNumber == 0))
+                                        annotationGroupNumber = 5;
+                                    else if ((temp >= 5)
+                                        && (annotationGroupNumber <= temp))
+                                        annotationGroupNumber = temp + 1;
+                                }
 							}
 							else if (ds.Get(Tags.UnformattedTextValue) == null)
 							{
