@@ -161,6 +161,7 @@ namespace ECGConversion.DICOM
 			StateOnly = 0x1,
 			HistoryOnly = 0x2,
 			True = 0x3,
+            Fixed = 0x4,
 			
 			// alternative values for mortara compat
 			No = 0x0,
@@ -192,12 +193,46 @@ namespace ECGConversion.DICOM
 
 				try
 				{
-					return (MortaraDiagCompat) ECGConverter.EnumParse(typeof(MortaraDiagCompat), cfg, true);
+                    int fixedNr = 0;
+                    
+                    if (int.TryParse(cfg, out fixedNr)
+                    &&  (fixedNr >= 0)
+                    &&  (fixedNr < short.MaxValue))
+                        return MortaraDiagCompat.Fixed;
+
+					MortaraDiagCompat ret = (MortaraDiagCompat) ECGConverter.EnumParse(typeof(MortaraDiagCompat), cfg, true);
+
+                    if (ret == MortaraDiagCompat.Fixed)
+                        ret = MortaraDiagCompat.Error;
+
+                    return ret;
 				} catch {}
 
 				return MortaraDiagCompat.Error;
 			}
 		}
+
+        private int _MortaraFixedDiag
+        {
+            get
+            {
+                int ret = -1;
+                string cfg = _Config["Mortara Diagnostics"];
+
+                if ((cfg != null)
+                &&  (cfg.Length > 0))
+                {
+                    if (!int.TryParse(cfg, out ret)
+                    || (ret < 0)
+                    || (ret >= short.MaxValue))
+                    {
+                        ret = -1;
+                    }
+                }
+
+                return ret;
+            }
+        }
 
 		private string _UIDPrefix
 		{
@@ -1649,7 +1684,7 @@ namespace ECGConversion.DICOM
 				
 				Dataset[] itemsToKeep = null;
 
-				int annotationGroupNumber = 0;
+				int annotationGroupNumber = mdc == MortaraDiagCompat.Fixed ? _MortaraFixedDiag : 0;
 			
 				if (element == null)
 				{
@@ -1668,10 +1703,9 @@ namespace ECGConversion.DICOM
 
 						try
 						{
-							if (itemsToKeep == null)
-							{
-
-								int temp = ds.GetInteger(Tags.AnnotationGroupNumber);
+                            if (itemsToKeep == null)
+                            {
+                                int temp = ds.GetInteger(Tags.AnnotationGroupNumber);
 
                                 if (ds.Get(Tags.UnformattedTextValue) != null)
                                 {
@@ -1682,11 +1716,23 @@ namespace ECGConversion.DICOM
                                         && (annotationGroupNumber <= temp))
                                         annotationGroupNumber = temp + 1;
                                 }
-							}
-							else if (ds.Get(Tags.UnformattedTextValue) == null)
-							{
-								itemsToKeep[i] = ds;
-							}
+                            }
+                            else
+                            {
+                                if (ds.Get(Tags.UnformattedTextValue) == null)
+                                {
+                                    itemsToKeep[i] = ds;
+                                }
+                                else if (mdc == MortaraDiagCompat.Fixed)
+                                {
+                                    int temp = ds.GetInteger(Tags.AnnotationGroupNumber);
+
+                                    if (temp != _MortaraFixedDiag)
+                                    {
+                                        itemsToKeep[i] = ds;
+                                    }
+                                }
+                            }
 						}
 						catch
 						{
@@ -1694,28 +1740,29 @@ namespace ECGConversion.DICOM
 					}
 				}
 
-				foreach (string line in stat.statement)
-				{
-					Dataset ds = element.AddNewItem();
+                if (itemsToKeep != null)
+                {
+                    _DICOMData.Remove(Tags.WaveformAnnotationSequence);
+                    element = _DICOMData.PutSQ(Tags.WaveformAnnotationSequence);
 
-					ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
-					ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
-					ds.PutST(Tags.UnformattedTextValue, line);
-				}
-				
-				if (itemsToKeep != null)
-				{
-					_DICOMData.Remove(Tags.WaveformAnnotationSequence);
-					element = _DICOMData.PutSQ(Tags.WaveformAnnotationSequence);
-					
-					for (int i=0,nr = itemsToKeep.Length;i < nr;i++)
-					{
-						if (itemsToKeep[i] != null)
-						{
-							element.AddItem(itemsToKeep[i]);
-						}
-					}
-				}
+                    for (int i = 0, nr = itemsToKeep.Length; i < nr; i++)
+                    {
+                        if ((itemsToKeep[i] != null)
+                        &&  (itemsToKeep[i].GetInteger(Tags.AnnotationGroupNumber) < annotationGroupNumber))
+                        {
+                            element.AddItem(itemsToKeep[i]);
+                        }
+                    }
+                }
+
+                foreach (string line in stat.statement)
+                {
+                    Dataset ds = element.AddNewItem();
+
+                    ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
+                    ds.PutUS(Tags.AnnotationGroupNumber, annotationGroupNumber);
+                    ds.PutST(Tags.UnformattedTextValue, line);
+                }
 
 				if (OverreadingPhysician != null)
 				{
@@ -1746,6 +1793,18 @@ namespace ECGConversion.DICOM
 						ds.PutST(Tags.UnformattedTextValue, "UNCONFIRMED REPORT");
 					}
 				}
+
+                if (itemsToKeep != null)
+                {
+                    for (int i = 0, nr = itemsToKeep.Length; i < nr; i++)
+                    {
+                        if ((itemsToKeep[i] != null)
+                        &&  (itemsToKeep[i].GetInteger(Tags.AnnotationGroupNumber) > annotationGroupNumber))
+                        {
+                            element.AddItem(itemsToKeep[i]);
+                        }
+                    }
+                }
 
 				return 0;
 			}
