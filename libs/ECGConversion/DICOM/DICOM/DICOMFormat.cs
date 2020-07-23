@@ -1644,14 +1644,22 @@ namespace ECGConversion.DICOM
 				{
 					stat = new Statements();
 
-					if (Regex.IsMatch((string) al[al.Count-1], "(UN)?(CONFIRMED REPORT)", RegexOptions.None))
+					if (Regex.IsMatch((string) al[al.Count-1], "([Uu][Nn])?([Cc][Oo][Nn][Ff][Ii][Rr][Mm][Ee][Dd] [Rr][Ee][Pp][Oo][Rr][Tt])", RegexOptions.None))
 					{
 						string temp = (string) al[al.Count-1];
 
-						stat.confirmed = temp.StartsWith("CONF");
+						stat.confirmed = temp.StartsWith("CONFIRMED", StringComparison.InvariantCultureIgnoreCase);
 
 						al.RemoveAt(al.Count-1);
 					}
+                    else if (Regex.IsMatch((string) al[al.Count-1], "([Oo][Nn])?([Bb][Ee][Vv][Ee][Ss][Tt][Ii][Gg][Dd][Ee] [Ii][Nn][Tt][Ee][Rr][Pp][Rr][Ee][Tt][Aa][Tt][Ii][Ee])", RegexOptions.None))
+                    {
+                        string temp = (string)al[al.Count - 1];
+
+                        stat.confirmed = temp.StartsWith("BEVESTIGDE", StringComparison.InvariantCultureIgnoreCase);
+
+                        al.RemoveAt(al.Count - 1);
+                    }
 
 					stat.time = _DICOMData.GetDate(stat.confirmed ? Tags.VerificationDateTime : Tags.ObservationDateTime);
 
