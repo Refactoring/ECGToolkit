@@ -65,6 +65,7 @@ namespace ECGConversion.DICOM
             StateOnly = 0x1,
             HistoryOnly = 0x2,
             True = 0x3,
+            RoomInStudyDesc = 0x4,
 
             // alternative values for mortara compat
             No = 0x0,
@@ -88,29 +89,15 @@ namespace ECGConversion.DICOM
         {
             get
             {
-                return _MortaraDiagCompat != MortaraDiagCompat.False;
+                return string.Compare(_Config["Mortara Compatibility"], "true", true) == 0;
             }
         }
 
-        private MortaraDiagCompat _MortaraDiagCompat
+        private bool _PutRoomInStudyDescription
         {
             get
             {
-                string cfg = _Config["Mortara Diagnostics"];
-
-                if ((cfg == null)
-                || (cfg.Length == 0))
-                {
-                    return MortaraDiagCompat.True;
-                }
-
-                try
-                {
-                    return (MortaraDiagCompat)ECGConverter.EnumParse(typeof(MortaraDiagCompat), cfg, true);
-                }
-                catch { }
-
-                return MortaraDiagCompat.Error;
+                return string.Compare(_Config["Mortara Compatibility"], "RoomInStudyDesc", true) == 0;
             }
         }
 
@@ -1607,6 +1594,11 @@ namespace ECGConversion.DICOM
                 if (value != null)
                 {
                     _DICOMData.PutLO(Tags.CurrentPatientLocation, value);
+
+                    if (_PutRoomInStudyDescription)
+                    {
+                        _DICOMData.PutLO(Tags.StudyDescription, value);
+                    }
 
                     // code to generate add uid using RoomDescription to make a unique id.
                     if ((_GenerateSequenceNr == GenerateSequenceNr.False)

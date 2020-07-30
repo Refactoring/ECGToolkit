@@ -234,6 +234,14 @@ namespace ECGConversion.DICOM
             }
         }
 
+        private bool _PutRoomInStudyDescription
+        {
+            get
+            {
+                return _MortaraDiagCompat == MortaraDiagCompat.Fixed;
+            }
+        }
+
 		private string _UIDPrefix
 		{
 			get
@@ -1540,6 +1548,11 @@ namespace ECGConversion.DICOM
                 if (value != null)
                 {
                     _DICOMData.PutLO(Tags.CurrentPatientLocation, value);
+
+                    if (_PutRoomInStudyDescription)
+                    {
+                        _DICOMData.PutLO(Tags.StudyDescription, value);
+                    }
 
                     // code to generate add uid using RoomDescription to make a unique id.
                     if ((_GenerateSequenceNr == GenerateSequenceNr.False)
