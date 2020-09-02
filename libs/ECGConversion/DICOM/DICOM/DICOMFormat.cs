@@ -234,7 +234,7 @@ namespace ECGConversion.DICOM
             }
         }
 
-        private bool _PutRoomInStudyDescription
+        private bool _PutRoomInSeriesDescription
         {
             get
             {
@@ -1549,9 +1549,9 @@ namespace ECGConversion.DICOM
                 {
                     _DICOMData.PutLO(Tags.CurrentPatientLocation, value);
 
-                    if (_PutRoomInStudyDescription)
+                    if (_PutRoomInSeriesDescription)
                     {
-                        _DICOMData.PutLO(Tags.StudyDescription, value);
+                        _DICOMData.PutLO(Tags.SeriesDescription, value);
                     }
 
                     // code to generate add uid using RoomDescription to make a unique id.
@@ -1665,7 +1665,7 @@ namespace ECGConversion.DICOM
 
 						al.RemoveAt(al.Count-1);
 					}
-                    else if (Regex.IsMatch((string) al[al.Count-1], "([Oo][Nn])?([Bb][Ee][Vv][Ee][Ss][Tt][Ii][Gg][Dd][Ee] [Ii][Nn][Tt][Ee][Rr][Pp][Rr][Ee][Tt][Aa][Tt][Ii][Ee])", RegexOptions.None))
+                    else if (Regex.IsMatch((string)al[al.Count - 1], "([Oo][Nn])?([Bb][Ee][Vv][Ee][Ss][Tt][Ii][Gg][Dd][Ee] [Ii][Nn][Tt][Ee][Rr][Pp][Rr][Ee][Tt][Aa][Tt][Ii][Ee])", RegexOptions.None))
                     {
                         string temp = (string)al[al.Count - 1];
 
@@ -1673,8 +1673,40 @@ namespace ECGConversion.DICOM
 
                         al.RemoveAt(al.Count - 1);
                     }
+                    else
+                    {
+                        string temp = (string)al[al.Count - 1];
 
-					stat.time = _DICOMData.GetDate(stat.confirmed ? Tags.VerificationDateTime : Tags.ObservationDateTime);
+                        const string reviewedEMC = "[EMC] Nagekeken door ";
+
+                        if (temp.StartsWith(reviewedEMC, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            temp = temp.Substring(reviewedEMC.Length);
+
+                            bool confirmed = false;
+
+                            foreach (char c in temp)
+                            {
+                                if (char.IsLetterOrDigit(c))
+                                {
+                                    confirmed = true;
+                                    break;
+                                }
+                            }
+
+                            stat.confirmed = confirmed;
+                        }
+                    }
+
+                    if (stat.confirmed
+                    && (_DICOMData.Get(Tags.VerificationDateTime) != null))
+                    {
+                        _DICOMData.GetDate(Tags.VerificationDateTime);
+                    }
+                    else
+                    {
+                        stat.time = _DICOMData.GetDate(Tags.ObservationDateTime);
+                    }
 
 					if ((OverreadingPhysician == null)
 					||  (stat.time.Year <= 1000))

@@ -1374,7 +1374,8 @@ namespace ECGConversion.PDF
 
 					if (!temp2.StartsWith("confirmed by")
 					&&	!temp2.StartsWith("interpreted by")
-					&&	!temp2.StartsWith("reviewed by"))
+					&&	!temp2.StartsWith("reviewed by")
+                    &&  !temp2.StartsWith("[emc] nagekeken door"))
 					{
 						if ((_Demographics.OverreadingPhysician != null)
 						&&	(_Demographics.OverreadingPhysician.Length != 0))

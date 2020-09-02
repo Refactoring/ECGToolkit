@@ -93,11 +93,11 @@ namespace ECGConversion.DICOM
             }
         }
 
-        private bool _PutRoomInStudyDescription
+        private bool _PutRoomInSeriesDescription
         {
             get
             {
-                return string.Compare(_Config["Mortara Compatibility"], "RoomInStudyDesc", true) == 0;
+                return string.Compare(_Config["Mortara Compatibility"], "RoomInSeriesDesc", true) == 0;
             }
         }
 
@@ -1595,9 +1595,9 @@ namespace ECGConversion.DICOM
                 {
                     _DICOMData.PutLO(Tags.CurrentPatientLocation, value);
 
-                    if (_PutRoomInStudyDescription)
+                    if (_PutRoomInSeriesDescription)
                     {
-                        _DICOMData.PutLO(Tags.StudyDescription, value);
+                        _DICOMData.PutLO(Tags.SeriesDescription, value);
                     }
 
                     // code to generate add uid using RoomDescription to make a unique id.
