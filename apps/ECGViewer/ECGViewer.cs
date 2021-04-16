@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands
+Copyright 2012-2014,2021, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -356,6 +356,11 @@ namespace ECGViewer
 		{
 			if( disposing )
 			{
+                if (_CurrentECG != null)
+                {
+                    _CurrentECG.Dispose();
+                }
+
 				if(components != null)
 				{
 					components.Dispose();

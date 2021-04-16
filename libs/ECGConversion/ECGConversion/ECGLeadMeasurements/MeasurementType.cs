@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2008, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2008,2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,11 +33,13 @@ namespace ECGConversion.ECGLeadMeasurements
 		Sdur,
 		RRdur,
 		SSdur,
+        RRRdur,
 		Qamp,
 		Ramp,
 		Samp,
 		RRamp,
 		SSamp,
+        RRRamp,
 		Jamp,
 		Pamp_pos,
 		Pamp_min,
@@ -54,6 +56,23 @@ namespace ECGConversion.ECGLeadMeasurements
 		STampJ60,
 		STampJ80,
 		STamp1_16RR,
-		STamp1_8RR
+		STamp1_8RR,
+        QRSonset,
+        QRSoffset,
+        Qoffset,
+        Roffset,
+        Soffset,
+        RRoffset,
+        SSoffset,
+        RRRoffset,
+        Toffset,
+        Pnotch,
+        Rnotch,
+
+        Ronset = Qoffset,
+        Sonset =  Roffset,
+        RRonset = Soffset,
+        SSonset = RRoffset,
+        RRRonset = SSoffset, 
 	}
 }

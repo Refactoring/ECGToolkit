@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -139,6 +139,23 @@ namespace ECGConversion
 			return 0;
 		}
 
+        /// <summary>
+        /// Function to draw an ECG on a bitmap.
+        /// </summary>
+        /// <param name="myBM">Bitmap do draw ECG in.</param>
+        /// <param name="signals">Signal data to draw (can change due to resampling).</param>
+        /// <param name="dtRecordTime">Start time of recording</param>
+        /// <param name="nTime">Start drawing at this sample number.</param>
+        /// <param name="fmm_Per_s">mm per second</param>
+        /// <param name="fmm_Per_mV">mm per mV</param>
+        /// <param name="gms">global measurements</param>
+        /// <param name="lms">lead meassurements</param>
+        /// <param name="addText">add textual values of measurments</param>
+        /// <returns>Sample number to start next draw ECG on.</returns>
+        public static int DrawECG(Bitmap myBM, ECGSignals.Signals signals, DateTime dtRecordTime, int nTime, float fmm_Per_s, float fmm_Per_mV, ECGGlobalMeasurements.GlobalMeasurements gms, ECGLeadMeasurements.LeadMeasurements lms, bool addText)
+        {
+            return DrawECG(Graphics.FromImage(myBM), signals, dtRecordTime, nTime, fmm_Per_s, fmm_Per_mV, gms, lms, addText);
+        }
 		/// <summary>
 		/// Function to draw an ECG on a bitmap.
 		/// </summary>
@@ -153,6 +170,336 @@ namespace ECGConversion
 		{
 			return DrawECG(Graphics.FromImage(myBM), signals, dtRecordTime, nTime, fmm_Per_s, fmm_Per_mV);
 		}
+
+        /// <summary>
+        /// Function to draw an ECG on a bitmap.
+        /// </summary>
+        /// <param name="myGraphics">The drawing surface.</param>
+        /// <param name="signals">Signal data to draw (can change due to resampling).</param>
+        /// <param name="dtRecordTime">Start time of recording</param>
+        /// <param name="nTime">Start drawing at this sample number.</param>
+        /// <param name="fmm_Per_s">mm per second</param>
+        /// <param name="fmm_Per_mV">mm per mV</param>
+        /// <param name="gms">global measurements</param>
+        /// <param name="lms">lead meassurements</param>
+        /// <param name="addText">add textual values of measurments</param>
+        /// <returns>Sample number to start next draw ECG on.</returns>
+        public static int DrawECG(Graphics myGraphics, ECGSignals.Signals signals, DateTime dtRecordTime, int nTime, float fmm_Per_s, float fmm_Per_mV, ECGGlobalMeasurements.GlobalMeasurements gms, ECGLeadMeasurements.LeadMeasurements lms, bool addText)
+        {
+#if WINCE
+			RectangleF Bounds = ClipBounds.IsEmpty ? myGraphics.ClipBounds : ClipBounds;
+#else
+            RectangleF Bounds = myGraphics.VisibleClipBounds;
+#endif
+
+            // begin: drawing of ECG.
+            float
+                fPixel_Per_ms = fmm_Per_s * DpiX * Inch_Per_mm * 0.001f,
+                fPixel_Per_uV = fmm_Per_mV * DpiY * Inch_Per_mm * 0.001f,
+                fLeadYSpace = _uV_Per_Channel * fPixel_Per_uV,
+                fGridY = (DpiY * Inch_Per_mm) * _mm_Per_GridLine;
+
+            int nMinX = 0,
+                nMinY = (int)(_TextSize * DpiY * Inch_Per_mm * .4f),
+                nMaxX,
+                nMaxY;
+
+            if ((myGraphics == null)
+            || (signals == null))
+                return 0;
+
+            if (Math.Ceiling((fLeadYSpace * signals.NrLeads) + fGridY) >= (Bounds.Height - nMinY))
+            {
+                fLeadYSpace = (float)Math.Floor(((Bounds.Height - nMinY - (fGridY * 2)) / signals.NrLeads) / fGridY) * fGridY;
+            }
+
+            DrawGrid(myGraphics, fLeadYSpace, signals.NrLeads, nMinX, nMinY, out nMaxX, out nMaxY);
+
+            Font fontText = null;
+            Brush brushText = null;
+
+            if (addText)
+            {
+                fontText = new Font("Verdana", _TextSize * .9f, FontStyle.Regular);
+                brushText = Brushes.Black;
+            }
+
+            if (gms != null)
+            {
+                if (lms == null)
+                {
+                    for (int i = 0; i < gms.measurment.Length; i++)
+                    {
+                        Pen pen = new Pen(Color.Purple, 1f);
+
+                        ushort nXVal = gms.measurment[0].Ponset;
+                        if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                        {
+                            float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                            myGraphics.DrawLine(pen, fXVal, nMinY, fXVal, nMaxY);
+
+                            if (addText)
+                            {
+                                ushort dur = gms.measurment[0].Pdur;
+                                if (dur != ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue) 
+                                    myGraphics.DrawString(String.Format("Pdur: {0} ms", dur), fontText, brushText, fXVal, nMinY);
+                            }
+                        }
+
+                        nXVal = gms.measurment[0].Poffset;
+                        if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                        {
+                            float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                            myGraphics.DrawLine(pen, fXVal, nMinY, fXVal, nMaxY);
+                        }
+
+                        nXVal = gms.measurment[0].QRSonset;
+                        if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                        {
+                            float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                            myGraphics.DrawLine(pen, fXVal, nMinY, fXVal, nMaxY);
+
+                            if (addText)
+                            {
+                                ushort dur = gms.measurment[0].QRSdur;
+                                if (dur != ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue) 
+                                    myGraphics.DrawString(String.Format("QRSdur: {0} ms", dur), fontText, brushText, fXVal, nMinY);
+                            }
+                        }
+
+                        nXVal = gms.measurment[0].QRSoffset;
+                        if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                        {
+                            float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                            myGraphics.DrawLine(pen, fXVal, nMinY, fXVal, nMaxY);
+                        }
+
+                        nXVal = gms.measurment[0].Toffset;
+                        if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                        {
+                            float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                            myGraphics.DrawLine(pen, fXVal, nMinY, fXVal, nMaxY);
+
+                            if (addText)
+                            {
+                                ushort dur = gms.measurment[0].QTdur;
+                                if (dur != ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                                    myGraphics.DrawString(String.Format("QTdur: {0} ms", dur), fontText, brushText, fXVal, nMinY);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //fLeadYSpace
+                    float fYOffset = nMinY;
+                    
+                    for (int l = 0; l < signals.NrLeads; l++)
+                    {
+                        for (int i = 0; i < gms.measurment.Length; i++)
+                        {
+                            Pen pen = new Pen(Color.Purple, 1f);
+
+                            ushort nXVal = gms.measurment[0].Ponset;
+                            if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY , fXVal, fYOffset + fLeadYSpace);
+
+                                if (addText)
+                                {
+                                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                                    ushort dur = gms.measurment[0].Pdur;
+                                    if (dur != ECGConversion.ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                                        sb.AppendFormat("Pdur: {0} ms\n", dur);
+
+                                    short val = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Pamp_pos];
+                                    if (val != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                        sb.AppendFormat("P+: {0} mV\n", val * signals.RhythmAVM * 0.001);
+
+                                    val = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Pamp_min];
+                                    if (val != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                        sb.AppendFormat("P-: {0} mV", val * signals.RhythmAVM * 0.001);
+
+                                    if (sb.Length > 0)
+                                    {
+                                        myGraphics.DrawString(sb.ToString(), fontText, brushText, fXVal, fYOffset + fGridY); 
+                                    }
+                                }
+                            }
+
+                            nXVal = gms.measurment[0].Poffset;
+                            if (nXVal != ECGGlobalMeasurements.GlobalMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            short nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.QRSonset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+
+                                if (addText)
+                                {
+                                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                                    short
+                                        q_dur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Qdur],
+                                        q_amp = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Qamp],
+                                        r1dur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Rdur],
+                                        r1amp = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Ramp],
+                                        s1dur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Sdur],
+                                        s1amp = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Samp],
+                                        r2dur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.RRdur],
+                                        r2amp = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.RRamp],
+                                        s2dur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.SSdur],
+                                        s2amp = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.SSamp],
+                                        r3dur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.RRRdur],
+                                        r3amp = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.RRRamp];
+
+                                    int lines = 0;
+
+                                    if ((q_dur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    &&  (q_amp != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue))
+                                    {
+                                        sb.AppendFormat("Q: {0} msec {1} mV\n", q_dur, q_amp * signals.RhythmAVM * 0.001);
+                                        lines++;
+                                    }
+
+                                    if ((r1dur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    &&  (r1amp != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue))
+                                    {
+                                        sb.AppendFormat("R: {0} msec {1} uV\n", r1dur, r1amp * signals.RhythmAVM * 0.001);
+                                        lines++;
+                                    }
+
+                                    if ((s1dur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    &&  (s1amp != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue))
+                                    {
+                                        sb.AppendFormat("S: {0} msec {1} mV\n", s1dur, s1amp * signals.RhythmAVM * 0.001);
+                                        lines++;
+                                    }
+
+                                    if ((r2dur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    &&  (r2amp != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue))
+                                    {
+                                        sb.AppendFormat("R\': {0} msec {1} mV\n", r2dur, r2amp * signals.RhythmAVM * 0.001);
+                                        lines++;
+                                    }
+
+                                    if ((s2dur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    &&  (s2amp != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue))
+                                    {
+                                        sb.AppendFormat("S\': {0} msec {1} mV\n", s2dur, s2amp * signals.RhythmAVM * 0.001);
+                                        lines++;
+                                    }
+
+                                    if ((r3dur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    &&  (r3amp != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue))
+                                    {
+                                        sb.AppendFormat("R\'\': {0} msec {1} mV\n", r3dur, r3amp * signals.RhythmAVM * 0.001);
+                                        lines++;
+                                    }
+
+                                    if (sb.Length > 0)
+                                    {
+                                        myGraphics.DrawString(sb.ToString(), fontText, brushText, fXVal, fYOffset + fLeadYSpace - (lines * fontText.Height));
+                                    }
+                                }
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Qoffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Roffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Soffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.RRoffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.SSoffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.RRRoffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+                            }
+
+                            nXVal2 = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Toffset];
+                            if (nXVal2 != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                            {
+                                float fXVal = (nXVal2 + 200) * fPixel_Per_ms;
+                                myGraphics.DrawLine(pen, fXVal, fYOffset + fGridY, fXVal, fYOffset + fLeadYSpace);
+
+                                if (addText)
+                                {
+                                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                                    short
+                                        qtdur = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.QTint],
+                                        t_pos = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Tamp_pos],
+                                        t_min = lms.Measurements[l][ECGLeadMeasurements.MeasurementType.Tamp_min];
+                                        
+                                    if (qtdur != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    {
+                                        sb.AppendFormat("QTint: {0} msec\n", qtdur);
+                                    }
+
+                                    if (t_pos != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    {
+                                        sb.AppendFormat("T+: {0} uV\n", t_pos * signals.RhythmAVM * 0.001);
+                                    }
+
+                                    if (t_min != ECGConversion.ECGLeadMeasurements.LeadMeasurement.NoValue)
+                                    {
+                                        sb.AppendFormat("T-: {0} uV\n", t_min * signals.RhythmAVM * 0.001);
+                                    }
+
+                                    if (sb.Length > 0)
+                                    {
+                                        myGraphics.DrawString(sb.ToString(), fontText, brushText, fXVal, fYOffset + fGridY);
+                                    }
+                                }
+                            }
+                        }
+
+                        fYOffset += fLeadYSpace;
+                    }
+                }
+            }
+
+            return DrawSignal(myGraphics, signals, dtRecordTime, true, nTime, fmm_Per_s, fmm_Per_mV, nMinX, nMinY, nMaxX, nMaxY, fPixel_Per_ms * 1000f, fPixel_Per_uV, fLeadYSpace);
+            // end: drawing of ECG.
+        }
+
 		/// <summary>
 		/// Function to draw an ECG on a bitmap.
 		/// </summary>
@@ -209,7 +556,6 @@ namespace ECGConversion
 			ThreeXFourPlusThree	= 0x08,
 			SixXTwo				= 0x10,
 			Median				= 0x20
-
 		}
 		/// <summary>
 		/// Function to determine the possible draw types.
@@ -1161,7 +1507,7 @@ namespace ECGConversion
 			}
 			// end: find start and end.
 
-			int nPulseSpace = (int) Math.Floor(DpiX * Inch_Per_mm * _mm_Per_GridLine) + 1;
+			int nPulseSpace = (int) Math.Floor(DpiX * Inch_Per_mm * _mm_Per_GridLine);
 
 			nStart += nTime;
 
@@ -1212,14 +1558,16 @@ namespace ECGConversion
 							y2 = signals[i].Rhythm[n-signals[i].RhythmStart];
 					}
 
-					if ((y1 != short.MinValue)
-					&&	(y2 != short.MinValue))
-						DrawLine(myGraphics, 
-							myPen,
-							x1,
-							(float) (((i + .5f) * fLeadYSpace) + fGridY - (y1 * signals.RhythmAVM * fPixel_Per_uV) + fYOffset),
-							x2,
-							(float) (((i + .5f) * fLeadYSpace) + fGridY - (y2 * signals.RhythmAVM * fPixel_Per_uV) + fYOffset));
+                    if ((y1 != short.MinValue)
+                    &&  (y2 != short.MinValue))
+                    {
+                        DrawLine(myGraphics,
+                            myPen,
+                            x1,
+                            (float)(((i + .5f) * fLeadYSpace) + fGridY - (y1 * signals.RhythmAVM * fPixel_Per_uV) + fYOffset),
+                            x2,
+                            (float)(((i + .5f) * fLeadYSpace) + fGridY - (y2 * signals.RhythmAVM * fPixel_Per_uV) + fYOffset));
+                    }
 				}
 			}
 			// end: write rhythm data to image
