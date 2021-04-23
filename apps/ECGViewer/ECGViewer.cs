@@ -1684,6 +1684,11 @@ namespace ECGViewer
 					this.labelPatientSecond.Text = "";
 					this.labelTime.Text = "";
 					this.labelDiagnostic.Text = "";
+                    this.menuView.Enabled = false;
+                    this.menuSave.Enabled = false;
+                    this.menuClose.Enabled = false;
+
+                    this.statusBar.Text = "Open failed (due to an exception)!";
 					
 					CurrentECG = null;
 				}

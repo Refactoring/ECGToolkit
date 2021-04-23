@@ -1513,43 +1513,112 @@ namespace ECGConversion.MUSEXML
 			Schemas.Waveform[] wfs = _Waveform;
 			
 			if (Works()
-			&&	(wfs.Length > 0)
-			&&	(string.Compare(wfs[0].WaveformType, "Rhythm", true) == 0)
-			&&  (wfs[0].LeadData[0].LeadAmplitudeUnitsPerBit > 0)
-			&&	(wfs[0].SampleBase != 0))
-			{
-				signals.NrLeads = ((byte) wfs[0].LeadData.Length);
+			&&	(wfs.Length > 0))
+            {
+                if ((string.Compare(wfs[0].WaveformType, "Rhythm", true) == 0)
+                && (wfs[0].LeadData[0].LeadAmplitudeUnitsPerBit > 0)
+                && (wfs[0].SampleBase != 0))
+                {
+                    signals.NrLeads = ((byte)wfs[0].LeadData.Length);
 
-				signals.RhythmAVM = Decimal.ToDouble(wfs[0].LeadData[0].LeadAmplitudeUnitsPerBit);
-				signals.RhythmSamplesPerSecond = wfs[0].SampleBase;
+                    signals.RhythmAVM = Decimal.ToDouble(wfs[0].LeadData[0].LeadAmplitudeUnitsPerBit);
+                    signals.RhythmSamplesPerSecond = wfs[0].SampleBase;
 
-				for (int i=0;i < signals.NrLeads;i++)
-				{
-					signals[i] = new Signal();
+                    for (int i = 0; i < signals.NrLeads; i++)
+                    {
+                        signals[i] = new Signal();
 
-					signals[i].Type = LeadType.Unknown;
-					try
-					{
-						signals[i].Type = (LeadType) Enum.Parse(typeof(LeadType), wfs[0].LeadData[i].LeadID);
-					} catch {}
-					signals[i].Rhythm = new short[wfs[0].LeadData[i].LeadSampleCountTotal];
-					signals[i].RhythmStart = wfs[0].LeadData[i].LeadOffsetFirstSample;
-					signals[i].RhythmEnd = wfs[0].LeadData[i].LeadOffsetFirstSample + signals[i].Rhythm.Length;
-					
-					byte[] wfd = GetData(wfs[0].LeadData[i].WaveFormData);
-					short sampleSize = wfs[0].LeadData[i].LeadSampleSize;
+                        signals[i].Type = LeadType.Unknown;
+                        try
+                        {
+                            signals[i].Type = (LeadType)Enum.Parse(typeof(LeadType), wfs[0].LeadData[i].LeadID);
+                        }
+                        catch { }
+                        signals[i].Rhythm = new short[wfs[0].LeadData[i].LeadSampleCountTotal];
+                        signals[i].RhythmStart = wfs[0].LeadData[i].LeadOffsetFirstSample;
+                        signals[i].RhythmEnd = wfs[0].LeadData[i].LeadOffsetFirstSample + signals[i].Rhythm.Length;
 
-					for (int j=0,offset=0;j < signals[i].Rhythm.Length;j++)
-					{
-						signals[i].Rhythm[j] = (short)Communication.IO.Tools.BytesTool.readBytes(wfd, offset, sampleSize, true);
+                        byte[] wfd = GetData(wfs[0].LeadData[i].WaveFormData);
+                        short sampleSize = wfs[0].LeadData[i].LeadSampleSize;
 
-						offset += wfs[0].LeadData[i].LeadSampleSize;
-					}
+                        for (int j = 0, offset = 0; j < signals[i].Rhythm.Length; j++)
+                        {
+                            signals[i].Rhythm[j] = (short)Communication.IO.Tools.BytesTool.readBytes(wfd, offset, sampleSize, true);
 
-					ECGTool.ChangeMultiplier(signals[i].Rhythm, Decimal.ToDouble(wfs[0].LeadData[i].LeadAmplitudeUnitsPerBit), signals.RhythmAVM);
-				}
+                            offset += wfs[0].LeadData[i].LeadSampleSize;
+                        }
 
-				return 0;
+                        ECGTool.ChangeMultiplier(signals[i].Rhythm, Decimal.ToDouble(wfs[0].LeadData[i].LeadAmplitudeUnitsPerBit), signals.RhythmAVM);
+                    }
+
+                    return 0;
+                }
+                else if ((wfs.Length > 1)
+                    &&   (string.Compare(wfs[0].WaveformType, "Median", true) == 0)
+                    &&   (string.Compare(wfs[1].WaveformType, "Rhythm", true) == 0)
+                    &&   (wfs[0].LeadData[0].LeadAmplitudeUnitsPerBit > 0)
+                    &&   (wfs[1].LeadData[0].LeadAmplitudeUnitsPerBit > 0)
+                    &&   (wfs[0].SampleBase != 0)
+                    &&   (wfs[1].SampleBase != 0))
+                {
+                    signals.NrLeads = ((byte)wfs[1].LeadData.Length);
+
+                    signals.RhythmAVM = Decimal.ToDouble(wfs[1].LeadData[0].LeadAmplitudeUnitsPerBit);
+                    signals.RhythmSamplesPerSecond = wfs[1].SampleBase;
+
+                    if (wfs[0].LeadData.Length == wfs[1].LeadData.Length)
+                    {
+                        signals.MedianAVM = Decimal.ToDouble(wfs[0].LeadData[0].LeadAmplitudeUnitsPerBit);
+                        signals.MedianSamplesPerSecond = wfs[0].SampleBase;
+                        signals.MedianLength = (ushort) ((wfs[0].LeadData[0].LeadSampleCountTotal * 1000) / signals.MedianSamplesPerSecond);
+                    }
+
+                    for (int i = 0; i < signals.NrLeads; i++)
+                    {
+                        signals[i] = new Signal();
+
+                        signals[i].Type = LeadType.Unknown;
+                        try
+                        {
+                            signals[i].Type = (LeadType)Enum.Parse(typeof(LeadType), wfs[1].LeadData[i].LeadID);
+                        }
+                        catch { }
+                        signals[i].Rhythm = new short[wfs[1].LeadData[i].LeadSampleCountTotal];
+                        signals[i].RhythmStart = wfs[1].LeadData[i].LeadOffsetFirstSample;
+                        signals[i].RhythmEnd = wfs[1].LeadData[i].LeadOffsetFirstSample + signals[i].Rhythm.Length;
+
+                        byte[] wfd = GetData(wfs[1].LeadData[i].WaveFormData);
+                        short sampleSize = wfs[1].LeadData[i].LeadSampleSize;
+
+                        for (int j = 0, offset = 0; j < signals[i].Rhythm.Length; j++)
+                        {
+                            signals[i].Rhythm[j] = (short)Communication.IO.Tools.BytesTool.readBytes(wfd, offset, sampleSize, true);
+
+                            offset += sampleSize;
+                        }
+
+                        if ((wfs[0].LeadData.Length == wfs[1].LeadData.Length)
+                        &&  (string.Compare(wfs[0].LeadData[i].LeadID, wfs[1].LeadData[i].LeadID, true) == 0))
+                        {
+                            wfd = GetData(wfs[0].LeadData[i].WaveFormData);
+                            sampleSize = wfs[0].LeadData[i].LeadSampleSize;
+
+                            signals[i].Median = new short[wfs[0].LeadData[i].LeadSampleCountTotal];
+
+                            for (int j = 0, offset = 0; j < signals[i].Median.Length; j++)
+                            {
+                                signals[i].Median[j] = (short)Communication.IO.Tools.BytesTool.readBytes(wfd, offset, sampleSize, true);
+
+                                offset += sampleSize;
+                            }
+                        }
+
+                        ECGTool.ChangeMultiplier(signals[i].Rhythm, Decimal.ToDouble(wfs[1].LeadData[i].LeadAmplitudeUnitsPerBit), signals.RhythmAVM);
+                        ECGTool.ChangeMultiplier(signals[i].Median, Decimal.ToDouble(wfs[0].LeadData[i].LeadAmplitudeUnitsPerBit), signals.MedianAVM);
+                    }
+
+                    return 0;
+                }
 			}
 			
 			return 1;
