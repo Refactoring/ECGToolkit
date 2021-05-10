@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2019-2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2011, M.J.B. van Ettinger Jr., The Netherlands
 
@@ -30,7 +30,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("van Ettinger Information Technology")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright 2019-2020, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands")]
+[assembly: AssemblyCopyright("Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
@@ -45,7 +45,7 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("2.6.*")]
+[assembly: AssemblyVersion("2.7.*")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 

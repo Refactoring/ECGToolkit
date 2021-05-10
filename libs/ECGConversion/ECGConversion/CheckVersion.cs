@@ -130,6 +130,26 @@ namespace ECGConversion
 
 				FileInfo fi = new FileInfo(path);
 
+#if !DEBUG
+                path = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "ECGConversionCheckVersion.log");
+
+                if (fi.Exists)
+                {
+                    try
+                    {
+                        if (File.Exists(path))
+                            fi.Delete();
+                        else
+                            fi.MoveTo(path);
+                    }
+                    catch { }
+                }
+
+                fi = new FileInfo(path);
+#endif
+
 				if (fi.Exists)
 				{
 					if (Math.Abs((DateTime.Now.ToUniversalTime() - fi.LastWriteTimeUtc).TotalMinutes) <= 15.0)
@@ -156,7 +176,7 @@ namespace ECGConversion
 					Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
 					"CheckVersion.log");
 #else
-					Path.GetTempPath(),
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
 					"ECGConversionCheckVersion.log");
 #endif
 
@@ -188,7 +208,7 @@ namespace ECGConversion
 			{
 				switch (CheckNewVersionAllowed)
 				{
-						// Unknown whether check is allowed so ask when handled.
+				    // Unknown whether check is allowed so ask when handled.
 					case CheckAllowed.Unknown:		
 						if (OnAllowNewVersionCheck == null)
 							return;
