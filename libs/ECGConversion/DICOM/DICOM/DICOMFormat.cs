@@ -2213,7 +2213,7 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "deg", "UCUM", "1.4", "degrees");
 							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.3-11", "SCPECG", "1.3", "P Axis");
 
 							ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
@@ -2225,7 +2225,7 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "deg", "UCUM", "1.4", "degrees");
 							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.3-13", "SCPECG", "1.3", "QRS Axis");
 
 							ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
@@ -2237,7 +2237,7 @@ namespace ECGConversion.DICOM
 						{
 							Dataset ds = element.AddNewItem();
 
-							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "ms", "UCUM", "1.4", "milliseconds");
+							MakeCodeSequence(ds, Tags.MeasurementUnitsCodeSequence, "deg", "UCUM", "1.4", "degrees");
 							MakeCodeSequence(ds, Tags.ConceptNameCodeSequence, "5.10.3-15", "SCPECG", "1.3", "T Axis");
 
 							ds.PutUS(Tags.ReferencedWaveformChannels, s_MeasurementRWC);
