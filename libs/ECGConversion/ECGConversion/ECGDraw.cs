@@ -669,7 +669,7 @@ namespace ECGConversion
 			/// <param name="x">position X in pixels or millimeters</param>
 			/// <param name="y">position Y in pixels or millimeters</param>
 			/// <param name="leadType">type of the lead</param>
-			/// <param name="avm">AVM of signal data</param>
+			/// <param name="avm">AVM in mV of signal data</param>
 			/// <param name="sps">samples per seconds of signal data</param>
 			/// <param name="start">start point in signal data</param>
 			/// <param name="end">end point in signal data</param>
@@ -699,7 +699,7 @@ namespace ECGConversion
 			private float _X;
 			private float _Y;
 			private LeadType _LeadType;
-			private double _AVM; // AVM in uV
+			private double _AVM; // AVM in mV
 			private int _SamplesPerSecond;
 			private int _Start;
 			private int _End;

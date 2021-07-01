@@ -56,11 +56,11 @@ namespace ECGConversion.ECGSignals
 		}
 
 		// Rhythm Info.
-		public double RhythmAVM = 0; // AVM in uV
+		public double RhythmAVM = 0; // AVM in mV
 		public int RhythmSamplesPerSecond = 0;
 
 		// Median Info.
-		public double MedianAVM = 0; // AVM in uV
+		public double MedianAVM = 0; // AVM in mV
 		public ushort MedianLength = 0; // Length in ms
 		public int MedianSamplesPerSecond = 0;
 

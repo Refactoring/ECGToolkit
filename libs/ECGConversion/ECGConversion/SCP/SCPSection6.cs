@@ -480,7 +480,7 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Function to get AVM.
 		/// </summary>
-		/// <returns>AVM in uV</returns>
+		/// <returns>AVM in mV</returns>
 		public double getAVM()
 		{
 			if (_AVM > 0)
@@ -492,7 +492,7 @@ namespace ECGConversion.SCP
 		/// <summary>
 		/// Function to set AVM.
 		/// </summary>
-		/// <param name="avm">AVM in uV</param>
+		/// <param name="avm">AVM in mV</param>
 		public void setAVM(double avm)
 		{
 			if (avm > 0)
