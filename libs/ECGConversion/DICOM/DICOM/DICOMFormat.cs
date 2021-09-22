@@ -1754,6 +1754,10 @@ namespace ECGConversion.DICOM
 					{
 						Dataset ds = element.GetItem(i);
 
+                        if ((ds == null)
+                        ||  ds.IsEmpty())
+                            continue;
+
 						try
 						{
                             if (itemsToKeep == null)
