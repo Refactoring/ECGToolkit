@@ -2570,6 +2570,10 @@ namespace ECGConversion.DICOM
 
 		public int GetWaveform(Signals sigs, DcmElement chDef, int[] data, int nrSamples, bool median)
 		{
+            if ((data == null)
+            &&  (nrSamples == 0))
+                return 0;
+
 			if ((sigs == null)
 			||	(chDef == null)
 			||	(data == null)
