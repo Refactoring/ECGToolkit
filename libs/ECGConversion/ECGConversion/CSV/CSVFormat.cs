@@ -45,19 +45,68 @@ namespace ECGConversion.CSV
 			}
 		}
 
+        private bool _CalculateLeads
+        {
+            get
+            {
+                return (_Config["Calculate Leads"] != null)
+                    && (String.Compare(_Config["Calculate Leads"], "true", true) == 0);
+            }
+        }
+
+        private double _FilterBottomCutoff
+        {
+            get
+            {
+                double ret = double.NaN;
+
+                if (double.TryParse(_Config["Filter Bottom Cutoff"], out ret))
+                    return ret;
+
+                return double.NaN;
+            }
+        }
+
+        private double _FilterTopCutoff
+        {
+            get
+            {
+                double ret = double.NaN;
+
+                if (double.TryParse(_Config["Filter Top Cutoff"], out ret))
+                    return ret;
+
+                return double.NaN;
+            }
+        }
+
+        private int _FilterNumberSections
+        {
+            get
+            {
+                int ret = 2;
+
+                if (int.TryParse(_Config["Filter Number of Sections"], out ret))
+                    return ret;
+
+                return 2;
+            }
+        }
+
 		public CSVFormat()
 		{
 			string[]
-				poss = new string[]{"Use Buffered Stream"};
+                poss = new string[] { "Calculate Leads", "Use Buffered Stream" };
 
 			_Config = new ECGConfig(null, poss, null);
-			
+
+            _Config["Calculate Leads"] = "false";
 			_Config["Use Buffered Stream"] = "false";
-
+            
 			Empty();
-		}
+        }
 
-		public override bool SupportsBufferedStream
+        public override bool SupportsBufferedStream
 		{
 			get
 			{
@@ -65,7 +114,7 @@ namespace ECGConversion.CSV
 			}
 		}
 
-		public override int Read(Stream input, int offset)
+        public override int Read(Stream input, int offset)
 		{
 			return 1;
 		}
@@ -102,19 +151,40 @@ namespace ECGConversion.CSV
 		}
 		public override int Write(Stream output)
 		{
-			try
-			{
-				System.IO.StreamWriter sw = new StreamWriter(output);
+            Signals tempSigs = null;
+            Signals calcSigs = null;
 
-				int ret = ECGConverter.ToExcelTxt(this, sw, '\t', _UseBufferedStream);
+            try
+            {
+                System.IO.StreamWriter sw = new StreamWriter(output);
 
-				sw.Flush();
+                if (_CalculateLeads
+                && (this._Sigs != null))
+                {
+                    calcSigs = _Sigs.CalculateFifteenLeads();
 
-				return ret;
-			}
-			catch
-			{
-			}
+                    if (calcSigs == null)
+                        calcSigs = _Sigs.CalculateTwelveLeads();
+
+                    if (calcSigs != null)
+                    {
+                        tempSigs = _Sigs;
+                        _Sigs = calcSigs;
+                    }
+                }
+
+                int ret = ECGConverter.ToExcelTxt(this, sw, '\t', _UseBufferedStream);
+
+                sw.Flush();
+
+                return ret;
+            }
+            catch {}
+
+            if (tempSigs != null)
+            {
+                _Sigs = tempSigs;
+            }
 
 			return 1;
 		}
