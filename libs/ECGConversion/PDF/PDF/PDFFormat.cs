@@ -682,8 +682,6 @@ namespace ECGConversion.PDF
                                 {
                                     if (!bs.LoadTemplate(signalPos++))
                                         return 4;
-
-                                    
                                 }
                                 else
                                 {

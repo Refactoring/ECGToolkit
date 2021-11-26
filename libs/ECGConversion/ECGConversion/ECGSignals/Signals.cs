@@ -728,7 +728,7 @@ namespace ECGConversion.ECGSignals
                         if (_Lead[i].Type != lt[i])
                             return false;
 
-                    LeadType[][] extra = new LeadType[][] { new LeadType[]{ LeadType.V7, LeadType.V3R, LeadType.V4R }, new LeadType[]{ LeadType.V7, LeadType.V8, LeadType.V9 } };
+                    LeadType[][] extra = new LeadType[][] { new LeadType[] { LeadType.V3R, LeadType.V4R, LeadType.V7 }, new LeadType[] { LeadType.V7, LeadType.V8, LeadType.V9 } };
                     bool[] check = new bool[extra.Length];
 
                     for (int c=0;c<check.Length;c++)
@@ -758,7 +758,7 @@ namespace ECGConversion.ECGSignals
 												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
 												  LeadType.V1, LeadType.V2, LeadType.V3,
 												  LeadType.V4, LeadType.V5, LeadType.V6, 
-                                                  LeadType.V7, LeadType.V3R, LeadType.V4R },
+                                                  LeadType.V3R, LeadType.V4R, LeadType.V7 },
                                                   new LeadType[] { LeadType.I, LeadType.II, LeadType.III,
 												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
 												  LeadType.V1, LeadType.V2, LeadType.V3,
@@ -982,7 +982,7 @@ namespace ECGConversion.ECGSignals
 												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
 												  LeadType.V1, LeadType.V2, LeadType.V3,
 												  LeadType.V4, LeadType.V5, LeadType.V6, 
-                                                  LeadType.V7, LeadType.V3R, LeadType.V4R };
+                                                  LeadType.V3R, LeadType.V4R, LeadType.V7 };
             LeadType[] lt2 =  new LeadType[] { LeadType.I, LeadType.II, LeadType.III,
 												  LeadType.aVR, LeadType.aVL, LeadType.aVF,
 												  LeadType.V1, LeadType.V2, LeadType.V3,

@@ -588,7 +588,7 @@ namespace ECGConversion
                         if (!signals.IsFifteenLeads)
                         {
                             ret |= ECGDrawType.SixXTwo;
-					}
+					    }
 					}
 
 					if ((signals.MedianAVM != 0)
