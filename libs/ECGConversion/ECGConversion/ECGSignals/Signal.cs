@@ -135,15 +135,16 @@ namespace ECGConversion.ECGSignals
 			&&  (data.Length > 1)
 			&&	(data[0] != null))
 			{
-				int Nr = 1;
+				int Nr = 1,
+                    allowedDiff = 5;
 				for (;Nr < data.Length;Nr++)
 				{
 					if (data[Nr] == null)
 					{
 						return 0;
 					}
-					if ((data[0].RhythmStart != data[Nr].RhythmStart)
-					||	(data[0].RhythmEnd != data[Nr].RhythmEnd))
+					if ((Math.Abs(data[0].RhythmStart - data[Nr].RhythmStart) > allowedDiff)
+					||	(Math.Abs(data[0].RhythmEnd - data[Nr].RhythmEnd) > allowedDiff))
 					{
 						break;
 					}
