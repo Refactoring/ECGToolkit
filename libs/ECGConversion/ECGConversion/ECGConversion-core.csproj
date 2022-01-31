@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>ECGConversion</RootNamespace>
+    <PackageId>ECGConversion</PackageId>
+    <Authors>M.J.B. van Ettinger</Authors>
+    <Description>a framework for converting of ECGs</Description>
+    <Company>Erasmus MC</Company>
+    <Product>ECGConversion</Product>
+    <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
+    <NeutralLanguage>en-NL</NeutralLanguage>
+    <AssemblyVersion>2.7.0.0</AssemblyVersion>
+    <AssemblyName>ECGConversion</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
+  </ItemGroup>
+
+</Project>
