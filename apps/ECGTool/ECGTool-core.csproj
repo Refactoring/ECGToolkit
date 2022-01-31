@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>ECGTool</RootNamespace>
+    <AssemblyName>ECGTool</AssemblyName>
+    <StartupObject>ECGTool.ECGTool</StartupObject>
+    <Description>ECGTool based on framework for ECG Conversion</Description>
+    <Copyright>Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
+    <Version>2.7.0.0</Version>
+    <Company>Thoraxcentrum, Erasmus MC</Company>
+    <Authors>M.J.B. van Ettinger</Authors>
+    <Product>ECGTool based on ECGConversion</Product>
+    <NeutralLanguage>en-NL</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\ECGConversion\ECGConversion\ECGConversion-core.csproj" />
+  </ItemGroup>
+
+</Project>
