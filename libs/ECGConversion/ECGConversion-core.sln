@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31911.196
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECGConversion-core", "ECGConversion\ECGConversion-core.csproj", "{04C9DE58-F328-47C9-8CB5-26FEEB6A92C1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aECG-core", "aECG\aECG-core.csproj", "{015B9C16-FA5C-4599-9311-52EE2E493EBB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ISHNE-core", "ISHNE\ISHNE-core.csproj", "{675FC5F0-B519-4CAF-8F39-DE6C08F7B965}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{015B9C16-FA5C-4599-9311-52EE2E493EBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{015B9C16-FA5C-4599-9311-52EE2E493EBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{015B9C16-FA5C-4599-9311-52EE2E493EBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{675FC5F0-B519-4CAF-8F39-DE6C08F7B965}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{675FC5F0-B519-4CAF-8F39-DE6C08F7B965}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{675FC5F0-B519-4CAF-8F39-DE6C08F7B965}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{675FC5F0-B519-4CAF-8F39-DE6C08F7B965}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
