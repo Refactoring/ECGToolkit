@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>aECG_core</RootNamespace>
+    <RootNamespace>ECGConversion</RootNamespace>
     <AssemblyName>ECGCpluginaECG</AssemblyName>
     <Version>2.7.0.0</Version>
     <Authors>M.J.B. van Ettinger</Authors>

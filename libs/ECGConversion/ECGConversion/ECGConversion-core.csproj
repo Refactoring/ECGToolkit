@@ -6,7 +6,7 @@
     <PackageId>ECGConversion</PackageId>
     <Authors>M.J.B. van Ettinger</Authors>
     <Description>a framework for converting of ECGs</Description>
-    <Company>Erasmus MC</Company>
+    <Company>Thoraxcentrum, Erasmus MC</Company>
     <Product>ECGConversion</Product>
     <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
     <NeutralLanguage>en-NL</NeutralLanguage>

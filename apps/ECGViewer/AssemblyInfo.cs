@@ -29,7 +29,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("ECGViewer based on ECGConversion")]
 [assembly: AssemblyDescription("ECGViewer based on framework for ECG Conversion")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("van Ettinger Information Technology")]
+[assembly: AssemblyCompany("Thoraxcentrum, Erasmus MC")]
 [assembly: AssemblyProduct("")]
 [assembly: AssemblyCopyright("Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands")]
 [assembly: AssemblyTrademark("")]
