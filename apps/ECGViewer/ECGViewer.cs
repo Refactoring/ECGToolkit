@@ -39,24 +39,53 @@ namespace ECGViewer
 	public class ECGViewer : System.Windows.Forms.Form
 	{
 		private System.Windows.Forms.Panel ECGPanel;
-		private System.Windows.Forms.MainMenu mainMenu;
-		private System.Windows.Forms.MenuItem menuOpen;
-		private System.Windows.Forms.MenuItem menuOpenFile;
-		private System.Windows.Forms.StatusBar statusBar;
-		private System.Windows.Forms.MenuItem menuClose;
+		
 		private System.Windows.Forms.OpenFileDialog openECGFileDialog;
 		private System.Windows.Forms.Panel InnerECGPanel;
 		private System.Windows.Forms.Label labelPatient;
 		private System.Windows.Forms.Label labelTime;
 		private System.Windows.Forms.TextBox labelDiagnostic;
-		private System.Windows.Forms.MenuItem menuSave;
 		private System.Windows.Forms.SaveFileDialog saveECGFileDialog;
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+		private System.Windows.Forms.Label labelPatientSecond;
+#if dotNETCore
+		private System.Windows.Forms.MenuStrip mainMenu;
+		private System.Windows.Forms.ToolStripMenuItem menuOpen;
+		private System.Windows.Forms.ToolStripMenuItem menuOpenFile;
+		private System.Windows.Forms.MenuStrip bottomBar;
+		private System.Windows.Forms.ToolStripStatusLabel statusBar;
+		private System.Windows.Forms.ToolStripMenuItem menuClose;
+		private System.Windows.Forms.ToolStripMenuItem menuSave;
+		private System.Windows.Forms.ToolStripMenuItem menuSaveFile;
+		private System.Windows.Forms.ToolStripMenuItem menuPlugin;
+		private System.Windows.Forms.ToolStripMenuItem menuAddPluginFile;
+		private System.Windows.Forms.ToolStripMenuItem menuAddPluginDir;
+		private System.Windows.Forms.ToolStripMenuItem menuView;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormat;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormatRegular;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormatThreeXFour;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormatThreeXFourPlusOne;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormatThreeXFourPlusThree;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormatSixXTwo;
+		private System.Windows.Forms.ToolStripMenuItem menuLeadFormatMedian;
+		private System.Windows.Forms.ToolStripMenuItem menuGain;
+		private System.Windows.Forms.ToolStripMenuItem menuGain4;
+		private System.Windows.Forms.ToolStripMenuItem menuGain3;
+		private System.Windows.Forms.ToolStripMenuItem menuGain2;
+		private System.Windows.Forms.ToolStripMenuItem menuGain1;
+		private System.Windows.Forms.ToolStripMenuItem menuOpenSystems;
+		private System.Windows.Forms.ToolStripMenuItem menuSaveSystems;
+#else
+		private System.Windows.Forms.MainMenu mainMenu;
+		private System.Windows.Forms.MenuItem menuOpen;
+		private System.Windows.Forms.MenuItem menuOpenFile;
+		private System.Windows.Forms.StatusBar statusBar;
+		private System.Windows.Forms.MenuItem menuClose;
+		private System.Windows.Forms.MenuItem menuSave;
 		private System.Windows.Forms.MenuItem menuSaveFile;
 		private System.Windows.Forms.MenuItem menuPlugin;
 		private System.Windows.Forms.MenuItem menuAddPluginFile;
 		private System.Windows.Forms.MenuItem menuAddPluginDir;
-		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-		private System.Windows.Forms.Label labelPatientSecond;
 		private System.Windows.Forms.MenuItem menuView;
 		private System.Windows.Forms.MenuItem menuLeadFormat;
 		private System.Windows.Forms.MenuItem menuLeadFormatRegular;
@@ -72,7 +101,8 @@ namespace ECGViewer
 		private System.Windows.Forms.MenuItem menuGain1;
 		private System.Windows.Forms.MenuItem menuOpenSystems;
         private System.Windows.Forms.MenuItem menuSaveSystems;
-        private IContainer components;
+#endif
+		private IContainer components;
 
 		private UnknownECGReader _ECGReader = null;
 		private IECGFormat _CurrentECG = null;
@@ -215,6 +245,30 @@ namespace ECGViewer
 		private Bitmap _DrawBuffer = null;
 		private ECGDraw.ECGDrawType _DrawType = ECGDraw.ECGDrawType.Regular;
 		private System.Windows.Forms.HScrollBar ECGTimeScrollbar;
+#if dotNETCore
+		private System.Windows.Forms.ToolStripMenuItem menuAnnonymize;
+		private System.Windows.Forms.ToolStripMenuItem menuDisplayInfo;
+		private System.Windows.Forms.ToolStripMenuItem menuGridType;
+		private System.Windows.Forms.ToolStripMenuItem menuGridFive;
+		private System.Windows.Forms.ToolStripMenuItem menuGridOne;
+		private System.Windows.Forms.ToolStripMenuItem menuGridNone;
+		private System.Windows.Forms.ToolStripMenuItem menuColor;
+		private System.Windows.Forms.ToolStripMenuItem menuColor1;
+		private System.Windows.Forms.ToolStripMenuItem menuColor2;
+		private System.Windows.Forms.ToolStripMenuItem menuColor3;
+		private System.Windows.Forms.ToolStripMenuItem menuColor4;
+		private System.Windows.Forms.ToolStripMenuItem menuZoom;
+		private System.Windows.Forms.ToolStripMenuItem menuZoomOut;
+		private System.Windows.Forms.ToolStripMenuItem menuZoomIn;
+		private System.Windows.Forms.ToolStripMenuItem menuCaliper;
+		private System.Windows.Forms.ToolStripMenuItem menuCaliperOff;
+		private System.Windows.Forms.ToolStripMenuItem menuCaliperDuration;
+		private System.Windows.Forms.ToolStripMenuItem menuCaliperBoth;
+		private System.Windows.Forms.ToolStripMenuItem menuFilter;
+		private System.Windows.Forms.ToolStripMenuItem menuFilterNone;
+		private System.Windows.Forms.ToolStripMenuItem menuFilter40Hz;
+		private System.Windows.Forms.ToolStripMenuItem menuFilterMuscle;
+#else
 		private System.Windows.Forms.MenuItem menuAnnonymize;
 		private System.Windows.Forms.MenuItem menuDisplayInfo;
 		private System.Windows.Forms.MenuItem menuGridType;
@@ -233,11 +287,12 @@ namespace ECGViewer
 		private System.Windows.Forms.MenuItem menuCaliperOff;
 		private System.Windows.Forms.MenuItem menuCaliperDuration;
 		private System.Windows.Forms.MenuItem menuCaliperBoth;
-        private MenuItem menuFilter;
-        private MenuItem menuFilterNone;
-        private MenuItem menuFilter40Hz;
-        private MenuItem menuFilterMuscle;
-        private double _BottomCutoff = double.NaN;
+        private System.Windows.Forms.MenuItem menuFilter;
+        private System.Windows.Forms.MenuItem menuFilterNone;
+        private System.Windows.Forms.MenuItem menuFilter40Hz;
+        private System.Windows.Forms.MenuItem menuFilterMuscle;
+#endif
+		private double _BottomCutoff = double.NaN;
         private double _TopCutoff = double.NaN;
 
 	
@@ -369,7 +424,7 @@ namespace ECGViewer
 			base.Dispose( disposing );
 		}
 
-		#region Windows Form Designer generated code
+#region Windows Form Designer generated code
 		/// <summary>
 		/// Required method for Designer support - do not modify
 		/// the contents of this method with the code editor.
@@ -378,7 +433,57 @@ namespace ECGViewer
 		{
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ECGViewer));
-            this.mainMenu = new System.Windows.Forms.MainMenu(this.components);
+#if dotNETCore
+			this.mainMenu = new();
+			this.menuOpen = new();
+			this.menuOpenFile = new();
+			this.menuOpenSystems = new();
+			this.menuView = new();
+			this.menuLeadFormat = new();
+			this.menuLeadFormatRegular = new();
+            this.menuLeadFormatThreeXFour = new();
+            this.menuLeadFormatThreeXFourPlusOne = new();
+            this.menuLeadFormatThreeXFourPlusThree = new();
+            this.menuLeadFormatSixXTwo = new();
+            this.menuLeadFormatMedian = new();
+            this.menuFilter = new();
+            this.menuFilterNone = new();
+            this.menuFilter40Hz = new();
+            this.menuFilterMuscle = new();
+            this.menuGain = new();
+            this.menuGain4 = new();
+            this.menuGain3 = new();
+            this.menuGain2 = new();
+            this.menuGain1 = new();
+            this.menuGridType = new();
+            this.menuGridNone = new();
+            this.menuGridOne = new();
+            this.menuGridFive = new();
+            this.menuColor = new();
+            this.menuColor1 = new();
+            this.menuColor2 = new();
+            this.menuColor3 = new();
+            this.menuColor4 = new();
+            this.menuCaliper = new();
+            this.menuCaliperOff = new();
+            this.menuCaliperDuration = new();
+            this.menuCaliperBoth = new();
+            this.menuZoom = new();
+            this.menuZoomOut = new();
+            this.menuZoomIn = new();
+            this.menuDisplayInfo = new();
+            this.menuAnnonymize = new();
+            this.menuSave = new();
+            this.menuSaveFile = new();
+            this.menuSaveSystems = new();
+            this.menuClose = new();
+            this.menuPlugin = new();
+            this.menuAddPluginFile = new();
+            this.menuAddPluginDir = new();
+			this.bottomBar = new();
+			this.statusBar = new();
+#else
+			this.mainMenu = new System.Windows.Forms.MainMenu(this.components);
             this.menuOpen = new System.Windows.Forms.MenuItem();
             this.menuOpenFile = new System.Windows.Forms.MenuItem();
             this.menuOpenSystems = new System.Windows.Forms.MenuItem();
@@ -424,55 +529,76 @@ namespace ECGViewer
             this.menuPlugin = new System.Windows.Forms.MenuItem();
             this.menuAddPluginFile = new System.Windows.Forms.MenuItem();
             this.menuAddPluginDir = new System.Windows.Forms.MenuItem();
-            this.ECGPanel = new System.Windows.Forms.Panel();
+			this.statusBar = new System.Windows.Forms.StatusBar();
+#endif
+
+			this.ECGPanel = new System.Windows.Forms.Panel();
             this.InnerECGPanel = new System.Windows.Forms.Panel();
             this.labelPatientSecond = new System.Windows.Forms.Label();
             this.labelDiagnostic = new System.Windows.Forms.TextBox();
             this.labelTime = new System.Windows.Forms.Label();
             this.labelPatient = new System.Windows.Forms.Label();
-            this.statusBar = new System.Windows.Forms.StatusBar();
             this.openECGFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveECGFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.ECGTimeScrollbar = new System.Windows.Forms.HScrollBar();
             this.ECGPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // mainMenu
-            // 
-            this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuOpen,
+			// 
+			// mainMenu
+			// 
+#if dotNETCore
+			this.mainMenu.Dock = DockStyle.Top;
+			this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
+			this.menuOpen,
             this.menuView,
             this.menuSave,
             this.menuClose,
             this.menuPlugin});
-            // 
-            // menuOpen
-            // 
-            this.menuOpen.Index = 0;
+			// 
+			// menuOpen
+			// 
+#if dotNETCore
+			this.menuOpen.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuOpen.Index = 0;
             this.menuOpen.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuOpenFile,
             this.menuOpenSystems});
             this.menuOpen.Text = "Open";
-            // 
-            // menuOpenFile
-            // 
-            this.menuOpenFile.Index = 0;
+			// 
+			// menuOpenFile
+			// 
+#if dotNETCore
+			this.menuOpenFile.ShortcutKeys = Keys.Control | Keys.O;
+#else
+			this.menuOpenFile.Index = 0;
             this.menuOpenFile.Shortcut = System.Windows.Forms.Shortcut.CtrlO;
-            this.menuOpenFile.Text = "File ...";
+#endif
+			this.menuOpenFile.Text = "File ...";
             this.menuOpenFile.Click += new System.EventHandler(this.menuOpenFile_Click);
             // 
             // menuOpenSystems
             // 
             this.menuOpenSystems.Enabled = false;
-            this.menuOpenSystems.Index = 1;
-            this.menuOpenSystems.Text = "ECG System";
+#if !dotNETCore
+			this.menuOpenSystems.Index = 1;
+#endif
+			this.menuOpenSystems.Text = "ECG System";
             // 
             // menuView
             // 
             this.menuView.Enabled = false;
-            this.menuView.Index = 1;
+#if dotNETCore
+			this.menuView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuView.Index = 1;
             this.menuView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuLeadFormat,
             this.menuFilter,
             this.menuGain,
@@ -483,11 +609,15 @@ namespace ECGViewer
             this.menuDisplayInfo,
             this.menuAnnonymize});
             this.menuView.Text = "View";
-            // 
-            // menuLeadFormat
-            // 
-            this.menuLeadFormat.Index = 0;
+			// 
+			// menuLeadFormat
+			// 
+#if dotNETCore
+			this.menuLeadFormat.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuLeadFormat.Index = 0;
             this.menuLeadFormat.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuLeadFormatRegular,
             this.menuLeadFormatThreeXFour,
             this.menuLeadFormatThreeXFourPlusOne,
@@ -499,56 +629,89 @@ namespace ECGViewer
             // menuLeadFormatRegular
             // 
             this.menuLeadFormatRegular.Checked = true;
-            this.menuLeadFormatRegular.Index = 0;
+#if dotNETCore
+			this.menuLeadFormatRegular.ShortcutKeys = Keys.Control | Keys.D1;
+			this.menuLeadFormatRegular.ShowShortcutKeys = true;
+#else
+			this.menuLeadFormatRegular.Index = 0;
             this.menuLeadFormatRegular.RadioCheck = true;
             this.menuLeadFormatRegular.Shortcut = System.Windows.Forms.Shortcut.Ctrl1;
-            this.menuLeadFormatRegular.Text = "Regular";
+#endif
+			this.menuLeadFormatRegular.Text = "Regular";
             this.menuLeadFormatRegular.Click += new System.EventHandler(this.menuLeadFormatRegular_Click);
-            // 
-            // menuLeadFormatThreeXFour
-            // 
+			// 
+			// menuLeadFormatThreeXFour
+			// 
+#if dotNETCore
+			this.menuLeadFormatThreeXFour.ShortcutKeys = Keys.Control | Keys.D2;
+			this.menuLeadFormatThreeXFour.ShowShortcutKeys = true;
+#else
             this.menuLeadFormatThreeXFour.Index = 1;
             this.menuLeadFormatThreeXFour.RadioCheck = true;
             this.menuLeadFormatThreeXFour.Shortcut = System.Windows.Forms.Shortcut.Ctrl2;
-            this.menuLeadFormatThreeXFour.Text = "3x4";
+#endif
+			this.menuLeadFormatThreeXFour.Text = "3x4";
             this.menuLeadFormatThreeXFour.Click += new System.EventHandler(this.menuLeadFormatFourXThree_Click);
-            // 
-            // menuLeadFormatThreeXFourPlusOne
-            // 
+			// 
+			// menuLeadFormatThreeXFourPlusOne
+			// 
+#if dotNETCore
+			this.menuLeadFormatThreeXFourPlusOne.ShortcutKeys = Keys.Control | Keys.D3;
+#else
             this.menuLeadFormatThreeXFourPlusOne.Index = 2;
             this.menuLeadFormatThreeXFourPlusOne.RadioCheck = true;
             this.menuLeadFormatThreeXFourPlusOne.Shortcut = System.Windows.Forms.Shortcut.Ctrl3;
+#endif
             this.menuLeadFormatThreeXFourPlusOne.Text = "3x4+1";
             this.menuLeadFormatThreeXFourPlusOne.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusOne_Click);
-            // 
-            // menuLeadFormatThreeXFourPlusThree
-            // 
+			// 
+			// menuLeadFormatThreeXFourPlusThree
+			// 
+#if dotNETCore
+			this.menuLeadFormatThreeXFourPlusThree.ShortcutKeys = Keys.Control | Keys.D4;
+			this.menuLeadFormatThreeXFourPlusThree.ShowShortcutKeys = true;
+#else
             this.menuLeadFormatThreeXFourPlusThree.Index = 3;
             this.menuLeadFormatThreeXFourPlusThree.RadioCheck = true;
             this.menuLeadFormatThreeXFourPlusThree.Shortcut = System.Windows.Forms.Shortcut.Ctrl4;
-            this.menuLeadFormatThreeXFourPlusThree.Text = "3x4+3";
+#endif
+			this.menuLeadFormatThreeXFourPlusThree.Text = "3x4+3";
             this.menuLeadFormatThreeXFourPlusThree.Click += new System.EventHandler(this.menuLeadFormatFourXThreePlusThree_Click);
-            // 
-            // menuLeadFormatSixXTwo
-            // 
+			// 
+			// menuLeadFormatSixXTwo
+			// 
+#if dotNETCore
+			this.menuLeadFormatSixXTwo.ShortcutKeys = Keys.Control | Keys.D5;
+			this.menuLeadFormatSixXTwo.ShowShortcutKeys = true;
+#else
             this.menuLeadFormatSixXTwo.Index = 4;
             this.menuLeadFormatSixXTwo.RadioCheck = true;
             this.menuLeadFormatSixXTwo.Shortcut = System.Windows.Forms.Shortcut.Ctrl5;
-            this.menuLeadFormatSixXTwo.Text = "6x2";
+#endif
+			this.menuLeadFormatSixXTwo.Text = "6x2";
             this.menuLeadFormatSixXTwo.Click += new System.EventHandler(this.menuLeadFormatSixXTwo_Click);
-            // 
-            // menuLeadFormatMedian
-            // 
+			// 
+			// menuLeadFormatMedian
+			// 
+#if dotNETCore
+			this.menuLeadFormatMedian.ShortcutKeys = Keys.Control | Keys.D5;
+			this.menuLeadFormatMedian.ShowShortcutKeys = true;
+#else
             this.menuLeadFormatMedian.Index = 5;
             this.menuLeadFormatMedian.Shortcut = System.Windows.Forms.Shortcut.CtrlM;
-            this.menuLeadFormatMedian.Text = "Average Complex";
+#endif
+			this.menuLeadFormatMedian.Text = "Average Complex";
             this.menuLeadFormatMedian.Click += new System.EventHandler(this.menuLeadFormatMedian_Click);
-            // 
-            // menuFilter
-            // 
+			// 
+			// menuFilter
+			// 
+#if dotNETCore
+			this.menuFilter.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
             this.menuFilter.Index = 1;
             this.menuFilter.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuFilterNone,
+#endif
+			this.menuFilterNone,
             this.menuFilter40Hz,
             this.menuFilterMuscle});
             this.menuFilter.Text = "Filter";
@@ -556,133 +719,177 @@ namespace ECGViewer
             // menuFilterNone
             // 
             this.menuFilterNone.Checked = true;
-            this.menuFilterNone.Index = 0;
+#if !dotNETCore
+			this.menuFilterNone.Index = 0;
+#endif
             this.menuFilterNone.Text = "None";
             this.menuFilterNone.Click += new System.EventHandler(this.menuFilterNone_Click);
-            // 
-            // menuFilter40Hz
-            // 
-            this.menuFilter40Hz.Index = 1;
+			// 
+			// menuFilter40Hz
+			// 
+#if !dotNETCore
+			this.menuFilter40Hz.Index = 1;
+#endif
             this.menuFilter40Hz.Text = "40 Hz (0.05-40 Hz)";
             this.menuFilter40Hz.Click += new System.EventHandler(this.menuFilter40Hz_Click);
-            // 
-            // menuFilterMuscle
-            // 
-            this.menuFilterMuscle.Index = 2;
+			// 
+			// menuFilterMuscle
+			// 
+#if !dotNETCore
+			this.menuFilterMuscle.Index = 2;
+#endif
             this.menuFilterMuscle.Text = "Muscle (0.05-35 Hz)";
             this.menuFilterMuscle.Click += new System.EventHandler(this.menuFilterMuscle_Click);
-            // 
-            // menuGain
-            // 
-            this.menuGain.Index = 2;
+			// 
+			// menuGain
+			// 
+#if dotNETCore
+			this.menuGain.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuGain.Index = 2;
             this.menuGain.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuGain4,
+#endif
+			this.menuGain4,
             this.menuGain3,
             this.menuGain2,
             this.menuGain1});
             this.menuGain.Text = "Gain";
-            // 
-            // menuGain4
-            // 
-            this.menuGain4.Index = 0;
+			// 
+			// menuGain4
+			// 
+#if !dotNETCore
+			this.menuGain4.Index = 0;
             this.menuGain4.RadioCheck = true;
+#endif
             this.menuGain4.Text = "40 mm/mV";
             this.menuGain4.Click += new System.EventHandler(this.menuGain4_Click);
-            // 
-            // menuGain3
-            // 
-            this.menuGain3.Index = 1;
+			// 
+			// menuGain3
+			// 
+#if !dotNETCore
+			this.menuGain3.Index = 1;
             this.menuGain3.RadioCheck = true;
+#endif
             this.menuGain3.Text = "20 mm/mV";
             this.menuGain3.Click += new System.EventHandler(this.menuGain3_Click);
             // 
             // menuGain2
             // 
             this.menuGain2.Checked = true;
-            this.menuGain2.Index = 2;
+#if !dotNETCore
+			this.menuGain2.Index = 2;
             this.menuGain2.RadioCheck = true;
-            this.menuGain2.Text = "10 mm/mV";
+#endif
+			this.menuGain2.Text = "10 mm/mV";
             this.menuGain2.Click += new System.EventHandler(this.menuGain2_Click);
-            // 
-            // menuGain1
-            // 
-            this.menuGain1.Index = 3;
+			// 
+			// menuGain1
+			// 
+#if !dotNETCore
+			this.menuGain1.Index = 3;
             this.menuGain1.RadioCheck = true;
+#endif
             this.menuGain1.Text = "5   mm/mV";
             this.menuGain1.Click += new System.EventHandler(this.menuGain1_Click);
-            // 
-            // menuGridType
-            // 
-            this.menuGridType.Index = 3;
+			// 
+			// menuGridType
+			// 
+#if dotNETCore
+			this.menuGridType.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuGridType.Index = 3;
             this.menuGridType.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuGridNone,
             this.menuGridOne,
             this.menuGridFive});
             this.menuGridType.Text = "Grid Type";
-            // 
-            // menuGridNone
-            // 
-            this.menuGridNone.Index = 0;
+			// 
+			// menuGridNone
+			// 
+#if !dotNETCore
+			this.menuGridNone.Index = 0;
             this.menuGridNone.RadioCheck = true;
+#endif
             this.menuGridNone.Text = "None";
             this.menuGridNone.Click += new System.EventHandler(this.menuGridNone_Click);
-            // 
-            // menuGridOne
-            // 
+			// 
+			// menuGridOne
+			// 
+#if !dotNETCore
             this.menuGridOne.Index = 1;
             this.menuGridOne.RadioCheck = true;
+#endif
             this.menuGridOne.Text = "1 mm";
             this.menuGridOne.Click += new System.EventHandler(this.menuGridOne_Click);
-            // 
-            // menuGridFive
-            // 
+			// 
+			// menuGridFive
+			// 
+#if !dotNETCore
             this.menuGridFive.Index = 2;
             this.menuGridFive.RadioCheck = true;
+#endif
             this.menuGridFive.Text = "5 mm";
             this.menuGridFive.Click += new System.EventHandler(this.menuGridFive_Click);
-            // 
-            // menuColor
-            // 
-            this.menuColor.Index = 4;
+			// 
+			// menuColor
+			// 
+#if dotNETCore
+			this.menuColor.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuColor.Index = 4;
             this.menuColor.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuColor1,
+#endif
+			this.menuColor1,
             this.menuColor2,
             this.menuColor3,
             this.menuColor4});
             this.menuColor.Text = "Color";
-            // 
-            // menuColor1
-            // 
+			// 
+			// menuColor1
+			// 
+#if !dotNETCore
             this.menuColor1.Index = 0;
             this.menuColor1.RadioCheck = true;
+#endif
             this.menuColor1.Text = "Red / Black";
             this.menuColor1.Click += new System.EventHandler(this.menuColor1_Click);
-            // 
-            // menuColor2
-            // 
+			// 
+			// menuColor2
+			// 
+#if !dotNETCore
             this.menuColor2.Index = 1;
             this.menuColor2.RadioCheck = true;
+#endif
             this.menuColor2.Text = "Blue / Black";
             this.menuColor2.Click += new System.EventHandler(this.menuColor2_Click);
-            // 
-            // menuColor3
-            // 
+			// 
+			// menuColor3
+			// 
+#if !dotNETCore
             this.menuColor3.Index = 2;
             this.menuColor3.RadioCheck = true;
+#endif
             this.menuColor3.Text = "Green / Black";
             this.menuColor3.Click += new System.EventHandler(this.menuColor3_Click);
-            // 
-            // menuColor4
-            // 
+			// 
+			// menuColor4
+			// 
+#if !dotNETCore
             this.menuColor4.Index = 3;
             this.menuColor4.RadioCheck = true;
+#endif
             this.menuColor4.Text = "Gray / Green";
             this.menuColor4.Click += new System.EventHandler(this.menuColor4_Click);
-            // 
-            // menuCaliper
-            // 
-            this.menuCaliper.Index = 5;
+			// 
+			// menuCaliper
+			// 
+#if dotNETCore
+			this.menuCaliper.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuCaliper.Index = 5;
             this.menuCaliper.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuCaliperOff,
             this.menuCaliperDuration,
             this.menuCaliperBoth});
@@ -691,114 +898,182 @@ namespace ECGViewer
             // menuCaliperOff
             // 
             this.menuCaliperOff.Checked = true;
-            this.menuCaliperOff.Index = 0;
-            this.menuCaliperOff.RadioCheck = true;
+#if dotNETCore
+			this.menuCaliperOff.ShortcutKeys = Keys.Control | Keys.Q;
+			this.menuCaliperOff.ShowShortcutKeys = true;
+#else
+			this.menuCaliperOff.Index = 0;
+			this.menuCaliperOff.RadioCheck = true;
             this.menuCaliperOff.Shortcut = System.Windows.Forms.Shortcut.CtrlQ;
-            this.menuCaliperOff.Text = "Off";
+#endif
+			this.menuCaliperOff.Text = "Off";
             this.menuCaliperOff.Click += new System.EventHandler(this.menuCaliperOff_Click);
-            // 
-            // menuCaliperDuration
-            // 
+			// 
+			// menuCaliperDuration
+			// 
+#if dotNETCore
+			this.menuCaliperDuration.ShortcutKeys = Keys.Control | Keys.W;
+			this.menuCaliperDuration.ShowShortcutKeys = true;
+#else
             this.menuCaliperDuration.Index = 1;
             this.menuCaliperDuration.RadioCheck = true;
             this.menuCaliperDuration.Shortcut = System.Windows.Forms.Shortcut.CtrlW;
-            this.menuCaliperDuration.Text = "Duration";
+#endif
+			this.menuCaliperDuration.Text = "Duration";
             this.menuCaliperDuration.Click += new System.EventHandler(this.menuCaliperDuration_Click);
-            // 
-            // menuCaliperBoth
-            // 
+			// 
+			// menuCaliperBoth
+			// 
+#if dotNETCore
+			this.menuCaliperDuration.ShortcutKeys = Keys.Control | Keys.E;
+			this.menuCaliperDuration.ShowShortcutKeys = true;
+#else
             this.menuCaliperBoth.Index = 2;
             this.menuCaliperBoth.RadioCheck = true;
             this.menuCaliperBoth.Shortcut = System.Windows.Forms.Shortcut.CtrlE;
-            this.menuCaliperBoth.Text = "Duration + uV";
+#endif
+			this.menuCaliperBoth.Text = "Duration + uV";
             this.menuCaliperBoth.Click += new System.EventHandler(this.menuCaliperBoth_Click);
-            // 
-            // menuZoom
-            // 
-            this.menuZoom.Index = 6;
+			// 
+			// menuZoom
+			// 
+#if dotNETCore
+			this.menuZoom.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuZoom.Index = 6;
             this.menuZoom.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuZoomOut,
             this.menuZoomIn});
             this.menuZoom.Text = "Zoom";
-            // 
-            // menuZoomOut
-            // 
-            this.menuZoomOut.Index = 0;
+			// 
+			// menuZoomOut
+			// 
+#if dotNETCore
+			this.menuZoomOut.ShortcutKeys = Keys.Control | Keys.D9;
+			this.menuZoomOut.ShowShortcutKeys = true;
+#else
+			this.menuZoomOut.Index = 0;
             this.menuZoomOut.Shortcut = System.Windows.Forms.Shortcut.Ctrl9;
-            this.menuZoomOut.Text = "Zoom Out";
+#endif
+			this.menuZoomOut.Text = "Zoom Out";
             this.menuZoomOut.Click += new System.EventHandler(this.menuZoomOut_Click);
-            // 
-            // menuZoomIn
-            // 
+			// 
+			// menuZoomIn
+			// 
+#if dotNETCore
+			this.menuZoomIn.ShortcutKeys = Keys.Control | Keys.D0;
+#else
             this.menuZoomIn.Index = 1;
             this.menuZoomIn.Shortcut = System.Windows.Forms.Shortcut.Ctrl0;
+#endif
             this.menuZoomIn.Text = "Zoom In";
             this.menuZoomIn.Click += new System.EventHandler(this.menuZoomIn_Click);
             // 
             // menuDisplayInfo
             // 
             this.menuDisplayInfo.Checked = true;
-            this.menuDisplayInfo.Index = 7;
+#if dotNETCore
+			this.menuDisplayInfo.ShortcutKeys = Keys.Control | Keys.I;
+			this.menuDisplayInfo.ShowShortcutKeys = true;
+#else
+			this.menuDisplayInfo.Index = 7;
             this.menuDisplayInfo.Shortcut = System.Windows.Forms.Shortcut.CtrlI;
-            this.menuDisplayInfo.Text = "Display Info";
+#endif
+			this.menuDisplayInfo.Text = "Display Info";
             this.menuDisplayInfo.Click += new System.EventHandler(this.menuDisplayInfo_Click);
-            // 
-            // menuAnnonymize
-            // 
-            this.menuAnnonymize.Index = 8;
+			// 
+			// menuAnnonymize
+			// 
+#if dotNETCore
+			this.menuAnnonymize.ShortcutKeys = Keys.Control | Keys.A;
+			this.menuAnnonymize.ShowShortcutKeys = true;
+#else
+			this.menuAnnonymize.Index = 8;
             this.menuAnnonymize.Shortcut = System.Windows.Forms.Shortcut.CtrlA;
-            this.menuAnnonymize.Text = "Annonymize";
+#endif
+			this.menuAnnonymize.Text = "Annonymize";
             this.menuAnnonymize.Click += new System.EventHandler(this.menuAnnonymize_Click);
             // 
             // menuSave
             // 
             this.menuSave.Enabled = false;
-            this.menuSave.Index = 2;
+#if dotNETCore
+			this.menuSave.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuSave.Index = 2;
             this.menuSave.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuSaveFile,
             this.menuSaveSystems});
             this.menuSave.Text = "Save";
-            // 
-            // menuSaveFile
-            // 
-            this.menuSaveFile.Index = 0;
+			// 
+			// menuSaveFile
+			// 
+#if dotNETCore
+			this.menuSaveFile.ShortcutKeys = Keys.Control | Keys.S;
+			this.menuSaveFile.ShowShortcutKeys = true;
+#else
+			this.menuSaveFile.Index = 0;
             this.menuSaveFile.Shortcut = System.Windows.Forms.Shortcut.CtrlS;
-            this.menuSaveFile.Text = "File ...";
+#endif
+			this.menuSaveFile.Text = "File ...";
             this.menuSaveFile.Click += new System.EventHandler(this.menuSaveFile_Click);
             // 
             // menuSaveSystems
             // 
             this.menuSaveSystems.Enabled = false;
-            this.menuSaveSystems.Index = 1;
+#if !dotNETCore
+			this.menuSaveSystems.Index = 1;
+#endif
             this.menuSaveSystems.Text = "ECG System";
             // 
             // menuClose
             // 
             this.menuClose.Enabled = false;
-            this.menuClose.Index = 3;
+#if dotNETCore
+			this.menuClose.ShortcutKeys = Keys.Control | Keys.L;
+			this.menuClose.ShowShortcutKeys = true;
+#else
+			this.menuClose.Index = 3;
             this.menuClose.Shortcut = System.Windows.Forms.Shortcut.CtrlL;
-            this.menuClose.Text = "Close";
+#endif
+			this.menuClose.Text = "Close";
             this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
-            // 
-            // menuPlugin
-            // 
-            this.menuPlugin.Index = 4;
+			// 
+			// menuPlugin
+			// 
+#if dotNETCore
+			this.menuPlugin.DropDownItems.AddRange(new System.Windows.Forms.ToolStripMenuItem[] {
+#else
+			this.menuPlugin.Index = 4;
             this.menuPlugin.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+#endif
             this.menuAddPluginFile,
             this.menuAddPluginDir});
             this.menuPlugin.Text = "Plugins";
-            // 
-            // menuAddPluginFile
-            // 
-            this.menuAddPluginFile.Index = 0;
+			// 
+			// menuAddPluginFile
+			// 
+#if dotNETCore
+			this.menuAddPluginFile.ShortcutKeys = Keys.Control | Keys.P;
+			this.menuAddPluginFile.ShowShortcutKeys = true;
+#else
+			this.menuAddPluginFile.Index = 0;
             this.menuAddPluginFile.Shortcut = System.Windows.Forms.Shortcut.CtrlP;
+#endif
             this.menuAddPluginFile.Text = "File ...";
             this.menuAddPluginFile.Click += new System.EventHandler(this.menuAddPluginFile_Click);
-            // 
-            // menuAddPluginDir
-            // 
-            this.menuAddPluginDir.Index = 1;
+			// 
+			// menuAddPluginDir
+			// 
+#if dotNETCore
+			this.menuAddPluginDir.ShortcutKeys = Keys.Control | Keys.Shift | Keys.P;
+			this.menuAddPluginDir.ShowShortcutKeys = true;
+#else
+			this.menuAddPluginDir.Index = 1;
             this.menuAddPluginDir.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftP;
+#endif
             this.menuAddPluginDir.Text = "Dir ...";
             this.menuAddPluginDir.Click += new System.EventHandler(this.menuAddPluginDir_Click);
             // 
@@ -810,8 +1085,12 @@ namespace ECGViewer
             this.ECGPanel.Controls.Add(this.labelDiagnostic);
             this.ECGPanel.Controls.Add(this.labelTime);
             this.ECGPanel.Controls.Add(this.labelPatient);
-            this.ECGPanel.Location = new System.Drawing.Point(0, 0);
-            this.ECGPanel.Name = "ECGPanel";
+#if dotNETCore
+			this.ECGPanel.Location = new System.Drawing.Point(0, 22);
+#else
+			this.ECGPanel.Location = new System.Drawing.Point(0, 0);
+#endif
+			this.ECGPanel.Name = "ECGPanel";
             this.ECGPanel.Size = new System.Drawing.Size(684, 449);
             this.ECGPanel.TabIndex = 0;
             // 
@@ -871,14 +1150,22 @@ namespace ECGViewer
             this.labelPatient.Name = "labelPatient";
             this.labelPatient.Size = new System.Drawing.Size(200, 98);
             this.labelPatient.TabIndex = 1;
-            // 
-            // statusBar
-            // 
-            this.statusBar.Location = new System.Drawing.Point(0, 485);
-            this.statusBar.Name = "statusBar";
+			// 
+			// statusBar
+			// 
+
+			this.statusBar.Name = "statusBar";
             this.statusBar.Size = new System.Drawing.Size(686, 22);
-            this.statusBar.TabIndex = 1;
-            // 
+#if dotNETCore
+			this.statusBar.Dock = DockStyle.Bottom;
+			this.bottomBar.Dock = DockStyle.Bottom;
+			this.bottomBar.Items.Add(this.statusBar);
+			this.Controls.Add(this.bottomBar);
+#else
+			this.statusBar.Location = new System.Drawing.Point(0, 485);
+			this.statusBar.TabIndex = 1;
+#endif
+			// 
             // ECGTimeScrollbar
             // 
             this.ECGTimeScrollbar.Enabled = false;
@@ -891,12 +1178,20 @@ namespace ECGViewer
             // ECGViewer
             // 
             this.ClientSize = new System.Drawing.Size(686, 507);
-            this.Controls.Add(this.statusBar);
-            this.Controls.Add(this.ECGPanel);
+#if dotNETCore
+
+#else
+			this.Controls.Add(this.statusBar);
+#endif
+			this.Controls.Add(this.ECGPanel);
             this.Controls.Add(this.ECGTimeScrollbar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Menu = this.mainMenu;
-            this.MinimumSize = new System.Drawing.Size(534, 534);
+#if dotNETCore
+			this.Controls.Add(this.mainMenu);
+#else
+			this.Menu = this.mainMenu;
+#endif
+			this.MinimumSize = new System.Drawing.Size(534, 534);
             this.Name = "ECGViewer";
             this.Text = "ECGViewer";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -907,7 +1202,7 @@ namespace ECGViewer
             this.ResumeLayout(false);
 
 		}
-		#endregion
+#endregion
 
 		private void ECGViewer_Load(object sender, System.EventArgs e)
 		{
@@ -922,13 +1217,30 @@ namespace ECGViewer
 				return;
 			}
 
+#if dotNETCore
+			menuOpenSystems.DropDownItems.Clear();
+			menuSaveSystems.DropDownItems.Clear();
+#else
 			menuOpenSystems.MenuItems.Clear();
 			menuSaveSystems.MenuItems.Clear();
+#endif
 
 			string[] manSysList = instance.getSupportedManagementSystemsList();
 
 			for (int i=0;i < manSysList.Length;i++)
 			{
+#if dotNETCore
+				System.Windows.Forms.ToolStripMenuItem item = new ToolStripMenuItem(manSysList[i], null, new EventHandler(menuECGMSOpen_Click));
+
+				menuOpenSystems.DropDownItems.Add(item);
+
+				if (instance.hasECGManagementSystemSaveSupport(i))
+				{
+					item = new ToolStripMenuItem(manSysList[i], null, new EventHandler(menuECGMSSave_Click));
+
+					menuSaveSystems.DropDownItems.Add(item);
+				}
+#else
 				System.Windows.Forms.MenuItem item = new MenuItem(manSysList[i], new EventHandler(menuECGMSOpen_Click));
 
 				menuOpenSystems.MenuItems.Add(item);
@@ -939,26 +1251,43 @@ namespace ECGViewer
 
 					menuSaveSystems.MenuItems.Add(item);
 				}
+#endif
 			}
 
+#if dotNETCore
+			if (menuOpenSystems.DropDownItems.Count > 0)
+#else
 			if (menuOpenSystems.IsParent)
+#endif
 			{
 				menuOpenSystems.Enabled = true;
 			}
 			else
 			{
 				menuOpenSystems.Enabled = false;
-				menuOpenSystems.MenuItems.Add(new MenuItem("(none)"));
+#if dotNETCore
+				menuOpenSystems.DropDownItems.Add(new ToolStripMenuItem("(none)"));
+#else
+                menuOpenSystems.MenuItems.Add(new MenuItem("(none)"));
+#endif
 			}
 
+#if dotNETCore
+			if (menuSaveSystems.DropDownItems.Count > 0)
+#else
 			if (menuSaveSystems.IsParent)
+#endif
 			{
 				menuSaveSystems.Enabled = true;
 			}
 			else
 			{
 				menuSaveSystems.Enabled = false;
-				menuSaveSystems.MenuItems.Add(new MenuItem("(none)"));
+#if dotNETCore
+				menuSaveSystems.DropDownItems.Add(new ToolStripMenuItem("(none)"));
+#else
+                menuOpenSystems.MenuItems.Add(new MenuItem("(none)"));
+#endif
 			}
 		}
 
@@ -991,7 +1320,11 @@ namespace ECGViewer
 			}
 
 			this.ECGTimeScrollbar.Width = this.ECGPanel.Width = this.Width - (this.ECGPanel.Left * 2) - 20;
+#if dotNETCore
+			this.ECGPanel.Height = this.Height - this.ECGPanel.Top - 35 - this.statusBar.Height - this.ECGTimeScrollbar.Height;
+#else
 			this.ECGPanel.Height = this.Height - this.ECGPanel.Top - 60 - this.statusBar.Height - this.ECGTimeScrollbar.Height;
+#endif
 			this.ECGTimeScrollbar.Top = this.ECGPanel.Bottom;
 
 			this.InnerECGPanel.Height = this.ECGPanel.Height - this.InnerECGPanel.Top;
@@ -1221,9 +1554,14 @@ namespace ECGViewer
 
 		private void menuECGMSOpen_Click(object sender, System.EventArgs e)
 		{
+#if dotNETCore
+			if (sender is ToolStripMenuItem temp)
+			{
+#else
 			if (sender.GetType() == typeof(MenuItem))
 			{
 				System.Windows.Forms.MenuItem temp = (MenuItem) sender;
+#endif
 
 				if (!ECGConverter.Instance.hasECGManagementSystemSupport(temp.Text))
 					return;
@@ -1254,9 +1592,14 @@ namespace ECGViewer
 
 		private void menuECGMSSave_Click(object sender, System.EventArgs e)
 		{
+#if dotNETCore
+			if (sender is ToolStripMenuItem temp)
+			{
+#else
 			if (sender.GetType() == typeof(MenuItem))
 			{
 				System.Windows.Forms.MenuItem temp = (MenuItem) sender;
+#endif
 
 				if (!ECGConverter.Instance.hasECGManagementSystemSaveSupport(temp.Text))
 					return;
