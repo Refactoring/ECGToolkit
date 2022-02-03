@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ISHNE-core", "ISHNE\ISHNE-c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MUSEXML-core", "MUSEXML\MUSEXML-core.csproj", "{D58E678C-2DB1-450C-9D7C-04355D1A175A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmronECG-core", "OmronECG\OmronECG-core.csproj", "{7F99B27E-8E10-4CC7-B570-64406AC837FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D58E678C-2DB1-450C-9D7C-04355D1A175A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D58E678C-2DB1-450C-9D7C-04355D1A175A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D58E678C-2DB1-450C-9D7C-04355D1A175A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F99B27E-8E10-4CC7-B570-64406AC837FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F99B27E-8E10-4CC7-B570-64406AC837FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F99B27E-8E10-4CC7-B570-64406AC837FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F99B27E-8E10-4CC7-B570-64406AC837FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
