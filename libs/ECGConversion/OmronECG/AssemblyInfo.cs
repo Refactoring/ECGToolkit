@@ -25,12 +25,12 @@ using System.Runtime.CompilerServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("ECGConversion Omron ECG plug-in TEST")]
-[assembly: AssemblyDescription("Omron ECG plug-in for the framework ECG Conversion TEST")]
+[assembly: AssemblyTitle("ECGConversion Omron ECG plug-in")]
+[assembly: AssemblyDescription("Omron ECG plug-in for the framework ECG Conversion")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("van Ettinger Information Technology")]
+[assembly: AssemblyCompany("Thoraxcentrum, Erasmus MC")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands")]
+[assembly: AssemblyCopyright("Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 

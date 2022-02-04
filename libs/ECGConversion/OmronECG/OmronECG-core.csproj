@@ -2,14 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>OmronECG_core</RootNamespace>
-    <Product>ECGConversion Omron ECG plug-in TEST</Product>
-    <Description>Omron ECG plug-in for the framework ECG Conversion TEST</Description>
-    <Company>van Ettinger Information Technology</Company>
+    <RootNamespace>ECGConversion</RootNamespace>
+    <Product>ECGConversion Omron ECG plug-in</Product>
+    <Description>Omron ECG plug-in for the framework ECG Conversion</Description>
+    <Company>Thoraxcentrum, Erasmus MC</Company>
     <Copyright>Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands</Copyright>
     <AssemblyVersion>2.7.0.0</AssemblyVersion>
     <Version>2.7.0.0</Version>
     <AssemblyName>ECGCpluginOmronECG</AssemblyName>
+    <Authors>M.J.B. van Ettinger</Authors>
   </PropertyGroup>
 
   <ItemGroup>

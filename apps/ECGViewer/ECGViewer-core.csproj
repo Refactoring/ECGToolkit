@@ -8,9 +8,9 @@
     <AssemblyName>ECGViewer</AssemblyName>
     <Version>2.7.0.0</Version>
     <Authors>M.J.B. van Ettinger</Authors>
-    <Company>Thoraxcentrum, Erasmus MC, Rotterdam</Company>
+    <Company>Thoraxcentrum, Erasmus MC</Company>
     <Product>ECGViewer based on ECGConversion</Product>
-    <Copyright>Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
+    <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
     <Description>ECGViewer based on framework for ECG Conversion</Description>
     <StartupObject>ECGViewer.ECGViewer</StartupObject>
   </PropertyGroup>

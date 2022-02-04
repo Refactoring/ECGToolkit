@@ -27,9 +27,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("ECGConversion MUSE-XML plug-in")]
 [assembly: AssemblyDescription("MUSE-XML plug-in for the framework ECG Conversion")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("van Ettinger Information Technology")]
+[assembly: AssemblyCompany("Thoraxcentrum, Erasmus MC")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright 2019-2021, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands")]
+[assembly: AssemblyCopyright("Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
