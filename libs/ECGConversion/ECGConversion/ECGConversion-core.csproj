@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ECGConversion</RootNamespace>
     <PackageId>ECGConversion</PackageId>
     <Authors>M.J.B. van Ettinger</Authors>
@@ -10,9 +10,18 @@
     <Product>ECGConversion</Product>
     <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
     <NeutralLanguage>en-NL</NeutralLanguage>
-    <AssemblyVersion>2.7.0.0</AssemblyVersion>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <AssemblyName>ECGConversion</AssemblyName>
-    <Version>2.7.0.0</Version>
+    <Version>3.0.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE-2.0.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://sourceforge.net/projects/ecgtoolkit-cs/</PackageProjectUrl>
+    <PackageIcon>ecgtoolkit-icon.png</PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://git.code.sf.net/p/ecgtoolkit-cs/git</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>ECG Electrocardiogram EKG framework SCP-ECG CSV raw filters Butterworth ECGConversion</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,6 +30,10 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +42,17 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\package\ECGConversionToolkit\LICENSE-2.0.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="ecgtoolkit-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

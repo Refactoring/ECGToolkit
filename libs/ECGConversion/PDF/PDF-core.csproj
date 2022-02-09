@@ -1,21 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ECGConversion</RootNamespace>
     <AssemblyName>ECGCpluginPDF</AssemblyName>
     <Product>ECGConversion PDF plug-in</Product>
     <Description>PDF plug-in for the framework ECG Conversion</Description>
     <Authors>M.J.B. van Ettinger</Authors>
     <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
-    <Version>2.7.0.0</Version>
+    <Version>3.0.0.0</Version>
     <Company>Thoraxcentrum, Erasmus MC</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE-2.0.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://sourceforge.net/projects/ecgtoolkit-cs/</PackageProjectUrl>
+    <PackageIcon>ecgtoolkit-icon.png</PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://git.code.sf.net/p/ecgtoolkit-cs/git</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>ECG Electrocardiogram EKG plug-in PDF ECGConversion</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="libs\2.0\**" />
+    <Compile Remove="libs\net5.0\**" />
     <EmbeddedResource Remove="libs\2.0\**" />
+    <EmbeddedResource Remove="libs\net5.0\**" />
     <None Remove="libs\2.0\**" />
+    <None Remove="libs\net5.0\**" />
+    <None Include="..\..\..\package\ECGConversionToolkit\LICENSE-2.0.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\ECGConversion\ecgtoolkit-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="ecgtoolkit-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +58,8 @@
 
   <ItemGroup>
     <Reference Include="itextsharp">
-      <HintPath>libs\net5.0\itextsharp.dll</HintPath>
+      <HintPath>libs\netstandard2.0\itextsharp.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 

@@ -96,7 +96,7 @@ namespace ECGConversion.CSV
 		public CSVFormat()
 		{
 			string[]
-                poss = new string[] { "Calculate Leads", "Use Buffered Stream" };
+                poss = new string[] { "Calculate Leads", "Use Buffered Stream"/*, "Filter Bottom Cutoff", "Filter Top Cutoff", "Filter Number of Sections"*/ };
 
 			_Config = new ECGConfig(null, poss, null);
 
@@ -106,7 +106,50 @@ namespace ECGConversion.CSV
 			Empty();
         }
 
-        public override bool SupportsBufferedStream
+        /*private bool _ConfigurationWorks()
+        {
+            try
+            {
+                string sVal;
+                double
+                    fValA = double.NaN,
+                    fValB = double.NaN;
+                int nVal;
+
+                sVal = _Config["Filter Bottom Cutoff"];
+                if ((sVal != null)
+                && (sVal.Length > 0)
+                && (!double.TryParse(sVal, out fValA)
+                || (fValA <= 0.0)))
+                    return false;
+
+                sVal = _Config["Filter Top Cutoff"];
+                if ((sVal != null)
+                && (sVal.Length > 0)
+                && (!double.TryParse(sVal, out fValB)
+                || (fValB <= 0.0)))
+                    return false;
+
+                if (!double.IsNaN(fValA)
+                && !double.IsNaN(fValB)
+                && (fValA >= fValB))
+                    return false;
+
+                sVal = _Config["Filter Number of Sections"];
+                if ((sVal != null)
+                && (sVal.Length > 0)
+                && (!int.TryParse(sVal, out nVal)
+                || (nVal <= 0)))
+                    return false;
+
+                return true;
+            }
+            catch { }
+
+            return false;
+        }*/
+
+		public override bool SupportsBufferedStream
 		{
 			get
 			{
@@ -114,7 +157,31 @@ namespace ECGConversion.CSV
 			}
 		}
 
-        public override int Read(Stream input, int offset)
+        /*private Signals _ApplyFilter(Signals sigs, ref DSP.IFilter[] filters)
+        {
+            if (sigs != null)
+            {
+                if (!double.IsNaN(_FilterBottomCutoff))
+                {
+                    if (!double.IsNaN(_FilterTopCutoff))
+                    {
+                        sigs = sigs.ApplyBandpassFilter(_FilterBottomCutoff, _FilterTopCutoff, _FilterNumberSections, ref filters);
+                    }
+                    else
+                    {
+                        sigs = sigs.ApplyHighpassFilter(_FilterBottomCutoff, _FilterNumberSections, ref filters);
+                    }
+                }
+                else if (!double.IsNaN(_FilterTopCutoff))
+                {
+                    sigs = sigs.ApplyLowpassFilter(_FilterTopCutoff, _FilterNumberSections, ref filters);
+                }
+            }
+
+            return sigs;
+        }*/
+
+		public override int Read(Stream input, int offset)
 		{
 			return 1;
 		}

@@ -1,21 +1,47 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ECGConversion</RootNamespace>
     <AssemblyName>ECGCpluginDICOM</AssemblyName>
     <Product>ECGConversion DICOM ECG plug-in</Product>
     <Description>DICOM ECG plug-in for the framework ECG Conversion</Description>
     <Company>Thoraxcentrum, Erasmus MC</Company>
     <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2008-2012, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
-    <Version>2.7.0.0</Version>
+    <Version>3.0.0.0</Version>
     <Authors>M.J.B. van Ettinger</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE-2.0.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://sourceforge.net/projects/ecgtoolkit-cs/</PackageProjectUrl>
+    <PackageIcon>ecgtoolkit-icon.png</PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://git.code.sf.net/p/ecgtoolkit-cs/git</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>ECG Electrocardiogram EKG plug-in DICOM-ECG DICOM ECGConversion</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="libs\2.0\**" />
+    <Compile Remove="libs\net5.0\**" />
     <EmbeddedResource Remove="libs\2.0\**" />
+    <EmbeddedResource Remove="libs\net5.0\**" />
     <None Remove="libs\2.0\**" />
+    <None Remove="libs\net5.0\**" />
+    <None Include="..\..\..\package\ECGConversionToolkit\LICENSE-2.0.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="ecgtoolkit-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -23,13 +49,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ECGConversion\ECGConversion-core.csproj" />
+    <PackageReference Include="dicom-cs" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="dicomcs">
-      <HintPath>libs\net5.0\dicomcs.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\ECGConversion\ECGConversion-core.csproj" />
   </ItemGroup>
 
 </Project>
