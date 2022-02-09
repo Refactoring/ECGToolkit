@@ -6,7 +6,7 @@
     <RootNamespace>ECGViewer</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ECGViewer</AssemblyName>
-    <Version>2.7.0.0</Version>
+    <Version>3.0.0.0</Version>
     <Authors>M.J.B. van Ettinger</Authors>
     <Company>Thoraxcentrum, Erasmus MC</Company>
     <Product>ECGViewer based on ECGConversion</Product>
