@@ -63,4 +63,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Pack="True"
+             PackagePath="lib\netstandard2.0"
+             Include=".\libs\netstandard2.0\itextsharp.dll" />
+  </ItemGroup>
+
 </Project>
