@@ -710,7 +710,7 @@ namespace ECGConversion.DICOM
 
 		public int getSignalsToObj(Signals signals)
 		{
-			DcmElement waveformElement = _DICOMData.Get(Tags.WaveformSequence);
+			DcmElement waveformElement = _DICOMData != null ? _DICOMData.Get(Tags.WaveformSequence) : null;
 
 			try
 			{
