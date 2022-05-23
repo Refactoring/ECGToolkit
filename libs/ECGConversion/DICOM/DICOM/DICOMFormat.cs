@@ -655,6 +655,37 @@ namespace ECGConversion.DICOM
 			_DICOMData = new Dataset();
 		}
 
+        private static int[] _GetFromBuffer(org.dicomcs.util.ByteBuffer bb, int bits, bool littleEndian)
+        {
+            if (bb != null)
+            {
+                int[] data = null;
+                byte[] buff = new byte[bb.Length];
+
+                bb.Read(buff, 0, buff.Length);
+
+                bb.Seek(0, SeekOrigin.Begin);
+
+                if (buff != null)
+                {
+                    int bytes = bits >> 3;
+
+                    if ((bits % 8) != 0) bytes++;
+
+                    data = new int[buff.Length / bytes];
+
+                    for (int i = 0, offset = 0; offset < buff.Length; i++, offset += bytes)
+                    {
+                        data[i] = (int)Communication.IO.Tools.BytesTool.readBytes(buff, offset, bytes, littleEndian);
+                    }
+                }
+
+                return data;
+            }
+
+            return null;
+        }
+
 		#region IDisposable Members
 		public override void Dispose()
 		{
@@ -666,16 +697,16 @@ namespace ECGConversion.DICOM
 
 		#region ISignal Members
 
-		public int getSignals(out Signals signals)
-		{
-			signals = new Signals();
-			int err = getSignalsToObj(signals);
-			if (err != 0)
-			{
-				signals = null;
-			}
-			return err;
-		}
+        public int getSignals(out Signals signals)
+        {
+            signals = new Signals();
+            int err = getSignalsToObj(signals);
+            if (err != 0)
+            {
+                signals = null;
+            }
+            return err;
+        }
 
 		public int getSignalsToObj(Signals signals)
 		{
@@ -695,39 +726,83 @@ namespace ECGConversion.DICOM
                     int nrSamples = (int) waveformSet.GetInteger(Tags.NumberOfWaveformSamples);
 					signals.RhythmSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
 
-					int ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefinitionSequence), waveformSet.GetInts(Tags.WaveformData), nrSamples, false);
+                    DcmElement waveElement = waveformSet.Get(Tags.WaveformData);
 
-					if (ret != 0)
-						return (ret > 0 ? 2 + ret : ret);
+                    if (waveElement != null)
+                    {
+                        int[] data = null;
 
-					DcmElement element = waveformSet.Get(Tags.WaveformPaddingValue);
+                        if (waveElement.vr() == org.dicomcs.dict.VRs.OW)
+                        {
+                            data = waveElement.Ints;
+                        }
+                        else
+                        {
+                            data = _GetFromBuffer(waveElement.GetByteBuffer(), waveformSet.GetInt(Tags.WaveformBitsAllocated, 16), string.Compare(_DICOMData.GetString(Tags.TransferSyntaxUID), UIDs.ExplicitVRBigEndianRetired, true) != 0);
+                        }
 
-					try
-					{
-						if (element != null)
-							signals.TrimSignals((short) element.Int);
-					}
-					catch {}
+                        int ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefinitionSequence), data, nrSamples, false);
 
-					if (waveformElement.vm() == 2)
-					{
-						waveformSet = waveformElement.GetItem(1);
+                        if (ret != 0)
+                            return (ret > 0 ? 2 + ret : ret);
 
-						if ((string.Compare(waveformSet.GetString(Tags.WaveformOriginality), "DERIVED", true) == 0)
-						&&	(signals.NrLeads == waveformSet.GetInteger(Tags.NumberOfWaveformChannels)))
-						{
-							nrSamples = (int) waveformSet.GetInteger(Tags.NumberOfWaveformSamples);
-							signals.MedianSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
-							signals.MedianLength = (ushort) ((1000 * nrSamples) / signals.MedianSamplesPerSecond);
+                        DcmElement element = waveformSet.Get(Tags.WaveformPaddingValue);
 
-							ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefinitionSequence), waveformSet.GetInts(Tags.WaveformData), nrSamples, true);
+                        try
+                        {
+                            if (element != null)
+                            {
+                                int[] temp = _GetFromBuffer(element.GetByteBuffer(), waveformSet.GetInt(Tags.WaveformBitsAllocated, 16), string.Compare(_DICOMData.GetString(Tags.TransferSyntaxUID), UIDs.ExplicitVRBigEndianRetired, true) != 0);
 
-							if (ret != 0)
-								return (ret > 0 ? 2 + ret : ret);
-						}
-					}
+                                if ((temp != null)
+                                && (temp.Length >= 1))
+                                {
+                                    signals.TrimSignals((short)temp[0]);
+                                }
+                                else
+                                {
+                                    signals.TrimSignals((short)element.Int);
+                                }
+                            }
+                        }
+                        catch { }
 
-					return 0;
+                        if (waveformElement.vm() == 2)
+                        {
+                            waveformSet = waveformElement.GetItem(1);
+
+                            if ((string.Compare(waveformSet.GetString(Tags.WaveformOriginality), "DERIVED", true) == 0)
+                            && (signals.NrLeads == waveformSet.GetInteger(Tags.NumberOfWaveformChannels)))
+                            {
+                                nrSamples = (int)waveformSet.GetInteger(Tags.NumberOfWaveformSamples);
+                                signals.MedianSamplesPerSecond = ParseInt(waveformSet.GetString(Tags.SamplingFrequency));
+                                signals.MedianLength = (ushort)((1000 * nrSamples) / signals.MedianSamplesPerSecond);
+
+                                DcmElement medianElement = waveformSet.Get(Tags.WaveformData);
+
+                                if (waveElement != null)
+                                {
+                                    int[] medianData = null;
+
+                                    if (waveElement.vr() == org.dicomcs.dict.VRs.OW)
+                                    {
+                                        medianData = medianElement.Ints;
+                                    }
+                                    else
+                                    {
+                                        medianData = _GetFromBuffer(medianElement.GetByteBuffer(), waveformSet.GetInt(Tags.WaveformBitsAllocated, 16), string.Compare(_DICOMData.GetString(Tags.TransferSyntaxUID), UIDs.ExplicitVRBigEndianRetired, true) != 0);
+                                    }
+
+                                    ret = GetWaveform(signals, waveformSet.Get(Tags.ChannelDefinitionSequence), medianData, nrSamples, true);
+                                }
+
+                                if (ret != 0)
+                                    return (ret > 0 ? 2 + ret : ret);
+                            }
+                        }
+
+                        return 0;
+                    }
 				}
 			}
 			catch {}
