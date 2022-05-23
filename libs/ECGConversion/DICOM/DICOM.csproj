@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="libs\2.0\dicomcs.dll" />
-    <None Include="libs\2.0\log4net.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECGConversion\ECGConversion.csproj">
