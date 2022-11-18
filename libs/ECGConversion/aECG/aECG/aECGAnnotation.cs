@@ -49,7 +49,7 @@ namespace ECGConversion.aECG
 
 				if (sequence == 0)
 				{
-					if ((string.Compare(reader.Name, _InnerName, true) != 0)
+					if ((string.Compare(reader.Name, _InnerName, false) != 0)
 					||	(reader.NodeType != XmlNodeType.Element))
 						return 1;
 
@@ -62,7 +62,7 @@ namespace ECGConversion.aECG
 					if (ret != 0)
 						return (ret > 0) ? 2 + ret : ret;
 
-					if ((string.Compare(reader.Name, _InnerName, true) == 0)
+					if ((string.Compare(reader.Name, _InnerName, false) == 0)
 					&&	(reader.NodeType == XmlNodeType.EndElement))
 						sequence++;
 				}
