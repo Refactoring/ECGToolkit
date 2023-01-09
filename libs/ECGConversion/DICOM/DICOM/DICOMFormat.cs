@@ -780,11 +780,11 @@ namespace ECGConversion.DICOM
 
                                 DcmElement medianElement = waveformSet.Get(Tags.WaveformData);
 
-                                if (waveElement != null)
+                                if (medianElement != null)
                                 {
                                     int[] medianData = null;
 
-                                    if (waveElement.vr() == org.dicomcs.dict.VRs.OW)
+                                    if (medianElement.vr() == org.dicomcs.dict.VRs.OW)
                                     {
                                         medianData = medianElement.Ints;
                                     }
