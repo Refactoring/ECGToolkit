@@ -1,4 +1,5 @@
 /***************************************************************************
+Copyright 2024, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2013-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -602,6 +603,9 @@ namespace ECGConversion.SCP
 					return 8;
 				}
 
+                signals.RhythmAVM = rhythm.getAVM();
+                signals.RhythmSamplesPerSecond = rhythm.getSamplesPerSecond();
+
 				if ((medianData != null)
 				&&  (((SCPSection3) _Default[3]).isMediansUsed()))
 				{
@@ -630,9 +634,6 @@ namespace ECGConversion.SCP
 				}
 				else
 				{
-					signals.RhythmAVM = rhythm.getAVM();
-					signals.RhythmSamplesPerSecond = rhythm.getSamplesPerSecond();
-					
 					// Begin: special correction for SCP-ECG by corpuls (part 2)
 					if ((_Default[5] != null)
 					&&	_Default[5].Works())

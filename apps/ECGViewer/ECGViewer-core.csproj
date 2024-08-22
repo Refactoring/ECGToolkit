@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <RootNamespace>ECGViewer</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ECGViewer</AssemblyName>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;dotNETCore</DefineConstants>
+    <DefineConstants>dotNETCore</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

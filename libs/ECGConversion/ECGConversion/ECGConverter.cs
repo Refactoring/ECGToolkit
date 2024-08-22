@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2019-2024, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2013, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -29,6 +29,8 @@ using ECGConversion.ECGDemographics;
 using ECGConversion.ECGGlobalMeasurements;
 using ECGConversion.ECGSignals;
 using ECGConversion.ECGLeadMeasurements;
+using System.Text;
+using System.Runtime.InteropServices;
 
 namespace ECGConversion
 {
@@ -101,12 +103,27 @@ namespace ECGConversion
 			}
 		}
 
-		/// <summary>
-		/// constructor for ECGConverter
-		/// </summary>
-		private ECGConverter()
+#if dotNETCore
+        [DllImport("kernel32.dll")]
+        private static extern uint GetACP();
+#endif
+
+		public System.Text.Encoding DefaultEncoding = System.Text.Encoding.Default;
+
+        /// <summary>
+        /// constructor for ECGConverter
+        /// </summary>
+        private ECGConverter()
 		{
-			_SupportedFormats = new SortedList();
+#if dotNETCore
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            // Get the default Windows encoding
+            uint codePage = GetACP();
+            DefaultEncoding = Encoding.GetEncoding((int)codePage);
+#endif
+
+            _SupportedFormats = new SortedList();
 			_SupportedECGMS = new SortedList();
 
 			_SupportedFormats.Add("SCP-ECG", new ECGPlugin("SCP-ECG", "scp", typeof(SCP.SCPFormat), typeof(SCPReader), true, "ToSCP"));

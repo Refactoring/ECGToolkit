@@ -414,6 +414,7 @@ namespace ECGViewer
                 if (_CurrentECG != null)
                 {
                     _CurrentECG.Dispose();
+                    _CurrentECG = null;
                 }
 
 				if(components != null)

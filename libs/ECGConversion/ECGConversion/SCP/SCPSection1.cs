@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2019-2024, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 Copyright 2013-2014, van Ettinger Information Technology, Lopik, The Netherlands
 Copyright 2004-2005,2008-2009, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
@@ -414,7 +414,7 @@ namespace ECGConversion.SCP
 		/// <returns>0 if successfull</returns>
 		public int getLanguageSupportCode(out System.Text.Encoding enc)
 		{
-			enc = System.Text.Encoding.Default;
+			enc = ECGConverter.Instance.DefaultEncoding;
 
 			int p = _SearchField(14);
 			if ((p >= 0)

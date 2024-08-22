@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright 2004,2008,2019, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
+Copyright 2004,2008,2019,2024, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ namespace ECGConversion.SCP
 		private static int _ReservedLength = 6;
 
 		// encoding of scp file
-		protected System.Text.Encoding _Encoding = System.Text.Encoding.Default;
+		protected System.Text.Encoding _Encoding = ECGConverter.Instance.DefaultEncoding;
 		
 		// Content of Header of section.
 		protected ushort CRC;

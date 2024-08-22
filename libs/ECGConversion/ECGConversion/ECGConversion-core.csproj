@@ -8,11 +8,11 @@
     <Description>a framework for converting of ECGs</Description>
     <Company>Thoraxcentrum, Erasmus MC</Company>
     <Product>ECGConversion</Product>
-    <Copyright>Copyright 2019-2022, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
+    <Copyright>Copyright 2019-2024, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands\nCopyright 2012-2014, van Ettinger Information Technology, Lopik, The Netherlands\nCopyright 2004-2010, Thoraxcentrum, Erasmus MC, Rotterdam, The Netherlands</Copyright>
     <NeutralLanguage>en-NL</NeutralLanguage>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
     <AssemblyName>ECGConversion</AssemblyName>
-    <Version>3.0.0.0</Version>
+    <Version>3.1.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE-2.0.txt</PackageLicenseFile>
     <PackageProjectUrl>https://sourceforge.net/projects/ecgtoolkit-cs/</PackageProjectUrl>
@@ -26,10 +26,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;dotNETCore</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>dotNETCore</DefineConstants>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <ErrorReport>prompt</ErrorReport>
     <DebugType>none</DebugType>
@@ -41,7 +43,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
