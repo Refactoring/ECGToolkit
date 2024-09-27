@@ -763,6 +763,7 @@ namespace ECGConversion.DICOM
                 _DICOMData.PutLT(Tags.VisitComments, "");
                 _DICOMData.PutLO(Tags.ReasonForTheRequestedProcedure, "");
                 _DICOMData.PutLO(Tags.MIMETypeOfEncapsulatedDocument, @"application\pdf");
+                _DICOMData.PutLO(Tags.DocumentTitle, "");
 
                 if ((_InsideFormat != null)
                 &&  (_InsideFormat.Demographics != null))
