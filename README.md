@@ -16,7 +16,7 @@ C# ECG Toolkit is an open source software toolkit to convert, view and print ele
 - PDF
 - OmronECG
 
-> Migrating from SourceForge [CVS repository](http://ecgtoolkit-cs.sourceforge.net/), 2016-6-12.  
-> Merge all commits prior to 2019-12-2。
-> Merge all commits prior to 2024-09-27。
-[Ecgtoolkit-cs](https://sourceforge.net/p/ecgtoolkit-cs/git/ci/master/tree/) project revived, go to sourceforge for the latest source code。
+> Migrating from SourceForge [CVS repository](http://ecgtoolkit-cs.sourceforge.net/), 2016-6-12. 
+> Merge all commits prior to 2019-12-2。 
+> Merge all commits prior to 2024-09-27。 
+[Ecgtoolkit-cs](https://sourceforge.net/p/ecgtoolkit-cs/git/ci/master/tree/) project revived, go to sourceforge for the latest source code。 
